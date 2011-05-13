@@ -1,6 +1,6 @@
 package com.bugull.mongo;
 
-import com.bugull.mongo.annotations.Document;
+import com.bugull.mongo.annotations.Entity;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -21,8 +21,8 @@ public class BuguDao {
     
     public BuguDao(Class<?> clazz){
         this.clazz = clazz;
-        Document document = clazz.getAnnotation(Document.class);
-        String name = document.name();
+        Entity entity = clazz.getAnnotation(Entity.class);
+        String name = entity.name();
         coll = BuguConnection.getInstance().getDB().getCollection(name);
     }
     
