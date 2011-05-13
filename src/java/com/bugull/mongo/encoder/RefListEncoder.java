@@ -1,8 +1,8 @@
 package com.bugull.mongo.encoder;
 
 import com.bugull.mongo.BuguEntity;
+import com.bugull.mongo.BuguMapper;
 import com.bugull.mongo.annotations.RefList;
-import com.bugull.mongo.ref.RefUtil;
 import com.mongodb.DBRef;
 import java.lang.reflect.Field;
 import java.util.LinkedList;
@@ -36,7 +36,7 @@ public class RefListEncoder extends AbstractEncoder{
         List<BuguEntity> list = (List<BuguEntity>)value;
         List<DBRef> result = new LinkedList<DBRef>();
         for(BuguEntity entity : list){
-            result.add(RefUtil.toDBRef(entity));
+            result.add(new BuguMapper().toDBRef(entity));
         }
         return result;
     }

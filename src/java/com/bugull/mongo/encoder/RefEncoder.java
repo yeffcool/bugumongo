@@ -1,8 +1,8 @@
 package com.bugull.mongo.encoder;
 
 import com.bugull.mongo.BuguEntity;
+import com.bugull.mongo.BuguMapper;
 import com.bugull.mongo.annotations.Ref;
-import com.bugull.mongo.ref.RefUtil;
 import java.lang.reflect.Field;
 
 /**
@@ -31,7 +31,7 @@ public class RefEncoder extends AbstractEncoder{
     @Override
     public Object encode(){
         BuguEntity entity = (BuguEntity)value;
-        return RefUtil.toDBRef(entity);
+        return new BuguMapper().toDBRef(entity);
     }
     
 }
