@@ -15,11 +15,9 @@ public class IndexInsertThread implements Runnable {
     
     private final static Logger logger = Logger.getLogger(IndexInsertThread.class);
     
-    private String id;
     private BuguEntity obj;
     
-    public IndexInsertThread(BuguEntity obj, String id){
-        this.id = id;
+    public IndexInsertThread(BuguEntity obj){
         this.obj = obj;
     }
 
@@ -32,7 +30,7 @@ public class IndexInsertThread implements Runnable {
         IndexWriter writer = cache.get(name);
         Document doc = new Document();
         IndexCreater creater = new IndexCreater(obj);
-        creater.process(doc, id);
+        creater.process(doc, obj.getId());
         try{
             writer.addDocument(doc);
             writer.optimize();

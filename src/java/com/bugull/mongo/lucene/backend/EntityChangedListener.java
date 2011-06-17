@@ -8,15 +8,15 @@ import com.bugull.mongo.BuguEntity;
  */
 public class EntityChangedListener {
     
-    public void entityInsert(BuguEntity obj, String id){
-        IndexInsertThread thread = new IndexInsertThread(obj, id);
+    public void entityInsert(BuguEntity obj){
+        IndexInsertThread thread = new IndexInsertThread(obj);
         new Thread(thread).start();
     }
     
     public void entityUpdate(BuguEntity obj){
         String id = obj.getId();
         entityRemove(obj.getClass(), id);
-        entityInsert(obj, id);
+        entityInsert(obj);
     }
     
     public void entityRemove(Class<?> clazz, String id){

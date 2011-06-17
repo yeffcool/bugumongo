@@ -61,8 +61,10 @@ public class BuguDao {
     public void insert(BuguEntity obj){
         DBObject dbo = toDBObject(obj);
         coll.insert(dbo);
+        String id = dbo.get("_id").toString();
+        obj.setId(id);
         if(listener != null){
-            listener.entityInsert(obj, dbo.get("_id").toString());
+            listener.entityInsert(obj);
         }
     }
     
