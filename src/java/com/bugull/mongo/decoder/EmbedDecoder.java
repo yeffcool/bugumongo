@@ -21,6 +21,14 @@ public class EmbedDecoder extends AbstractDecoder{
     @Override
     public void decode(Object obj){
         Object embedObj = dbo.get(getFieldName());
+        if(embedObj == null){
+            try{
+                field.set(obj, null);
+            }catch(Exception e){
+                logger.error(e.getMessage());
+            }
+            return;
+        }
         Object value = new BuguMapper().fromDBObject(field.getType(), (DBObject)embedObj);
         try{
             field.set(obj, value);

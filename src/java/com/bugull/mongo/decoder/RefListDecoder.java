@@ -30,7 +30,16 @@ public class RefListDecoder extends AbstractDecoder{
     
     @Override
     public void decode(Object obj){
-        List<DBRef> list = (List<DBRef>)dbo.get(getFieldName());
+        Object o = dbo.get(getFieldName());
+        if(o == null){
+            try{
+                field.set(obj, null);
+            }catch(Exception e){
+                logger.error(e.getMessage());
+            }
+            return;
+        }
+        List<DBRef> list = (List<DBRef>)o;
         List result = new LinkedList();
         ParameterizedType type = (ParameterizedType)field.getGenericType();
         Type[] types = type.getActualTypeArguments();

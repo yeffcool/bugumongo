@@ -26,7 +26,16 @@ public class RefDecoder extends AbstractDecoder{
     
     @Override
     public void decode(Object obj){
-        DBRef dbRef = (DBRef)dbo.get(getFieldName());
+        Object o = dbo.get(getFieldName());
+        if(o == null){
+            try{
+                field.set(obj, null);
+            }catch(Exception e){
+                logger.error(e.getMessage());
+            }
+            return;
+        }
+        DBRef dbRef = (DBRef)o;
         String refId = dbRef.getId().toString();
         Class<?> clazz = field.getType();
         BuguEntity refObj = null;
