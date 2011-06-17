@@ -22,10 +22,10 @@ import org.bson.types.ObjectId;
 public class BuguMapper {
     
     public Object fromDBObject(Class clazz, DBObject dbo){
-        Object obj = ConstructorCache.getInstance().createObject(clazz);
-        Field[] fields = FieldsCache.getInstance().getFields(clazz);
+        Object obj = ConstructorCache.getInstance().create(clazz);
+        Field[] fields = FieldsCache.getInstance().get(clazz);
         for(Field field : fields){
-            Decoder decoder = DecoderFactory.createDecoder(field, dbo);
+            Decoder decoder = DecoderFactory.create(field, dbo);
             decoder.decode(obj);
         }
         return obj;
@@ -34,9 +34,9 @@ public class BuguMapper {
     public DBObject toDBObject(Object obj){
         DBObject dbo = new BasicDBObject();
         Class<?> clazz = obj.getClass();
-        Field[] fields = FieldsCache.getInstance().getFields(clazz);
+        Field[] fields = FieldsCache.getInstance().get(clazz);
         for(Field field : fields){
-            Encoder encoder = EncoderFactory.createEncoder(obj, field);
+            Encoder encoder = EncoderFactory.create(obj, field);
             if(!encoder.isNullField()){
                 dbo.put(encoder.getFieldName(), encoder.encode());
             }

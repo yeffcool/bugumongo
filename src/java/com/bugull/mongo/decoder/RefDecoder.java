@@ -31,11 +31,11 @@ public class RefDecoder extends AbstractDecoder{
         Class<?> clazz = field.getType();
         BuguEntity refObj = null;
         if(ref.lazy()){
-            refObj = (BuguEntity)ConstructorCache.getInstance().createObject(clazz);
+            refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
             refObj.setId(refId);
         }else{
-            BuguDao buguService = new BuguDao(clazz);
-            refObj = (BuguEntity)buguService.findOne(refId);
+            BuguDao buguDao = new BuguDao(clazz);
+            refObj = (BuguEntity)buguDao.findOne(refId);
         }
         try{
             field.set(obj, refObj);

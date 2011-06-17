@@ -90,20 +90,6 @@ public class PropertyDecoder extends AbstractDecoder{
             }
             field.set(obj, arr);
         }
-        else if(typeName.equals("short") || typeName.equals("java.lang.Short")){
-            short[] arr = new short[size];
-            for(int i=0; i<size; i++){
-                arr[i] = Short.parseShort(list.get(i).toString());
-            }
-            field.set(obj, arr);
-        }
-        else if(typeName.equals("byte") || typeName.equals("java.lang.Byte")){
-            byte[] arr = new byte[size];
-            for(int i=0; i<size; i++){
-                arr[i] = Byte.parseByte(list.get(i).toString());
-            }
-            field.set(obj, arr);
-        }
         else if(typeName.equals("java.util.Date")){
             Date[] arr = new Date[size];
             for(int i=0; i<size; i++){
@@ -131,12 +117,6 @@ public class PropertyDecoder extends AbstractDecoder{
         }        
         else if(typeName.equals("char") || typeName.equals("java.lang.Character")){
             field.setChar(obj, value.toString().charAt(0));
-        }
-        else if(typeName.equals("short") || typeName.equals("java.lang.Short")){
-            field.setShort(obj, Short.parseShort(value.toString()));
-        }
-        else if(typeName.equals("byte") || typeName.equals("java.lang.Byte")){
-            field.setByte(obj, Byte.parseByte(value.toString()));
         }
         else if(typeName.equals("java.util.Set")){
             List list = (ArrayList)value;

@@ -14,7 +14,7 @@ import java.lang.reflect.Field;
  */
 public class DecoderFactory {
     
-    public static Decoder createDecoder(Field field, DBObject dbo){
+    public static Decoder create(Field field, DBObject dbo){
         Decoder decoder = null;
         if(field.getAnnotations().length == 0 || field.getAnnotation(Property.class) != null){
             decoder = new PropertyDecoder(field, dbo);

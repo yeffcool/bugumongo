@@ -1,6 +1,8 @@
 package com.bugull.mongo;
 
 import com.bugull.mongo.annotations.Entity;
+import com.bugull.mongo.lucene.annotations.Indexed;
+import com.bugull.mongo.lucene.backend.EntityChangedListener;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -16,14 +18,19 @@ import org.bson.types.ObjectId;
  */
 public class BuguDao {
     
-    protected DBCollection coll;
-    protected Class<?> clazz;
+    private DBCollection coll;
+    private Class<?> clazz;
+    private EntityChangedListener listener;
     
     public BuguDao(Class<?> clazz){
         this.clazz = clazz;
         Entity entity = clazz.getAnnotation(Entity.class);
         String name = entity.name();
         coll = BuguConnection.getInstance().getDB().getCollection(name);
+        //for lucene
+        if(clazz.getAnnotation(Indexed.class) != null){
+            listener = new EntityChangedListener();
+        }
     }
     
     private Object fromDBObject(DBObject dbo){
@@ -51,18 +58,39 @@ public class BuguDao {
         return list;
     }
     
-    public void save(Object obj){
-        coll.save(toDBObject(obj));
+    public void insert(BuguEntity obj){
+        DBObject dbo = toDBObject(obj);
+        coll.insert(dbo);
+        if(listener != null){
+            listener.entityInsert(obj, dbo.get("_id").toString());
+        }
     }
     
-    public void remove(Object obj){
+    public void save(BuguEntity obj){
+        if(obj.getId() == null){
+            insert(obj);
+        }else{
+            coll.save(toDBObject(obj));
+            if(listener != null){
+                listener.entityUpdate(obj);
+            }
+        }
+    }
+    
+    public void remove(BuguEntity obj){
         coll.remove(toDBObject(obj));
+        if(listener != null){
+            listener.entityRemove(clazz, obj.getId());
+        }
     }
 
     public void remove(String id){
         DBObject dbo = new BasicDBObject();
         dbo.put("_id", new ObjectId(id));
         coll.remove(dbo);
+        if(listener != null){
+            listener.entityRemove(clazz, id);
+        }
     }
     
     public Object findOne(String id){

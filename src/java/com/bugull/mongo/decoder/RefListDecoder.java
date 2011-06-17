@@ -37,7 +37,7 @@ public class RefListDecoder extends AbstractDecoder{
         Class clazz = (Class)types[0];
         if(refList.lazy()){
             for(DBRef dbRef : list){
-                BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().createObject(clazz);
+                BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
                 refObj.setId(dbRef.getId().toString());
                 result.add(refObj);
             } 

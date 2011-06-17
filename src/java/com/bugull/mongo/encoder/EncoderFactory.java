@@ -13,7 +13,7 @@ import java.lang.reflect.Field;
  */
 public class EncoderFactory {
     
-    public static Encoder createEncoder(Object obj, Field field){
+    public static Encoder create(Object obj, Field field){
         Encoder encoder = null;
         if(field.getAnnotations().length == 0 || field.getAnnotation(Property.class) != null){
             encoder = new PropertyEncoder(obj, field);

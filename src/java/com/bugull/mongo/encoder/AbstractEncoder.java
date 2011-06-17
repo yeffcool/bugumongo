@@ -90,20 +90,6 @@ public abstract class AbstractEncoder implements Encoder{
             }
             value = arr;
         }
-        else if(typeName.equals("short") || typeName.equals("java.lang.Short")){
-            short[] arr = new short[len];
-            for(int i=0; i<len; i++){
-                arr[i] = Array.getShort(o, i);
-            }
-            value = arr;
-        }
-        else if(typeName.equals("byte") || typeName.equals("java.lang.Byte")){
-            byte[] arr = new byte[len];
-            for(int i=0; i<len; i++){
-                arr[i] = Array.getByte(o, i);
-            }
-            value = arr;
-        }
         else if(typeName.equals("java.util.Date")){
             Date[] arr = new Date[len];
             for(int i=0; i<len; i++){
@@ -131,12 +117,6 @@ public abstract class AbstractEncoder implements Encoder{
         }
         else if(typeName.equals("char") || typeName.equals("java.lang.Character")){
             value = String.valueOf(field.getChar(obj));
-        }
-        else if(typeName.equals("short") || typeName.equals("java.lang.Short")){
-            value = field.getShort(obj);
-        }
-        else if(typeName.equals("byte") || typeName.equals("java.lang.Byte")){
-            value = field.getByte(obj);
         }
         else{
             value = field.get(obj);

@@ -1,5 +1,6 @@
 package com.bugull.mongo.cache;
 
+import com.bugull.mongo.annotations.Id;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.LinkedList;
@@ -60,7 +61,7 @@ public class FieldsCache {
         return result;
     }
     
-    public Field[] getFields(Class<?> clazz){
+    public Field[] get(Class<?> clazz){
         Field[] fields = null;
         String name = clazz.getName();
         if(cache.containsKey(name)){
@@ -70,6 +71,18 @@ public class FieldsCache {
             cache.put(name, fields);
         }
         return fields;
+    }
+    
+    public String getIdFieldName(Class<?> clazz){
+        String name = null;
+        Field[] fields = get(clazz);
+        for(Field f : fields){
+            if(f.getAnnotation(Id.class) != null){
+                name = f.getName();
+                break;
+            }
+        }
+        return name;
     }
     
 }

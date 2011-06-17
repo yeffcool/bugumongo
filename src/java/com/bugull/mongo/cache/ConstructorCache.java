@@ -28,7 +28,7 @@ public class ConstructorCache {
         return instance;
     }
     
-    private Constructor getConstructor(Class<?> clazz){
+    private Constructor get(Class<?> clazz){
         Constructor cons = null;
         String name = clazz.getName();
         if(cache.containsKey(name)){
@@ -45,9 +45,9 @@ public class ConstructorCache {
         return cons;
     }
     
-    public Object createObject(Class<?> clazz){
+    public Object create(Class<?> clazz){
         Object obj = null;
-        Constructor cons = getConstructor(clazz);
+        Constructor cons = get(clazz);
         Object[] args = null;
         try {
             obj = cons.newInstance(args);
