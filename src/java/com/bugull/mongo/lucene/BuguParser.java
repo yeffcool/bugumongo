@@ -1,8 +1,10 @@
 package com.bugull.mongo.lucene;
 
+import java.util.Date;
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
@@ -23,6 +25,16 @@ public class BuguParser {
     public Query parse(String[] fields, String value){
         QueryParser parser = new MultiFieldQueryParser(Version.LUCENE_32, fields, BuguIndex.getInstance().getAnalyzer());
         return parse(parser, value);
+    }
+    
+    public Query parse(String[] fields, BooleanClause.Occur[] occurs, String value){
+        Query query = null;
+        try{
+            query = MultiFieldQueryParser.parse(Version.LUCENE_32, value, fields, occurs, BuguIndex.getInstance().getAnalyzer());
+        }catch(Exception e){
+            logger.error(e.getMessage());
+        }
+        return query;
     }
     
     private Query parse(QueryParser parser, String value){
@@ -65,6 +77,24 @@ public class BuguParser {
     
     public Query parse(String field, double minValue, double maxValue){
         return NumericRangeQuery.newDoubleRange(field, minValue, maxValue, true, true);
+    }
+    
+    public Query parse(String field, Date begin, Date end){
+        long beginTime = begin.getTime();
+        long endTime = end.getTime();
+        return parse(field, beginTime, endTime);
+    }
+    
+    public Query parse(String field, boolean value){
+        if(value){
+            return parse(field, "true");
+        }else{
+            return parse(field, "false");
+        }
+    }
+    
+    public Query parse(String field, char value){
+        return parse(field, String.valueOf(value));
     }
     
 }
