@@ -14,7 +14,7 @@ public class DirectoryFactory {
     private final static Logger logger = Logger.getLogger(DirectoryFactory.class);
     
     public final static int TYPE_FS = 1;
-    public final static int TYPE_MONGO = 2;
+    public final static int TYPE_DB = 2;
     
     public static Directory create(int type, String path, String name){
         Directory dir = null;
@@ -26,7 +26,8 @@ public class DirectoryFactory {
                     logger.error(e);
                 }
                 break;
-            case TYPE_MONGO:
+            case TYPE_DB:
+                //待实现
                 break;
             default:
                 break;

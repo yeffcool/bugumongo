@@ -1,11 +1,8 @@
 package com.bugull.mongo.lucene;
 
-import com.bugull.mongo.annotations.Entity;
-import com.bugull.mongo.cache.IndexSearcherCache;
 import com.bugull.mongo.lucene.backend.IndexReopenTask;
 import java.util.Timer;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.search.IndexSearcher;
 
 /**
  *
@@ -42,11 +39,6 @@ public class BuguIndex {
         if(timer != null){
             timer.cancel();
         }
-    }
-    
-    public IndexSearcher getIndexSearcher(Class<?> clazz){
-        Entity entity = clazz.getAnnotation(Entity.class);
-        return IndexSearcherCache.getInstance().get(entity.name());
     }
 
     public Analyzer getAnalyzer() {

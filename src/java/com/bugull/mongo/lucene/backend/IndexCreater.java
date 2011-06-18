@@ -22,9 +22,16 @@ public class IndexCreater {
     private final static Logger logger = Logger.getLogger(IndexCreater.class);
     
     private Object obj;
+    private String prefix;
     
     public IndexCreater(Object obj){
         this.obj = obj;
+        prefix = "";
+    }
+    
+    public IndexCreater(Object obj, String prefix){
+        this.obj = obj;
+        this.prefix = prefix + ".";
     }
     
     public void process(Document doc){
@@ -60,7 +67,7 @@ public class IndexCreater {
     
     private void processIndexProperty(Document doc, java.lang.reflect.Field f) throws Exception{
         Class<?> type = f.getType();
-        String fieldName = f.getName();
+        String fieldName = prefix + f.getName();
         String typeName = type.getName();
         if(typeName.equals("java.lang.String")){
             IndexProperty ip = f.getAnnotation(IndexProperty.class);
@@ -105,7 +112,8 @@ public class IndexCreater {
     
     private void processIndexEmbed(Document doc, java.lang.reflect.Field f) throws Exception{
         Object embedObj = f.get(obj);
-        IndexCreater creater = new IndexCreater(embedObj);
+        String fieldName = prefix + f.getName();
+        IndexCreater creater = new IndexCreater(embedObj, fieldName);
         creater.process(doc);
     }
     
@@ -114,7 +122,8 @@ public class IndexCreater {
         String refId = entity.getId();
         BuguDao buguDao = new BuguDao(f.getType());
         Object refObj = buguDao.findOne(refId);
-        IndexCreater creater = new IndexCreater(refObj);
+        String fieldName = prefix + f.getName();
+        IndexCreater creater = new IndexCreater(refObj, fieldName);
         creater.process(doc);
     }
     
