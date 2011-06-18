@@ -15,10 +15,7 @@ public class EncoderFactory {
     
     public static Encoder create(Object obj, Field field){
         Encoder encoder = null;
-        if(field.getAnnotations().length == 0 || field.getAnnotation(Property.class) != null){
-            encoder = new PropertyEncoder(obj, field);
-        }
-        else if(field.getAnnotation(Id.class) != null){
+        if(field.getAnnotation(Id.class) != null){
             encoder = new IdEncoder(obj, field);
         }
         else if(field.getAnnotation(Embed.class) != null){
@@ -29,6 +26,9 @@ public class EncoderFactory {
         }
         else if(field.getAnnotation(RefList.class) != null){
             encoder = new RefListEncoder(obj, field);
+        }
+        else{
+            encoder = new PropertyEncoder(obj, field);
         }
         return encoder;
     }

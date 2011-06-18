@@ -13,7 +13,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.TopFieldDocs;
+import org.apache.lucene.search.TopDocs;
 
 /**
  *
@@ -63,19 +63,23 @@ public class BuguSearcher {
     }
     
     public List search(){
-        TopFieldDocs tfd = null;
+        TopDocs topDocs = null;
         try{
-            tfd = searcher.search(query, maxPage*pageSize, sort);
+            if(sort == null){
+                topDocs = searcher.search(query, maxPage*pageSize);
+            }else{
+                topDocs = searcher.search(query, maxPage*pageSize, sort);
+            }
         }catch(Exception e){
             logger.error(e.getMessage());
         }
-        if(tfd == null){
+        if(topDocs == null){
             return Collections.emptyList();
         }
-        resultCount = tfd.totalHits;
+        resultCount = topDocs.totalHits;
+        ScoreDoc[] docs = topDocs.scoreDocs;
         List list = new LinkedList();
         BuguDao dao = new BuguDao(clazz);
-        ScoreDoc[] docs = tfd.scoreDocs;
         int begin = (pageNumber - 1) * pageSize;
         int end = begin + pageSize;
         if(end > resultCount){
