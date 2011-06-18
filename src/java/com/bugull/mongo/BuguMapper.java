@@ -26,7 +26,9 @@ public class BuguMapper {
         Field[] fields = FieldsCache.getInstance().get(clazz);
         for(Field field : fields){
             Decoder decoder = DecoderFactory.create(field, dbo);
-            decoder.decode(obj);
+            if(!decoder.isNullField()){
+                decoder.decode(obj);
+            }
         }
         return obj;
     }

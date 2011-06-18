@@ -26,16 +26,7 @@ public class RefDecoder extends AbstractDecoder{
     
     @Override
     public void decode(Object obj){
-        Object o = dbo.get(getFieldName());
-        if(o == null){
-            try{
-                field.set(obj, null);
-            }catch(Exception e){
-                logger.error(e.getMessage());
-            }
-            return;
-        }
-        DBRef dbRef = (DBRef)o;
+        DBRef dbRef = (DBRef)value;
         String refId = dbRef.getId().toString();
         Class<?> clazz = field.getType();
         BuguEntity refObj = null;
@@ -53,7 +44,8 @@ public class RefDecoder extends AbstractDecoder{
         }
     }
     
-    private String getFieldName(){
+    @Override
+    public String getFieldName(){
         String fieldName = field.getName();
         if(ref != null){
             String name = ref.name();

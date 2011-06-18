@@ -18,12 +18,16 @@ public class IdDecoder extends AbstractDecoder{
     
     @Override
     public void decode(Object obj){
-        String value = dbo.get("_id").toString();
         try{
-            field.set(obj, value);
+            field.set(obj, value.toString());
         }catch(Exception e){
             logger.error(e.getMessage());
         }
+    }
+    
+    @Override
+    public String getFieldName(){
+        return "_id";
     }
     
 }

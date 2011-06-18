@@ -20,24 +20,16 @@ public class EmbedDecoder extends AbstractDecoder{
     
     @Override
     public void decode(Object obj){
-        Object embedObj = dbo.get(getFieldName());
-        if(embedObj == null){
-            try{
-                field.set(obj, null);
-            }catch(Exception e){
-                logger.error(e.getMessage());
-            }
-            return;
-        }
-        Object value = new BuguMapper().fromDBObject(field.getType(), (DBObject)embedObj);
+        Object o = new BuguMapper().fromDBObject(field.getType(), (DBObject)value);
         try{
-            field.set(obj, value);
+            field.set(obj, o);
         }catch(Exception e){
             logger.error(e.getMessage());
         }
     }
     
-    private String getFieldName(){
+    @Override
+    public String getFieldName(){
         String fieldName = field.getName();
         Embed embed = field.getAnnotation(Embed.class);
         if(embed != null){

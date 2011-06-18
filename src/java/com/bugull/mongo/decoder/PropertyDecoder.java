@@ -24,18 +24,15 @@ public class PropertyDecoder extends AbstractDecoder{
     
     @Override
     public void decode(Object obj){
-        Object value = dbo.get(getFieldName());
         Class<?> type = field.getType();
-        if(value != null){
-            try{
-                if(type.isArray()){
-                    decodeArray(obj, (ArrayList)value, type.getComponentType().getName());
-                }else{
-                    decodePrimitive(obj, value, type.getName());
-                }
-            }catch(Exception e){
-                logger.error(e.getMessage());
+        try{
+            if(type.isArray()){
+                decodeArray(obj, (ArrayList)value, type.getComponentType().getName());
+            }else{
+                decodePrimitive(obj, type.getName());
             }
+        }catch(Exception e){
+            logger.error(e.getMessage());
         }
     }
     
@@ -99,7 +96,7 @@ public class PropertyDecoder extends AbstractDecoder{
         }
     }
     
-    private void decodePrimitive(Object obj, Object value, String typeName) throws Exception {
+    private void decodePrimitive(Object obj, String typeName) throws Exception {
         if(typeName.equals("int") || typeName.equals("java.lang.Integer")){
             field.setInt(obj, Integer.parseInt(value.toString()));
         }
@@ -128,7 +125,8 @@ public class PropertyDecoder extends AbstractDecoder{
         }
     }
     
-    private String getFieldName(){
+    @Override
+    public String getFieldName(){
         String fieldName = field.getName();
         Property property = field.getAnnotation(Property.class);
         if(property != null){

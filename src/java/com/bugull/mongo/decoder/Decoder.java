@@ -8,4 +8,8 @@ public interface Decoder {
     
     public void decode(Object obj);
     
+    public boolean isNullField();
+    
+    public String getFieldName();
+    
 }
