@@ -4,6 +4,7 @@ import com.bugull.mongo.cache.IndexSearcherCache;
 import com.bugull.mongo.cache.IndexWriterCache;
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
 
 /**
@@ -34,6 +35,9 @@ public class IndexReopenThread implements Runnable{
             long lastChange = writerCache.getLastChange(name);
             long lastOpen = searcherCache.getLastOpen(name);
             if(lastChange > lastOpen){
+                IndexWriter writer = writerCache.get(name);
+                writer.optimize();
+                writer.commit();
                 IndexReader newReader = searcher.getIndexReader().reopen();
                 IndexSearcher newSearcher = new IndexSearcher(newReader);
                 searcherCache.put(name, newSearcher);

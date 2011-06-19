@@ -14,9 +14,8 @@ public class EntityChangedListener {
     }
     
     public void entityUpdate(BuguEntity obj){
-        String id = obj.getId();
-        entityRemove(obj.getClass(), id);
-        entityInsert(obj);
+        IndexUpdateThread thread = new IndexUpdateThread(obj);
+        new Thread(thread).start();
     }
     
     public void entityRemove(Class<?> clazz, String id){

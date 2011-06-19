@@ -4,10 +4,9 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.util.Version;
 
 /**
  *
@@ -17,20 +16,27 @@ public class BuguParser {
     
     private final static Logger logger = Logger.getLogger(BuguParser.class);
     
+    private BuguIndex index;
+    
+    public BuguParser(){
+        index = BuguIndex.getInstance();
+    }
+    
     public Query parse(String field, String value){
-        QueryParser parser = new QueryParser(Version.LUCENE_32, field, BuguIndex.getInstance().getAnalyzer());
+        
+        QueryParser parser = new QueryParser(index.getVersion(), field, index.getAnalyzer());
         return parse(parser, value);
     }
     
     public Query parse(String[] fields, String value){
-        QueryParser parser = new MultiFieldQueryParser(Version.LUCENE_32, fields, BuguIndex.getInstance().getAnalyzer());
+        QueryParser parser = new MultiFieldQueryParser(index.getVersion(), fields, index.getAnalyzer());
         return parse(parser, value);
     }
     
-    public Query parse(String[] fields, BooleanClause.Occur[] occurs, String value){
+    public Query parse(String[] fields, Occur[] occurs, String value){
         Query query = null;
         try{
-            query = MultiFieldQueryParser.parse(Version.LUCENE_32, value, fields, occurs, BuguIndex.getInstance().getAnalyzer());
+            query = MultiFieldQueryParser.parse(index.getVersion(), value, fields, occurs, index.getAnalyzer());
         }catch(Exception e){
             logger.error(e.getMessage());
         }

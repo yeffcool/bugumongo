@@ -32,8 +32,6 @@ public class IndexRemoveThread implements Runnable{
         try{
             Term term = new Term(FieldsCache.getInstance().getIdFieldName(clazz), id);
             writer.deleteDocuments(term);
-            writer.optimize();
-            writer.commit();
             cache.putLastChange(name, System.currentTimeMillis());
         }catch(Exception e){
             logger.error(e.getMessage());

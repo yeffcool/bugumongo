@@ -29,12 +29,10 @@ public class IndexInsertThread implements Runnable {
         IndexWriterCache cache = IndexWriterCache.getInstance();
         IndexWriter writer = cache.get(name);
         Document doc = new Document();
-        IndexCreater creater = new IndexCreater(obj);
-        creater.process(doc, obj.getId());
+        IndexCreater creater = new IndexCreater(obj, obj.getId(), null);
+        creater.process(doc);
         try{
             writer.addDocument(doc);
-            writer.optimize();
-            writer.commit();
             cache.putLastChange(name, System.currentTimeMillis());
         }catch(Exception e){
             logger.error(e.getMessage());

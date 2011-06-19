@@ -23,34 +23,31 @@ public class IndexCreater {
     
     private Object obj;
     private String prefix;
+    private String id;
     
-    public IndexCreater(Object obj){
+    public IndexCreater(Object obj, String id, String prefix){
         this.obj = obj;
-        prefix = "";
-    }
-    
-    public IndexCreater(Object obj, String prefix){
-        this.obj = obj;
-        this.prefix = prefix + ".";
+        this.id = id;
+        if(prefix == null){
+            this.prefix = "";
+        }else{
+            this.prefix = prefix + ".";
+        }
     }
     
     public void process(Document doc){
-        process(doc, null);
-    }
-    
-    public void process(Document doc, String id){
         Class<?> clazz = obj.getClass();
         java.lang.reflect.Field[] fields = FieldsCache.getInstance().get(clazz);
         for(java.lang.reflect.Field f : fields){
             try{
-                processField(doc, f, id);
+                processField(doc, f);
             }catch(Exception e){
                 logger.error(e.getMessage());
             }
         }
     }
     
-    private void processField(Document doc, java.lang.reflect.Field f, String id) throws Exception{
+    private void processField(Document doc, java.lang.reflect.Field f) throws Exception{
         if(id != null && f.getAnnotation(Id.class) != null){
             doc.add(new Field(f.getName(), id, Field.Store.YES, Field.Index.NOT_ANALYZED));
         }
@@ -112,8 +109,7 @@ public class IndexCreater {
     
     private void processIndexEmbed(Document doc, java.lang.reflect.Field f) throws Exception{
         Object embedObj = f.get(obj);
-        String fieldName = prefix + f.getName();
-        IndexCreater creater = new IndexCreater(embedObj, fieldName);
+        IndexCreater creater = new IndexCreater(embedObj, null, prefix + f.getName());
         creater.process(doc);
     }
     
@@ -122,8 +118,7 @@ public class IndexCreater {
         String refId = entity.getId();
         BuguDao buguDao = new BuguDao(f.getType());
         Object refObj = buguDao.findOne(refId);
-        String fieldName = prefix + f.getName();
-        IndexCreater creater = new IndexCreater(refObj, fieldName);
+        IndexCreater creater = new IndexCreater(refObj, null, prefix + f.getName());
         creater.process(doc);
     }
     

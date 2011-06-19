@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.util.Version;
 
 /**
  *
@@ -42,7 +41,7 @@ public class IndexWriterCache {
         }else{
             BuguIndex index = BuguIndex.getInstance();
             Directory dir = DirectoryFactory.create(index.getDirectoryType(), index.getDirectoryPath(), name);
-            IndexWriterConfig conf = new IndexWriterConfig(Version.LUCENE_32, index.getAnalyzer());
+            IndexWriterConfig conf = new IndexWriterConfig(index.getVersion(), index.getAnalyzer());
             try{
                 writer = new IndexWriter(dir, conf);
             }catch(Exception e){
