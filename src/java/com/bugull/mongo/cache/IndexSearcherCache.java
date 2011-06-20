@@ -15,7 +15,7 @@ public class IndexSearcherCache {
     
     private final static Logger logger = Logger.getLogger(IndexSearcherCache.class);
     
-    private static IndexSearcherCache instance;
+    private static IndexSearcherCache instance = new IndexSearcherCache();
     
     private Map<String, IndexSearcher> cache;
     private Map<String, Long> lastOpen;
@@ -28,9 +28,6 @@ public class IndexSearcherCache {
     }
     
     public static IndexSearcherCache getInstance(){
-        if(instance == null){
-            instance = new IndexSearcherCache();
-        }
         return instance;
     }
     
@@ -39,15 +36,21 @@ public class IndexSearcherCache {
         if(cache.containsKey(name)){
             searcher = cache.get(name);
         }else{
-            IndexWriter writer = IndexWriterCache.getInstance().get(name);
-            IndexReader reader = null;
-            try{
-                reader = IndexReader.open(writer, true);
-            }catch(Exception e){
-                logger.error(e.getMessage());
+            synchronized(name){
+                if(cache.containsKey(name)){
+                    searcher = cache.get(name);
+                }else{
+                    IndexWriter writer = IndexWriterCache.getInstance().get(name);
+                    IndexReader reader = null;
+                    try{
+                        reader = IndexReader.open(writer, true);
+                    }catch(Exception e){
+                        logger.error(e.getMessage());
+                    }
+                    searcher = new IndexSearcher(reader);
+                    cache.put(name, searcher);
+                }
             }
-            searcher = new IndexSearcher(reader);
-            cache.put(name, searcher);
         }
         return searcher;
     }

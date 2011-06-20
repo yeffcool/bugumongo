@@ -13,7 +13,7 @@ public class ConstructorCache {
     
     private final static Logger logger = Logger.getLogger(ConstructorCache.class);
     
-    private static ConstructorCache instance;
+    private static ConstructorCache instance = new ConstructorCache();
     
     private Map<String, Constructor> cache;
     
@@ -22,9 +22,6 @@ public class ConstructorCache {
     }
     
     public static ConstructorCache getInstance(){
-        if(instance == null){
-            instance = new ConstructorCache();
-        }
         return instance;
     }
     

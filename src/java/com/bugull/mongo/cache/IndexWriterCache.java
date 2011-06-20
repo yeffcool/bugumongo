@@ -17,7 +17,7 @@ public class IndexWriterCache {
     
     private final static Logger logger = Logger.getLogger(IndexWriterCache.class);
     
-    private static IndexWriterCache instance;
+    private static IndexWriterCache instance = new IndexWriterCache();
     
     private Map<String, IndexWriter> cache;
     private Map<String, Long> lastChange;
@@ -28,9 +28,6 @@ public class IndexWriterCache {
     }
     
     public static IndexWriterCache getInstance(){
-        if(instance == null){
-            instance = new IndexWriterCache();
-        }
         return instance;
     }
     
@@ -39,15 +36,21 @@ public class IndexWriterCache {
         if(cache.containsKey(name)){
             writer = cache.get(name);
         }else{
-            BuguIndex index = BuguIndex.getInstance();
-            Directory dir = DirectoryFactory.create(index.getDirectoryType(), index.getDirectoryPath(), name);
-            IndexWriterConfig conf = new IndexWriterConfig(index.getVersion(), index.getAnalyzer());
-            try{
-                writer = new IndexWriter(dir, conf);
-            }catch(Exception e){
-                logger.error(e.getMessage());
+            synchronized(name){
+                if(cache.containsKey(name)){
+                    writer = cache.get(name);
+                }else{
+                    BuguIndex index = BuguIndex.getInstance();
+                    Directory dir = DirectoryFactory.create(index.getDirectoryType(), index.getDirectoryPath(), name);
+                    IndexWriterConfig conf = new IndexWriterConfig(index.getVersion(), index.getAnalyzer());
+                    try{
+                        writer = new IndexWriter(dir, conf);
+                    }catch(Exception e){
+                        logger.error(e.getMessage());
+                    }
+                    cache.put(name, writer);
+                }
             }
-            cache.put(name, writer);
         }
         return writer;
     }

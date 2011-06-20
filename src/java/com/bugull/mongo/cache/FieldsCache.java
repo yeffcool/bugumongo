@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class FieldsCache {
     
-    private static FieldsCache instance;
+    private static FieldsCache instance = new FieldsCache();
     
     private Map<String, Field[]> cache;
     
@@ -23,9 +23,6 @@ public class FieldsCache {
     }
     
     public static FieldsCache getInstance(){
-        if(instance == null){
-            instance = new FieldsCache();
-        }
         return instance;
     }
     

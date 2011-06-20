@@ -11,7 +11,7 @@ import org.apache.lucene.util.Version;
  */
 public class BuguIndex {
     
-    private static BuguIndex instance;
+    private static BuguIndex instance = new BuguIndex();
     
     private Timer timer;
     
@@ -25,9 +25,6 @@ public class BuguIndex {
     }
     
     public static BuguIndex getInstance(){
-        if(instance == null){
-            instance = new BuguIndex();
-        }
         return instance;
     }
     
