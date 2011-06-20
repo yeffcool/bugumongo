@@ -80,10 +80,7 @@ public class BuguDao {
     }
     
     public void remove(BuguEntity obj){
-        coll.remove(toDBObject(obj));
-        if(listener != null){
-            listener.entityRemove(clazz, obj.getId());
-        }
+        remove(obj.getId());
     }
 
     public void remove(String id){
@@ -92,6 +89,28 @@ public class BuguDao {
         coll.remove(dbo);
         if(listener != null){
             listener.entityRemove(clazz, id);
+        }
+    }
+    
+    public void update(BuguEntity obj, DBObject dbo){
+        update(obj.getId(), dbo);
+    }
+    
+    public void update(String id, DBObject dbo){
+        DBObject query = new BasicDBObject("_id", new ObjectId(id));
+        coll.update(query, dbo);
+        BuguEntity entity = (BuguEntity)findOne(id);
+        if(listener != null){
+            listener.entityUpdate(entity);
+        }
+    }
+    
+    public boolean exists(DBObject query){
+        DBCursor cursor = coll.find(query);
+        if(cursor!=null && cursor.length()>0){
+            return true;
+        }else{
+            return false;
         }
     }
     
