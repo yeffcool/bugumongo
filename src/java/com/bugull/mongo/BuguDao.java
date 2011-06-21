@@ -105,6 +105,26 @@ public class BuguDao {
         }
     }
     
+    public void set(BuguEntity obj, String key, Object value){
+        set(obj.getId(), key, value);
+    }
+    
+    public void set(String id, String key, Object value){
+        DBObject query = new BasicDBObject(key, value);
+        DBObject set = new BasicDBObject("$set", query);
+        update(id, set);
+    }
+    
+    public void inc(BuguEntity obj, String key, Object value){
+        inc(obj.getId(), key, value);
+    }
+    
+    public void inc(String id, String key, Object value){
+        DBObject query = new BasicDBObject(key, value);
+        DBObject inc = new BasicDBObject("$inc", query);
+        update(id, inc);
+    }
+    
     public boolean exists(DBObject query){
         DBCursor cursor = coll.find(query);
         if(cursor!=null && cursor.length()>0){
