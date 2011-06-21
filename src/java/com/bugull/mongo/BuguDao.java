@@ -195,10 +195,21 @@ public class BuguDao {
         DBObject dbo = coll.findOne(query);
         return fromDBObject(dbo);
     }
+    
+    private DBObject getSort(String orderBy){
+        String[] arr = orderBy.split(":");
+        String key = arr[0].trim();
+        String value = arr[1].trim();
+        return new BasicDBObject(key, Integer.parseInt(value));
+    }
 
     public List findAll(){
         DBCursor cursor = coll.find();
         return toList(cursor);
+    }
+    
+    public List findAll(String orderBy){
+        return findAll(getSort(orderBy));
     }
 
     public List findAll(DBObject orderBy){
@@ -209,6 +220,10 @@ public class BuguDao {
     public List findAll(int pageNum, int pageSize){
         DBCursor cursor = coll.find().skip((pageNum-1)*pageSize).limit(pageSize);
         return toList(cursor);
+    }
+    
+    public List findAll(String orderBy, int pageNum, int pageSize){
+        return findAll(getSort(orderBy), pageNum, pageSize);
     }
 
     public List findAll(DBObject orderBy, int pageNum, int pageSize){
@@ -223,13 +238,6 @@ public class BuguDao {
     public List find(DBObject query){
         DBCursor cursor = coll.find(query);
         return toList(cursor);
-    }
-    
-    private DBObject getSort(String orderBy){
-        String[] arr = orderBy.split(":");
-        String key = arr[0].trim();
-        String value = arr[1].trim();
-        return new BasicDBObject(key, Integer.parseInt(value));
     }
     
     public List find(String key, Object value, String orderBy){
