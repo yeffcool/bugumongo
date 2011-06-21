@@ -13,20 +13,17 @@ public class DirectoryFactory {
     
     private final static Logger logger = Logger.getLogger(DirectoryFactory.class);
     
-    public final static int TYPE_FS = 1;
-    public final static int TYPE_DB = 2;
-    
-    public static Directory create(int type, String path, String name){
+    public static Directory create(DirectoryType type, String path, String name){
         Directory dir = null;
         switch(type){
-            case TYPE_FS:
+            case FS:
                 try{
                     dir = FSDirectory.open(new File(path + "/" + name));
                 }catch(Exception e){
                     logger.error(e);
                 }
                 break;
-            case TYPE_DB:
+            case MONGO:
                 //待实现
                 break;
             default:
