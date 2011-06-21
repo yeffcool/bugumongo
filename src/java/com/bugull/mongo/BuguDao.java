@@ -1,6 +1,10 @@
 package com.bugull.mongo;
 
 import com.bugull.mongo.annotations.Entity;
+import com.bugull.mongo.cache.FieldsCache;
+import com.bugull.mongo.lucene.annotations.IndexEmbed;
+import com.bugull.mongo.lucene.annotations.IndexProperty;
+import com.bugull.mongo.lucene.annotations.IndexRef;
 import com.bugull.mongo.lucene.annotations.Indexed;
 import com.bugull.mongo.lucene.backend.EntityChangedListener;
 import com.mongodb.BasicDBObject;
@@ -8,6 +12,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MapReduceCommand;
+import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 import org.bson.types.ObjectId;
@@ -97,12 +102,25 @@ public class BuguDao {
     }
     
     public void update(String id, DBObject dbo){
-        DBObject query = new BasicDBObject("_id", new ObjectId(id));
-        coll.update(query, dbo);
+        updateWithOutIndex(id, dbo);
         BuguEntity entity = (BuguEntity)findOne(id);
         if(listener != null){
             listener.entityUpdate(entity);
         }
+    }
+    
+    private void updateWithOutIndex(String id, DBObject dbo){
+        DBObject query = new BasicDBObject("_id", new ObjectId(id));
+        coll.update(query, dbo);
+    }
+    
+    private boolean hasIndex(String key){
+        boolean result = false;
+        Field field = FieldsCache.getInstance().getField(clazz, key);
+        if(field.getAnnotation(IndexProperty.class)!=null || field.getAnnotation(IndexEmbed.class)!=null || field.getAnnotation(IndexRef.class)!= null){
+            result = true;
+        }
+        return result;
     }
     
     public void set(BuguEntity obj, String key, Object value){
@@ -112,7 +130,11 @@ public class BuguDao {
     public void set(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject set = new BasicDBObject("$set", query);
-        update(id, set);
+        if(hasIndex(key)){
+            update(id, set);
+        }else{
+            updateWithOutIndex(id, set);
+        }
     }
     
     public void inc(BuguEntity obj, String key, Object value){
@@ -122,7 +144,31 @@ public class BuguDao {
     public void inc(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject inc = new BasicDBObject("$inc", query);
-        update(id, inc);
+        if(hasIndex(key)){
+            update(id, inc);
+        }else{
+            updateWithOutIndex(id, inc);
+        }
+    }
+    
+    public void push(BuguEntity obj, String key, Object value){
+        push(obj.getId(), key, value);
+    }
+    
+    public void push(String id, String key, Object value){
+        DBObject query = new BasicDBObject(key, value);
+        DBObject push = new BasicDBObject("$push", query);
+        updateWithOutIndex(id, push);
+    }
+    
+    public void pull(BuguEntity obj, String key, Object value){
+        pull(obj.getId(), key, value);
+    }
+    
+    public void pull(String id, String key, Object value){
+        DBObject query = new BasicDBObject(key, value);
+        DBObject pull = new BasicDBObject("$pull", query);
+        updateWithOutIndex(id, pull);
     }
     
     public boolean exists(DBObject query){

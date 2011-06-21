@@ -82,4 +82,16 @@ public class FieldsCache {
         return name;
     }
     
+    public Field getField(Class<?> clazz, String fieldName){
+        Field field = null;
+        Field[] fields = get(clazz);
+        for(Field f : fields){
+            if(f.getName().equals(fieldName)){
+                field = f;
+                break;
+            }
+        }
+        return field;
+    }
+    
 }
