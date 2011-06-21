@@ -171,6 +171,10 @@ public class BuguDao {
         updateWithOutIndex(id, pull);
     }
     
+    public boolean exists(String key, Object value){
+        return exists(new BasicDBObject(key, value));
+    }
+    
     public boolean exists(DBObject query){
         DBCursor cursor = coll.find(query);
         if(cursor!=null && cursor.length()>0){
