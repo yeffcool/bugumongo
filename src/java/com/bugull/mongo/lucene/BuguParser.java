@@ -23,7 +23,6 @@ public class BuguParser {
     }
     
     public Query parse(String field, String value){
-        
         QueryParser parser = new QueryParser(index.getVersion(), field, index.getAnalyzer());
         return parse(parser, value);
     }

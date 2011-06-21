@@ -215,20 +215,51 @@ public class BuguDao {
         DBCursor cursor = coll.find().sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
         return toList(cursor);
     }
+    
+    public List find(String key, Object value){
+        return find(new BasicDBObject(key, value));
+    }
 
     public List find(DBObject query){
         DBCursor cursor = coll.find(query);
         return toList(cursor);
+    }
+    
+    private DBObject getSort(String orderBy){
+        String[] arr = orderBy.split(":");
+        String key = arr[0].trim();
+        String value = arr[1].trim();
+        return new BasicDBObject(key, Integer.parseInt(value));
+    }
+    
+    public List find(String key, Object value, String orderBy){
+        return find(new BasicDBObject(key, value), getSort(orderBy));
+    }
+    
+    public List find(DBObject query, String orderBy){
+        return find(query, getSort(orderBy));
     }
 
     public List find(DBObject query, DBObject orderBy){
         DBCursor cursor = coll.find(query).sort(orderBy);
         return toList(cursor);
     }
+    
+    public List find(String key, Object value, int pageNum, int pageSize){
+        return find(new BasicDBObject(key, value), pageNum, pageSize);
+    }
 
     public List find(DBObject query, int pageNum, int pageSize){
         DBCursor cursor = coll.find(query).skip((pageNum-1)*pageSize).limit(pageSize);
         return toList(cursor);
+    }
+    
+    public List find(String key, Object value, String orderBy, int pageNum, int pageSize){
+        return find(new BasicDBObject(key, value), getSort(orderBy), pageNum, pageSize);
+    }
+    
+    public List find(DBObject query, String orderBy, int pageNum, int pageSize){
+        return find(query, getSort(orderBy), pageNum, pageSize);
     }
 
     public List find(DBObject query, DBObject orderBy, int pageNum, int pageSize){
@@ -238,6 +269,10 @@ public class BuguDao {
 
     public long count(){
         return coll.count();
+    }
+    
+    public long count(String key, Object value){
+        return count(new BasicDBObject(key, value));
     }
 
     public long count(DBObject query){
