@@ -7,6 +7,7 @@ import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.IndexEmbed;
 import com.bugull.mongo.lucene.annotations.IndexProperty;
 import com.bugull.mongo.lucene.annotations.IndexRef;
+import java.util.Collection;
 import java.util.Date;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
@@ -39,15 +40,81 @@ public class IndexCreater {
         Class<?> clazz = obj.getClass();
         java.lang.reflect.Field[] fields = FieldsCache.getInstance().get(clazz);
         for(java.lang.reflect.Field f : fields){
+            Class<?> type = f.getType();
             try{
-                processField(doc, f);
+                if(type.isArray()){
+                    processArrayField(doc, f);
+                }else{
+                    processPrimitiveField(doc, f);
+                } 
             }catch(Exception e){
                 logger.error(e.getMessage());
             }
         }
     }
     
-    private void processField(Document doc, java.lang.reflect.Field f) throws Exception{
+    private void processArrayField(Document doc, java.lang.reflect.Field f) throws Exception{
+        Class<?> type = f.getType();
+        String typeName = type.getComponentType().getName();
+        StringBuilder sb = new StringBuilder();
+        Object value = f.get(obj);
+        if(typeName.equals("java.lang.String")){
+            String[] arr = (String[])value;
+            for(String e : arr){
+                sb.append(e).append(";");
+            }
+        }
+        else if(typeName.equals("boolean") || typeName.equals("java.lang.Boolean")){
+            boolean[] arr = (boolean[])value;
+            for(boolean e : arr){
+                sb.append(e).append(";");
+            }
+        }
+        else if(typeName.equals("char") || typeName.equals("java.lang.Character")){
+            char[] arr = (char[])value;
+            for(char e : arr){
+                sb.append(e).append(";");
+            }
+        }
+        else if(typeName.equals("int") || typeName.equals("java.lang.Integer")){
+            int[] arr = (int[])value;
+            for(int e : arr){
+                sb.append(e).append(";");
+            }
+        }
+        else if(typeName.equals("long") || typeName.equals("java.lang.Long")){
+            long[] arr = (long[])value;
+            for(long e : arr){
+                sb.append(e).append(";");
+            }
+        }
+        else if(typeName.equals("float") || typeName.equals("java.lang.Float")){
+            float[] arr = (float[])value;
+            for(float e : arr){
+                sb.append(e).append(";");
+            }
+        }
+        else if(typeName.equals("double") || typeName.equals("java.lang.Double")){
+            double[] arr = (double[])value;
+            for(double e : arr){
+                sb.append(e).append(";");
+            }
+        }
+        else if(typeName.equals("java.util.Date")){
+            Date[] arr = (Date[])value;
+            for(Date e : arr){
+                sb.append(e.getTime()).append(";");
+            }
+        }
+        String fieldName = prefix + f.getName();
+        IndexProperty ip = f.getAnnotation(IndexProperty.class);
+        Field field = new Field(fieldName, sb.toString(),
+                    ip.store() ? Field.Store.YES : Field.Store.NO,
+                    ip.analyze() ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
+        doc.add(field);
+    }
+    
+    private void processPrimitiveField(Document doc, java.lang.reflect.Field f) throws Exception{
         if(id != null && f.getAnnotation(Id.class) != null){
             doc.add(new Field(f.getName(), id, Field.Store.YES, Field.Index.NOT_ANALYZED));
         }
@@ -66,8 +133,8 @@ public class IndexCreater {
         Class<?> type = f.getType();
         String fieldName = prefix + f.getName();
         String typeName = type.getName();
+        IndexProperty ip = f.getAnnotation(IndexProperty.class);
         if(typeName.equals("java.lang.String")){
-            IndexProperty ip = f.getAnnotation(IndexProperty.class);
             String fieldValue = f.get(obj).toString();
             Field field = new Field(fieldName, fieldValue,
                     ip.store() ? Field.Store.YES : Field.Store.NO,
@@ -103,6 +170,17 @@ public class IndexCreater {
         else if(typeName.equals("java.util.Date")){
             Date date = (Date)f.get(obj);
             NumericField field = new NumericField(fieldName).setLongValue(date.getTime());
+            doc.add(field);
+        }
+        else if(typeName.equals("java.util.Set") || typeName.equals("java.util.List")){
+            Collection coll = (Collection)f.get(obj);
+            StringBuilder sb = new StringBuilder();
+            for(Object o : coll){
+                sb.append(o).append(";");
+            }
+            Field field = new Field(fieldName, sb.toString(),
+                    ip.store() ? Field.Store.YES : Field.Store.NO,
+                    ip.analyze() ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
             doc.add(field);
         }
     }

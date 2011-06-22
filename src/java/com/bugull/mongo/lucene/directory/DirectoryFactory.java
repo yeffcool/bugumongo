@@ -23,7 +23,7 @@ public class DirectoryFactory {
                     logger.error(e);
                 }
                 break;
-            case MONGO:
+            case DB:
                 //待实现
                 break;
             default:

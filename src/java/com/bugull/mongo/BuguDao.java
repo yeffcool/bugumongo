@@ -176,12 +176,18 @@ public class BuguDao {
     }
     
     public boolean exists(DBObject query){
-        DBCursor cursor = coll.find(query);
-        if(cursor!=null && cursor.length()>0){
+        DBObject dbo = coll.findOne(query);
+        if(dbo != null){
             return true;
         }else{
             return false;
         }
+    }
+    
+    public boolean exists(BuguEntity obj, String key, Object value){
+        DBObject query = new BasicDBObject("_id", new ObjectId(obj.getId()));
+        query.put(key, value);
+        return exists(query);
     }
     
     public Object findOne(String id){
