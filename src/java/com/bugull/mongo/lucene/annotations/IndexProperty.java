@@ -15,4 +15,5 @@ import java.lang.annotation.Target;
 public @interface IndexProperty {
     public boolean analyze() default false;
     public boolean store() default false;
+    public String join() default ";";
 }
