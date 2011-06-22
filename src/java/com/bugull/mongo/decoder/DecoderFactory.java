@@ -1,8 +1,8 @@
 package com.bugull.mongo.decoder;
 
 import com.bugull.mongo.annotations.Embed;
+import com.bugull.mongo.annotations.EmbedList;
 import com.bugull.mongo.annotations.Id;
-import com.bugull.mongo.annotations.Property;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
 import com.mongodb.DBObject;
@@ -21,6 +21,9 @@ public class DecoderFactory {
         }
         else if(field.getAnnotation(Embed.class) != null){
             decoder = new EmbedDecoder(field, dbo);
+        }
+        else if(field.getAnnotation(EmbedList.class) != null){
+            decoder = new EmbedListDecoder(field, dbo);
         }
         else if(field.getAnnotation(Ref.class) != null){
             decoder = new RefDecoder(field, dbo);
