@@ -6,6 +6,7 @@ import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.cache.IndexWriterCache;
 import com.bugull.mongo.lucene.backend.IndexCreater;
+import com.bugull.mongo.lucene.backend.IndexFilterChecker;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
@@ -70,14 +71,17 @@ public class IndexRebuilder implements Runnable{
     }
     
     private void process(BuguEntity obj){
-        Document doc = new Document();
-        IndexCreater creater = new IndexCreater(obj, obj.getId(), null);
-        creater.process(doc);
-        try{
-            Term term = new Term(FieldsCache.getInstance().getIdFieldName(clazz), obj.getId());
-            writer.updateDocument(term, doc);
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        IndexFilterChecker checker = new IndexFilterChecker(obj);
+        if(checker.needIndex()){
+            Document doc = new Document();
+            IndexCreater creater = new IndexCreater(obj, obj.getId(), null);
+            creater.process(doc);
+            try{
+                Term term = new Term(FieldsCache.getInstance().getIdFieldName(clazz), obj.getId());
+                writer.updateDocument(term, doc);
+            }catch(Exception e){
+                logger.error(e.getMessage());
+            }
         }
     }
     

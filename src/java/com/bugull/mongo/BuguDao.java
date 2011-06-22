@@ -3,6 +3,7 @@ package com.bugull.mongo;
 import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.IndexEmbed;
+import com.bugull.mongo.lucene.annotations.IndexFilter;
 import com.bugull.mongo.lucene.annotations.IndexProperty;
 import com.bugull.mongo.lucene.annotations.IndexRef;
 import com.bugull.mongo.lucene.annotations.Indexed;
@@ -114,10 +115,16 @@ public class BuguDao {
         coll.update(query, dbo);
     }
     
-    private boolean hasIndex(String key){
+    private boolean hasIndexAnnotation(String key){
+        if(listener == null){
+            return false;
+        }
         boolean result = false;
         Field field = FieldsCache.getInstance().getField(clazz, key);
-        if(field.getAnnotation(IndexProperty.class)!=null || field.getAnnotation(IndexEmbed.class)!=null || field.getAnnotation(IndexRef.class)!= null){
+        if(field.getAnnotation(IndexProperty.class)!=null
+                || field.getAnnotation(IndexEmbed.class)!=null
+                || field.getAnnotation(IndexRef.class)!= null
+                || field.getAnnotation(IndexFilter.class)!=null){
             result = true;
         }
         return result;
@@ -130,7 +137,7 @@ public class BuguDao {
     public void set(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject set = new BasicDBObject("$set", query);
-        if(hasIndex(key)){
+        if(hasIndexAnnotation(key)){
             update(id, set);
         }else{
             updateWithOutIndex(id, set);
@@ -144,7 +151,7 @@ public class BuguDao {
     public void inc(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject inc = new BasicDBObject("$inc", query);
-        if(hasIndex(key)){
+        if(hasIndexAnnotation(key)){
             update(id, inc);
         }else{
             updateWithOutIndex(id, inc);
