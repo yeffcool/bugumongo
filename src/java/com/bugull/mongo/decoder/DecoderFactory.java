@@ -18,6 +18,7 @@ package com.bugull.mongo.decoder;
 import com.bugull.mongo.annotations.Embed;
 import com.bugull.mongo.annotations.EmbedList;
 import com.bugull.mongo.annotations.Id;
+import com.bugull.mongo.annotations.Ignore;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
 import com.mongodb.DBObject;
@@ -31,7 +32,10 @@ public class DecoderFactory {
     
     public static Decoder create(Field field, DBObject dbo){
         Decoder decoder = null;
-        if(field.getAnnotation(Id.class) != null){
+        if(field.getAnnotation(Ignore.class)!=null){
+            decoder = null;
+        }
+        else if(field.getAnnotation(Id.class) != null){
             decoder = new IdDecoder(field, dbo);
         }
         else if(field.getAnnotation(Embed.class) != null){
@@ -47,7 +51,7 @@ public class DecoderFactory {
             decoder = new RefListDecoder(field, dbo);
         }
         else{
-            decoder = new PropertyDecoder(field, dbo);
+            decoder = new PropertyDecoder(field, dbo);  //no mapping annotation or @Property
         }
         return decoder;
     }
