@@ -24,7 +24,7 @@ import com.mongodb.gridfs.GridFS;
  */
 public class BuguFS {
     
-    private static BuguFS instance;
+    private static BuguFS instance = new BuguFS();
     
     private GridFS fs;
     
@@ -33,9 +33,6 @@ public class BuguFS {
     }
     
     public static BuguFS getInstance(){
-        if(instance == null){
-            instance = new BuguFS();
-        }
         return instance;
     }
     
