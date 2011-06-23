@@ -40,7 +40,7 @@ public class BuguMapper {
         Field[] fields = FieldsCache.getInstance().get(clazz);
         for(Field field : fields){
             Decoder decoder = DecoderFactory.create(field, dbo);
-            if(!decoder.isNullField()){
+            if(decoder!=null && !decoder.isNullField()){
                 decoder.decode(obj);
             }
         }
@@ -53,7 +53,7 @@ public class BuguMapper {
         Field[] fields = FieldsCache.getInstance().get(clazz);
         for(Field field : fields){
             Encoder encoder = EncoderFactory.create(obj, field);
-            if(!encoder.isNullField()){
+            if(encoder!=null && !encoder.isNullField()){
                 dbo.put(encoder.getFieldName(), encoder.encode());
             }
         }
