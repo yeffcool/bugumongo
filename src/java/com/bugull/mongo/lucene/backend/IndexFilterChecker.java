@@ -46,7 +46,7 @@ public class IndexFilterChecker {
     private boolean isFit(Field f, Compare compare, String value) throws Exception {
         boolean fit = false;
         switch(compare){
-            case EQUALS:
+            case IS_EQUALS:
                 fit = isEquals(f, value);
                 break;
             case NOT_EQUALS:

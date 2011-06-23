@@ -6,7 +6,7 @@ package com.bugull.mongo.lucene.annotations;
  * @author Frank Wen (xbwen@hotmail.com)
  */
 public enum Compare {
-    EQUALS,
+    IS_EQUALS,
     NOT_EQUALS,
     GREATER_THAN,
     GREATER_THAN_EQUALS,
