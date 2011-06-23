@@ -18,6 +18,7 @@ package com.bugull.mongo.encoder;
 import com.bugull.mongo.annotations.Embed;
 import com.bugull.mongo.annotations.EmbedList;
 import com.bugull.mongo.annotations.Id;
+import com.bugull.mongo.annotations.Ignore;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
 import java.lang.reflect.Field;
@@ -30,7 +31,10 @@ public class EncoderFactory {
     
     public static Encoder create(Object obj, Field field){
         Encoder encoder = null;
-        if(field.getAnnotation(Id.class) != null){
+        if(field.getAnnotation(Ignore.class) != null){
+            encoder = null;
+        }
+        else if(field.getAnnotation(Id.class) != null){
             encoder = new IdEncoder(obj, field);
         }
         else if(field.getAnnotation(Embed.class) != null){
@@ -46,7 +50,7 @@ public class EncoderFactory {
             encoder = new RefListEncoder(obj, field);
         }
         else{
-            encoder = new PropertyEncoder(obj, field);
+            encoder = new PropertyEncoder(obj, field);  //no mapping annotation or @Property
         }
         return encoder;
     }
