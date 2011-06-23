@@ -64,10 +64,10 @@ public class BuguConnection {
         db = mongo.getDB(database);
         boolean auth = db.authenticate(username, password.toCharArray());
         if(auth){
-            logger.warn("已成功连接MongoDB");
+            logger.info("Connected to mongodb successfully!");
         }else{
             db = null;
-            logger.error("错误的用户名和密码");
+            logger.error("Connect to mongodb failed! Failed to authenticate!");
         }
     }
     
