@@ -16,26 +16,21 @@
 package com.bugull.mongo.lucene.directory;
 
 import java.io.IOException;
-import org.apache.lucene.store.IndexOutput;
+import org.apache.lucene.store.IndexInput;
 
 /**
  * 待实现
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class MongoIndexOutput extends IndexOutput{
+public class DBIndexInput extends IndexInput{
 
     @Override
-    public void writeByte(byte b) throws IOException {
+    public byte readByte() throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void writeBytes(byte[] bytes, int i, int i1) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void flush() throws IOException {
+    public void readBytes(byte[] bytes, int i, int i1) throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -55,7 +50,7 @@ public class MongoIndexOutput extends IndexOutput{
     }
 
     @Override
-    public long length() throws IOException {
+    public long length() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     
