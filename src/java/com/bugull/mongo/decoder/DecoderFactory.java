@@ -32,7 +32,7 @@ public class DecoderFactory {
     
     public static Decoder create(Field field, DBObject dbo){
         Decoder decoder = null;
-        if(field.getAnnotation(Ignore.class)!=null){
+        if(field.getAnnotation(Ignore.class) != null){
             decoder = null;
         }
         else if(field.getAnnotation(Id.class) != null){
