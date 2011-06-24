@@ -32,10 +32,7 @@ public class DecoderFactory {
     
     public static Decoder create(Field field, DBObject dbo){
         Decoder decoder = null;
-        if(field.getAnnotation(Ignore.class) != null){
-            decoder = null;
-        }
-        else if(field.getAnnotation(Id.class) != null){
+        if(field.getAnnotation(Id.class) != null){
             decoder = new IdDecoder(field, dbo);
         }
         else if(field.getAnnotation(Embed.class) != null){
@@ -49,6 +46,9 @@ public class DecoderFactory {
         }
         else if(field.getAnnotation(RefList.class) != null){
             decoder = new RefListDecoder(field, dbo);
+        }
+        else if(field.getAnnotation(Ignore.class) != null){
+            decoder = null;
         }
         else{
             decoder = new PropertyDecoder(field, dbo);  //no mapping annotation or @Property
