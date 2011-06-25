@@ -19,6 +19,7 @@ import com.bugull.mongo.lucene.backend.IndexReopenTask;
 import com.bugull.mongo.lucene.directory.DirectoryType;
 import java.util.Timer;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.util.Version;
 
 /**
@@ -32,8 +33,8 @@ public class BuguIndex {
     private Timer timer;
     
     private Version version = Version.LUCENE_32;
-    private Analyzer analyzer;
-    private DirectoryType directoryType;
+    private Analyzer analyzer = new StandardAnalyzer(version);
+    private DirectoryType directoryType = DirectoryType.DB;
     private String directoryPath;
     
     private BuguIndex(){
