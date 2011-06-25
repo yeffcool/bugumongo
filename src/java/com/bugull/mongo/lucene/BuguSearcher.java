@@ -77,6 +77,17 @@ public class BuguSearcher {
         return resultCount;
     }
     
+    public List search(Query query){
+        this.query = query;
+        return search();
+    }
+    
+    public List search(Query query, Sort sort){
+        this.query = query;
+        this.sort = sort;
+        return search();
+    }
+    
     public List search(){
         TopDocs topDocs = null;
         try{
