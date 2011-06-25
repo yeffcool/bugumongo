@@ -39,7 +39,7 @@ public class DirectoryFactory {
                 }
                 break;
             case DB:
-                //待实现
+                dir = new DBDirectory(name);
                 break;
             default:
                 break;
