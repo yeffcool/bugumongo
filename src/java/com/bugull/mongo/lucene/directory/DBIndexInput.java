@@ -15,43 +15,83 @@
 
 package com.bugull.mongo.lucene.directory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import org.apache.log4j.Logger;
 import org.apache.lucene.store.IndexInput;
 
 /**
- * 待实现
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class DBIndexInput extends IndexInput{
-
-    @Override
-    public byte readByte() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    
+    private final static Logger logger = Logger.getLogger(IndexFile.class);
+    
+    private long position;
+    private long length;
+    private byte[] data;
+    
+    public DBIndexInput(String dirName, String fileName){
+        IndexFile file = new IndexFile(dirName, fileName);
+        ByteArrayOutputStream os = file.getOutputStream();
+        if(os != null){
+            data = os.toByteArray();
+            try {
+                os.close();
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+            }
+            length = data.length;
+        }
+        position = 0;
     }
 
     @Override
-    public void readBytes(byte[] bytes, int i, int i1) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public byte readByte() throws IOException {
+        if(position + 1 <= length){
+            int p = (int)position;
+            byte b = data[p];
+            position ++;
+            return b;
+        }else{
+            throw new IOException("Reading past end of file");
+        }
+    }
+
+    @Override
+    public void readBytes(byte[] b, int offset, int len) throws IOException {
+        if(position + len <= length){
+            int p = (int)position;
+            System.arraycopy(data, p, b, offset, len);
+            position += len;
+        }else{
+            throw new IOException("Reading past end of file");
+        }
     }
 
     @Override
     public void close() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //do nothing
     }
 
     @Override
     public long getFilePointer() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return position;
     }
 
     @Override
-    public void seek(long l) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void seek(long pos) throws IOException {
+        if(pos <= length){
+            position = pos;
+        }else{
+            throw new IOException("seeking past end of file");
+        }
     }
 
     @Override
     public long length() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return length;
     }
     
 }

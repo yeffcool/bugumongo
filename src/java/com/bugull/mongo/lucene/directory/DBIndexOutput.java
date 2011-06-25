@@ -16,47 +16,108 @@
 package com.bugull.mongo.lucene.directory;
 
 import java.io.IOException;
+import java.util.Arrays;
 import org.apache.lucene.store.IndexOutput;
 
 /**
- * 待实现
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class DBIndexOutput extends IndexOutput{
+    
+    private final static int BUFFER_SIZE = 32768;
+    private final byte[] buffer = new byte[BUFFER_SIZE];
+    private long bufferStart = 0;           // position in file of buffer
+    private int bufferPosition = 0;         // position in buffer
 
-    @Override
-    public void writeByte(byte b) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    private IndexFile file;
+    
+    public DBIndexOutput(String dirName, String fileName){
+        file = new IndexFile(dirName, fileName);
     }
 
     @Override
-    public void writeBytes(byte[] bytes, int i, int i1) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void writeByte(byte b) throws IOException {
+        if (bufferPosition >= BUFFER_SIZE){
+            flush();
+        }
+        buffer[bufferPosition++] = b;
+    }
+
+    @Override
+    public void writeBytes(byte[] b, int offset, int length) throws IOException {
+        int bytesLeft = BUFFER_SIZE - bufferPosition;
+        if (bytesLeft >= length) {
+            System.arraycopy(b, offset, buffer, bufferPosition, length);
+            bufferPosition += length;
+            if (BUFFER_SIZE - bufferPosition == 0){
+                flush();
+            }
+        } else {
+            if (length > BUFFER_SIZE) {
+                if (bufferPosition > 0){
+                    flush();
+                }
+                flushBuffer(b, offset, length);
+                bufferStart += length;
+            } else {
+                int pos = 0; // position in the input data
+                int pieceLength;
+                while (pos < length) {
+                    pieceLength = (length - pos < bytesLeft) ? length - pos : bytesLeft;
+                    System.arraycopy(b, pos + offset, buffer, bufferPosition, pieceLength);
+                    pos += pieceLength;
+                    bufferPosition += pieceLength;
+                    // if the buffer is full, flush it
+                    bytesLeft = BUFFER_SIZE - bufferPosition;
+                    if (bytesLeft == 0) {
+                        flush();
+                        bytesLeft = BUFFER_SIZE;
+                    }
+                }
+            }
+        }
     }
 
     @Override
     public void flush() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        flushBuffer(buffer, bufferPosition);
+        bufferStart += bufferPosition;
+        bufferPosition = 0;
+    }
+    
+    private void flushBuffer(byte[] b, int len) throws IOException {
+        flushBuffer(b, 0, len);
+    }
+    
+    private void flushBuffer(byte[] b, int offset, int len) throws IOException{
+        byte[] data = Arrays.copyOfRange(b, offset, offset + len);
+        file.write(data);
     }
 
     @Override
     public void close() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        flush();
     }
 
     @Override
     public long getFilePointer() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return bufferStart + bufferPosition;
     }
 
     @Override
-    public void seek(long l) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void seek(long pos) throws IOException {
+        flush();
+        bufferStart = pos;
     }
 
     @Override
     public long length() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if(file.exists()){
+            return file.getLength();
+        }else{
+            throw new IOException("File does not exist");
+        }
     }
     
 }
