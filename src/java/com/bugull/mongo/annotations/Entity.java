@@ -27,5 +27,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Entity {
-    public String name();
+    public String name() default "";
 }
