@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.IndexInput;
 import org.apache.lucene.store.IndexOutput;
+import org.apache.lucene.store.Lock;
 
 /**
  * 
@@ -109,4 +110,8 @@ public class DBDirectory extends Directory{
         //do nothing
     }
     
+    @Override
+    public Lock makeLock(String name) {
+        return new DBLock();
+    }
 }

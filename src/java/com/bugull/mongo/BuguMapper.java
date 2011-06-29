@@ -65,6 +65,9 @@ public class BuguMapper {
         Class<?> clazz = obj.getClass();
         Entity entity = clazz.getAnnotation(Entity.class);
         String name = entity.name();
+        if(name.equals("")){
+            name = clazz.getSimpleName().toLowerCase();
+        }
         ObjectId id = new ObjectId(obj.getId());
         return new DBRef(db, name, id);
     }

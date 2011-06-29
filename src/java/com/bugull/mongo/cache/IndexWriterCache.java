@@ -61,6 +61,7 @@ public class IndexWriterCache {
                     try{
                         writer = new IndexWriter(dir, conf);
                     }catch(Exception e){
+                        e.printStackTrace();
                         logger.error(e.getMessage());
                     }
                     cache.put(name, writer);

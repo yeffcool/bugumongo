@@ -28,8 +28,8 @@ public class DBIndexInput extends IndexInput{
     
     private final static Logger logger = Logger.getLogger(IndexFile.class);
     
-    private long position;
-    private long length;
+    private int position;
+    private int length;
     private byte[] data;
     
     public DBIndexInput(String dirName, String fileName){
@@ -50,10 +50,7 @@ public class DBIndexInput extends IndexInput{
     @Override
     public byte readByte() throws IOException {
         if(position + 1 <= length){
-            int p = (int)position;
-            byte b = data[p];
-            position ++;
-            return b;
+            return data[position++];
         }else{
             throw new IOException("Reading past end of file");
         }
@@ -62,8 +59,7 @@ public class DBIndexInput extends IndexInput{
     @Override
     public void readBytes(byte[] b, int offset, int len) throws IOException {
         if(position + len <= length){
-            int p = (int)position;
-            System.arraycopy(data, p, b, offset, len);
+            System.arraycopy(data, position, b, offset, len);
             position += len;
         }else{
             throw new IOException("Reading past end of file");
@@ -83,7 +79,7 @@ public class DBIndexInput extends IndexInput{
     @Override
     public void seek(long pos) throws IOException {
         if(pos <= length){
-            position = pos;
+            position = (int)pos;
         }else{
             throw new IOException("seeking past end of file");
         }

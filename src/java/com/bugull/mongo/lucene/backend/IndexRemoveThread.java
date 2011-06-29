@@ -42,6 +42,9 @@ public class IndexRemoveThread implements Runnable{
     public void run() {
         Entity entity = clazz.getAnnotation(Entity.class);
         String name = entity.name();
+        if(name.equals("")){
+            name = clazz.getSimpleName().toLowerCase();
+        }
         IndexWriterCache cache = IndexWriterCache.getInstance();
         IndexWriter writer = cache.get(name);
         try{

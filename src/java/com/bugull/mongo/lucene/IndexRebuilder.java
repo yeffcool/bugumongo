@@ -44,6 +44,9 @@ public class IndexRebuilder implements Runnable{
         this.clazz = clazz;
         Entity entity = clazz.getAnnotation(Entity.class);
         String name = entity.name();
+        if(name.equals("")){
+            name = clazz.getSimpleName().toLowerCase();
+        }
         IndexWriterCache cache = IndexWriterCache.getInstance();
         writer = cache.get(name);
     }

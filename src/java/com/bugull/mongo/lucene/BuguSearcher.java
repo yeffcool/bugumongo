@@ -50,7 +50,11 @@ public class BuguSearcher {
     public BuguSearcher(Class<?> clazz){
         this.clazz = clazz;
         Entity entity = clazz.getAnnotation(Entity.class);
-        searcher = IndexSearcherCache.getInstance().get(entity.name());
+        String name = entity.name();
+        if(name.equals("")){
+            name = clazz.getSimpleName().toLowerCase();
+        }
+        searcher = IndexSearcherCache.getInstance().get(name);
     }
     
     public void setQuery(Query query){

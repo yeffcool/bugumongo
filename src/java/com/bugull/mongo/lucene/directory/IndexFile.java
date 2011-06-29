@@ -75,11 +75,16 @@ public class IndexFile {
         f.save();
     }
     
-    public void write(byte[] data){
+    public void write(byte[] data, long position){
+        if(data==null || data.length==0){
+            return;
+        }
         if(!exists()){
             create(data);
-        }else{
+        }else if(position >= getLength()){
             append(data);
+        }else{
+            update(data, position);
         }
     }
     
@@ -118,8 +123,8 @@ public class IndexFile {
             }
         }else{
             //need to update the last chunk
-            Binary lastBin = (Binary)lastChunk.get("data");
-            byte[] lastData = lastBin.getData();
+            Object o = lastChunk.get("data");
+            byte[] lastData = (byte[])lastChunk.get("data");
             int lastDataLen = lastData.length;
             int diff = (int) (chunkSize - (length % chunkSize));
             file.put("lastModify", System.currentTimeMillis());
@@ -143,6 +148,10 @@ public class IndexFile {
                 append(remainderData);
             }
         }
+    }
+    
+    private void update(byte[] data, long position){
+        
     }
     
     public long getLength(){

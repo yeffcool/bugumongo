@@ -47,6 +47,9 @@ public class BuguDao {
         this.clazz = clazz;
         Entity entity = clazz.getAnnotation(Entity.class);
         String name = entity.name();
+        if(name.equals("")){
+            name = clazz.getSimpleName().toLowerCase();
+        }
         coll = BuguConnection.getInstance().getDB().getCollection(name);
         //for lucene
         if(clazz.getAnnotation(Indexed.class) != null){
