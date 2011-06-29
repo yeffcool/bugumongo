@@ -219,6 +219,10 @@ public class BuguDao {
         return fromDBObject(result);
     }
     
+    public Object findOne(String key, Object value){
+        return findOne(new BasicDBObject(key, value));
+    }
+    
     public Object findOne(DBObject query){
         DBObject dbo = coll.findOne(query);
         return fromDBObject(dbo);
