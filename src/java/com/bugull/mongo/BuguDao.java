@@ -122,8 +122,8 @@ public class BuguDao {
     
     public void update(String id, DBObject dbo){
         updateWithOutIndex(id, dbo);
-        BuguEntity entity = (BuguEntity)findOne(id);
         if(listener != null){
+            BuguEntity entity = (BuguEntity)findOne(id);
             listener.entityUpdate(entity);
         }
     }
@@ -134,7 +134,17 @@ public class BuguDao {
     }
     
     public void update(DBObject query, DBObject dbo){
+        List ids = null;
+        if(listener != null){
+            ids = coll.distinct("_id", query);
+        }
         coll.updateMulti(query, dbo);
+        if(listener != null){
+            for(Object id : ids){
+                BuguEntity entity = (BuguEntity)findOne(id.toString());
+                listener.entityUpdate(entity);
+            }
+        }
     }
     
     private boolean hasIndexAnnotation(String key){
@@ -327,10 +337,16 @@ public class BuguDao {
     }
 
     public List distinct(String key){
+        if(key.equals("id")){
+            key = "_id";
+        }
         return coll.distinct(key);
     }
 
     public List distinct(String key, DBObject query){
+        if(key.equals("id")){
+            key = "_id";
+        }
         return coll.distinct(key, query);
     }
     
