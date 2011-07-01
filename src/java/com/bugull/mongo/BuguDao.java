@@ -133,6 +133,10 @@ public class BuguDao {
         coll.update(query, dbo);
     }
     
+    public void update(DBObject query, DBObject dbo){
+        coll.updateMulti(query, dbo);
+    }
+    
     private boolean hasIndexAnnotation(String key){
         if(listener == null){
             return false;
