@@ -97,18 +97,20 @@ public class BuguMapper {
         }
     }
     
-    public void fetch(List<BuguEntity> list, String fieldName){
+    public void fetch(List list, String fieldName){
         List<BuguEntity> result = new LinkedList<BuguEntity>();
-        for(BuguEntity obj : list){
-            fetch(obj, fieldName);
+        for(Object o : list){
+            BuguEntity obj = (BuguEntity)o;
+            fetch((BuguEntity)obj, fieldName);
             result.add(obj);
         }
         list = result;
     }
     
-    public void fetch(List<BuguEntity> list, String[] names){
+    public void fetch(List list, String[] names){
         List<BuguEntity> result = new LinkedList<BuguEntity>();
-        for(BuguEntity obj : list){
+        for(Object o : list){
+            BuguEntity obj = (BuguEntity)o;
             fetch(obj, names);
             result.add(obj);
         }
