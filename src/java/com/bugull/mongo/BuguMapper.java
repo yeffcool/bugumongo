@@ -16,6 +16,8 @@
 package com.bugull.mongo;
 
 import com.bugull.mongo.annotations.Entity;
+import com.bugull.mongo.annotations.Ref;
+import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.ConstructorCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.decoder.Decoder;
@@ -27,6 +29,11 @@ import com.mongodb.DB;
 import com.mongodb.DBObject;
 import com.mongodb.DBRef;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.LinkedList;
+import java.util.List;
+import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 
 /**
@@ -34,6 +41,8 @@ import org.bson.types.ObjectId;
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class BuguMapper {
+    
+    private final static Logger logger = Logger.getLogger(BuguMapper.class);
     
     public Object fromDBObject(Class clazz, DBObject dbo){
         Object obj = ConstructorCache.getInstance().create(clazz);
@@ -70,6 +79,72 @@ public class BuguMapper {
         }
         ObjectId id = new ObjectId(obj.getId());
         return new DBRef(db, name, id);
+    }
+    
+    public void fetch(BuguEntity obj, String fieldName){
+        Class<?> clazz = obj.getClass();
+        Field field = FieldsCache.getInstance().getField(clazz, fieldName);
+        if(field.getAnnotation(Ref.class) != null){
+            fetchRef(obj, field);
+        }else if(field.getAnnotation(RefList.class) != null){
+            fetchRefList(obj, field);
+        }
+    }
+    
+    public void fetch(BuguEntity obj, String[] names){
+        for(String fieldName : names){
+            fetch(obj, fieldName);
+        }
+    }
+    
+    public void fetch(List<BuguEntity> list, String fieldName){
+        List<BuguEntity> result = new LinkedList<BuguEntity>();
+        for(BuguEntity obj : list){
+            fetch(obj, fieldName);
+            result.add(obj);
+        }
+        list = result;
+    }
+    
+    public void fetch(List<BuguEntity> list, String[] names){
+        List<BuguEntity> result = new LinkedList<BuguEntity>();
+        for(BuguEntity obj : list){
+            fetch(obj, names);
+            result.add(obj);
+        }
+        list = result;
+    }
+    
+    private void fetchRef(BuguEntity obj, Field field){
+        try{
+            BuguEntity refObj = (BuguEntity)field.get(obj);
+            String id = refObj.getId();
+            Class<?> type = field.getType();
+            BuguDao dao = new BuguDao(type);
+            Object value = dao.findOne(id);
+            field.set(obj, value);
+        }catch(Exception e){
+            logger.error(e.getMessage());
+        }
+    }
+    
+    private void fetchRefList(BuguEntity obj, Field field){
+        try{
+            ParameterizedType type = (ParameterizedType)field.getGenericType();
+            Type[] types = type.getActualTypeArguments();
+            Class clazz = (Class)types[0];
+            BuguDao dao = new BuguDao(clazz);
+            List result = new LinkedList();
+            List<BuguEntity> list = (List<BuguEntity>)field.get(obj);
+            for(BuguEntity refObj : list){
+                String id = refObj.getId();
+                Object value = dao.findOne(id);
+                result.add(value);
+            }
+            field.set(obj, result);
+        }catch(Exception e){
+            logger.error(e.getMessage());
+        }
     }
     
 }
