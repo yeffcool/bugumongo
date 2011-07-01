@@ -117,7 +117,11 @@ public class BuguMapper {
     
     private void fetchRef(BuguEntity obj, Field field){
         try{
-            BuguEntity refObj = (BuguEntity)field.get(obj);
+            Object o = field.get(obj);
+            if( o == null){
+                return;
+            }
+            BuguEntity refObj = (BuguEntity)o;
             String id = refObj.getId();
             Class<?> type = field.getType();
             BuguDao dao = new BuguDao(type);
@@ -130,12 +134,16 @@ public class BuguMapper {
     
     private void fetchRefList(BuguEntity obj, Field field){
         try{
+            Object o = field.get(obj);
+            if(o == null){
+                return;
+            }
+            List<BuguEntity> list = (List<BuguEntity>)o;
             ParameterizedType type = (ParameterizedType)field.getGenericType();
             Type[] types = type.getActualTypeArguments();
             Class clazz = (Class)types[0];
             BuguDao dao = new BuguDao(clazz);
             List result = new LinkedList();
-            List<BuguEntity> list = (List<BuguEntity>)field.get(obj);
             for(BuguEntity refObj : list){
                 String id = refObj.getId();
                 Object value = dao.findOne(id);
