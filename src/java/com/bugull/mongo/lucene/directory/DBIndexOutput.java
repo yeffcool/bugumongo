@@ -28,17 +28,11 @@ public class DBIndexOutput extends IndexOutput{
     private final static int BUFFER_SIZE = 16384;
     private final byte[] buffer = new byte[BUFFER_SIZE];
     private int bufferPosition = 0;    // position in buffer
-    
-    private long filePosition;    // position in file
+    private long filePosition = 0;    // position in file
     private IndexFile file;
     
-    public DBIndexOutput(String dirName, String fileName){
-        file = new IndexFile(dirName, fileName);
-        if(file.exists()){
-            filePosition = file.getLength();
-        }else{
-            filePosition = 0;
-        }
+    public DBIndexOutput(String dirname, String filename){
+        file = new IndexFile(dirname, filename);
     }
 
     @Override
@@ -104,17 +98,13 @@ public class DBIndexOutput extends IndexOutput{
 
     @Override
     public void seek(long pos) throws IOException {
-        filePosition = pos;
         flush();
+        filePosition = pos;
     }
 
     @Override
     public long length() throws IOException {
-        if(file.exists()){
-            return file.getLength();
-        }else{
-            throw new IOException("File does not exist");
-        }
+        return file.getLength();
     }
     
 }
