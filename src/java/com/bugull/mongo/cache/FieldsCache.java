@@ -42,7 +42,7 @@ public class FieldsCache {
     }
     
     /**
-     * 获得所有Declared和Inherited Field
+     * get all declared and inherited field
      * @param clazz
      * @return 
      */
@@ -58,7 +58,7 @@ public class FieldsCache {
     }
     
     /**
-     * 把static Filed过滤掉，并把Filed的alccessibe设为true
+     * filter the static filed, and set all the filed to alccessibe=true
      * @param fields
      * @return 
      */
