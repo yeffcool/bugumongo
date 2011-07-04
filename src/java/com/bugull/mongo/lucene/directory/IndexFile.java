@@ -20,14 +20,11 @@ import com.bugull.mongo.fs.BuguFS;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
-import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
-import org.apache.log4j.Logger;
 import org.bson.types.Binary;
 import org.bson.types.ObjectId;
 
@@ -37,40 +34,43 @@ import org.bson.types.ObjectId;
  */
 public class IndexFile {
     
-    private final static Logger logger = Logger.getLogger(IndexFile.class);
-    
-    private String dirName;
-    private String fileName;
+    private String dirname;
+    private String filename;
     private GridFS fs;
     private DBObject dbo;
     
     private DBCollection filesColl;
     private DBCollection chunksColl;
     
-    public IndexFile(String dirName, String fileName){
-        this.dirName = dirName;
-        this.fileName = fileName;
+    private boolean exist = false;
+    private int chunkSize = 0;
+    
+    public IndexFile(String dirname, String filename){
+        this.dirname = dirname;
+        this.filename = filename;
         fs = BuguFS.getInstance().getFS();
-        dbo = new BasicDBObject();
-        dbo.put("dirName", dirName);
-        dbo.put("fileName", fileName);
+        dbo = new BasicDBObject("filename", filename);
+        dbo.put("dirname", dirname);
         DB db = BuguConnection.getInstance().getDB();
         filesColl = db.getCollection("fs.files");
         chunksColl = db.getCollection("fs.chunks");
     }
     
     public boolean exists(){
-        if(fs.findOne(dbo) != null){
-            return true;
-        }else{
-            return false;
+        if(!exist){
+            DBObject file = filesColl.findOne(dbo);
+            exist = file==null?false:true;
+            if(exist){
+                chunkSize = Integer.parseInt(file.get("chunkSize").toString());
+            }
         }
+        return exist;
     }
     
     private void create(byte[] data){
         GridFSInputFile f = fs.createFile(data);
-        f.put("dirName", dirName);
-        f.put("fileName", fileName);
+        f.setFilename(filename);
+        f.put("dirname", dirname);
         f.put("lastModify", System.currentTimeMillis());
         f.save();
     }
@@ -81,26 +81,22 @@ public class IndexFile {
         }
         if(!exists()){
             create(data);
-        }else if(position >= getLength()){
+        }else if(position >= getLength()){    //append at the last chunk
             append(data);
         }else{
-            update(data, position);
+            update(data, position);    //update from the position
         }
     }
     
     private void append(byte[] data){
         DBObject file = filesColl.findOne(dbo);
+        long length = Long.parseLong(file.get("length").toString());
+        int n = (int)(length / chunkSize);
         ObjectId id = (ObjectId)file.get("_id");
         DBObject query = new BasicDBObject("files_id", id);
-        DBObject orderBy = new BasicDBObject("n", -1);
-        DBCursor cursor = chunksColl.find(query).sort(orderBy).limit(1);
-        if(!cursor.hasNext()){
-            return;
-        }
-        DBObject lastChunk = cursor.next();
+        query.put("n", n);
+        DBObject lastChunk = chunksColl.findOne(query);
         int dataLen = data.length;
-        int chunkSize = Integer.parseInt(file.get("chunkSize").toString());
-        long length = Long.parseLong(file.get("length").toString());
         if(length % chunkSize == 0){
             //append new chunk
             DBObject newChunk = new BasicDBObject("files_id", id);
@@ -121,9 +117,9 @@ public class IndexFile {
                 byte[] remainderData = Arrays.copyOfRange(data, chunkSize, dataLen);
                 append(remainderData);
             }
-        }else{
+        }
+        else{
             //need to update the last chunk
-            Object o = lastChunk.get("data");
             byte[] lastData = (byte[])lastChunk.get("data");
             int lastDataLen = lastData.length;
             int diff = (int) (chunkSize - (length % chunkSize));
@@ -151,24 +147,77 @@ public class IndexFile {
     }
     
     private void update(byte[] data, long position){
-        
+        DBObject file = filesColl.findOne(dbo);
+        long length = Long.parseLong(file.get("length").toString());
+        int chunksMax = (int)(length / chunkSize);
+        if(length % chunkSize == 0){
+            chunksMax--;
+        }
+        int n = (int)(position / chunkSize);
+        int remainder = (int)(position % chunkSize);
+        int dataLen = data.length;
+        ObjectId id = (ObjectId)file.get("_id");
+        DBObject query = new BasicDBObject("files_id", id);
+        query.put("n", n);
+        DBObject curChunk = chunksColl.findOne(query);
+        byte[] curData = (byte[])curChunk.get("data");
+        int curLen = curData.length;
+        file.put("lastModify", System.currentTimeMillis());
+        if(remainder + dataLen <= chunkSize){
+            if(remainder + dataLen <= curLen){
+                System.arraycopy(data, 0, curData, remainder, dataLen);
+                curChunk.put("data", new Binary(curData));
+                chunksColl.save(curChunk);
+                filesColl.save(file);
+            }else{
+                byte[] newData = new byte[remainder + dataLen];
+                System.arraycopy(curData, 0, newData, 0, remainder);
+                System.arraycopy(data, 0, newData, remainder, dataLen);
+                curChunk.put("data", new Binary(newData));
+                chunksColl.save(curChunk);
+                file.put("length", length + (remainder + dataLen - curLen));
+                filesColl.save(file);
+            }
+        }
+        else{
+            if(n < chunksMax){
+                int diff = chunkSize - remainder;
+                System.arraycopy(data, 0, curData, remainder, diff);
+                curChunk.put("data", new Binary(curData));
+                chunksColl.save(curChunk);
+                byte[] remainderData = Arrays.copyOfRange(data, diff, dataLen);
+                update(remainderData, position + diff);
+            }else{
+                int diff = chunkSize - remainder;
+                byte[] newData = new byte[chunkSize];
+                System.arraycopy(curData, 0, newData, 0, remainder);
+                System.arraycopy(data, 0, newData, remainder, diff);
+                curChunk.put("data", new Binary(newData));
+                chunksColl.save(curChunk);
+                file.put("length", length + (chunkSize - curLen));
+                filesColl.save(file);
+                byte[] remainderData = Arrays.copyOfRange(data, diff, dataLen);
+                append(remainderData);
+            }
+        }
+    }
+    
+    public byte[] getChunkData(long position){
+        DBObject file = filesColl.findOne(dbo);
+        int n = (int)(position / chunkSize);
+        ObjectId id = (ObjectId)file.get("_id");
+        DBObject query = new BasicDBObject("files_id", id);
+        query.put("n", n);
+        DBObject curChunk = chunksColl.findOne(query);
+        return (byte[])curChunk.get("data");
+    }
+    
+    public int getPositionInChunk(long position){
+        return (int)(position % chunkSize);
     }
     
     public long getLength(){
         return fs.findOne(dbo).getLength();
-    }
-    
-    public ByteArrayOutputStream getOutputStream(){
-        if(!exists()){
-            return null;
-        }
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try{
-            fs.findOne(dbo).writeTo(os);
-        }catch(Exception e){
-            logger.error(e.getMessage());
-        }
-        return os;
     }
     
     public void delete(){

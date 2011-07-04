@@ -15,6 +15,7 @@
 
 package com.bugull.mongo.lucene.directory;
 
+import com.bugull.mongo.cache.IndexFileCache;
 import java.io.IOException;
 import java.util.Arrays;
 import org.apache.lucene.store.IndexOutput;
@@ -32,7 +33,7 @@ public class DBIndexOutput extends IndexOutput{
     private IndexFile file;
     
     public DBIndexOutput(String dirname, String filename){
-        file = new IndexFile(dirname, filename);
+        file = IndexFileCache.getInstance().get(dirname, filename);
     }
 
     @Override

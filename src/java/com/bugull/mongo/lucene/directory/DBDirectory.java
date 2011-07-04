@@ -15,11 +15,10 @@
 
 package com.bugull.mongo.lucene.directory;
 
-import com.bugull.mongo.fs.BuguFS;
+import com.bugull.mongo.BuguConnection;
+import com.bugull.mongo.cache.IndexFileCache;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.gridfs.GridFS;
-import com.mongodb.gridfs.GridFSDBFile;
+import com.mongodb.DBCollection;
 import java.io.IOException;
 import java.util.List;
 import org.apache.lucene.store.Directory;
@@ -33,40 +32,30 @@ import org.apache.lucene.store.Lock;
  */
 public class DBDirectory extends Directory{
     
-    private String dirName;
+    private String dirname;
     
-    public DBDirectory(String dirName){
-        this.dirName = dirName;
+    public DBDirectory(String dirname){
+        this.dirname = dirname;
     }
 
     @Override
     public String[] listAll() throws IOException {
-        GridFS fs = BuguFS.getInstance().getFS();
-        DBObject dbo = new BasicDBObject("dirName", dirName);
-        List<GridFSDBFile> list = fs.find(dbo);
-        int size = list.size();
-        String[] files = new String[size];
-        for(int i=0; i<size; i++){
-            GridFSDBFile f = list.get(i);
-            files[i] = f.get("fileName").toString();
-        }
-        return files;
+        DBCollection coll = BuguConnection.getInstance().getDB().getCollection("fs.files");
+        List<String> list = coll.distinct("filename", new BasicDBObject("dirname", dirname));
+        String[] arr = new String[list.size()];
+        return list.toArray(arr);
     }
 
     @Override
-    public boolean fileExists(String fileName) throws IOException {
-        IndexFile file = new IndexFile(dirName, fileName);
+    public boolean fileExists(String filename) throws IOException {
+        IndexFile file = IndexFileCache.getInstance().get(dirname, filename);
         return file.exists();
     }
 
     @Override
-    public long fileModified(String fileName) throws IOException {
-        IndexFile file = new IndexFile(dirName, fileName);
-        if(file.exists()){
-            return file.getLastModify();
-        }else{
-            throw new IOException("File does not exist: " + fileName);
-        }
+    public long fileModified(String filename) throws IOException {
+        IndexFile file = IndexFileCache.getInstance().get(dirname, filename);
+        return file.getLastModify();
     }
 
     @Override
@@ -76,33 +65,25 @@ public class DBDirectory extends Directory{
     }
 
     @Override
-    public void deleteFile(String fileName) throws IOException {
-        IndexFile file = new IndexFile(dirName, fileName);
-        if(file.exists()){
-            file.delete();
-        }else{
-            throw new IOException("File does not exist: " + fileName);
-        }
+    public void deleteFile(String filename) throws IOException {
+        IndexFile file = IndexFileCache.getInstance().get(dirname, filename);
+        file.delete();
     }
 
     @Override
-    public long fileLength(String fileName) throws IOException {
-        IndexFile file = new IndexFile(dirName, fileName);
-        if(file.exists()){
-            return file.getLength();
-        }else{
-            throw new IOException("File does not exist: " + fileName);
-        }
+    public long fileLength(String filename) throws IOException {
+        IndexFile file = IndexFileCache.getInstance().get(dirname, filename);
+        return file.getLength();
     }
 
     @Override
-    public IndexOutput createOutput(String fileName) throws IOException {
-        return new DBIndexOutput(dirName, fileName);
+    public IndexOutput createOutput(String filename) throws IOException {
+        return new DBIndexOutput(dirname, filename);
     }
 
     @Override
-    public IndexInput openInput(String fileName) throws IOException {
-        return new DBIndexInput(dirName, fileName);
+    public IndexInput openInput(String filename) throws IOException {
+        return new DBIndexInput(dirname, filename);
     }
 
     @Override

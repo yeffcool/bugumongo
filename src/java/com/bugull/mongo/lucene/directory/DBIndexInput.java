@@ -15,7 +15,7 @@
 
 package com.bugull.mongo.lucene.directory;
 
-import java.io.ByteArrayOutputStream;
+import com.bugull.mongo.cache.IndexFileCache;
 import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.apache.lucene.store.IndexInput;
@@ -28,41 +28,56 @@ public class DBIndexInput extends IndexInput{
     
     private final static Logger logger = Logger.getLogger(IndexFile.class);
     
-    private int position;
+    private byte[] buffer;
     private int length;
-    private byte[] data;
+    private int bufferPosition = 0;
+    private long filePosition = 0;
     
-    public DBIndexInput(String dirName, String fileName){
-        IndexFile file = new IndexFile(dirName, fileName);
-        ByteArrayOutputStream os = file.getOutputStream();
-        if(os != null){
-            data = os.toByteArray();
-            try {
-                os.close();
-            } catch (IOException e) {
-                logger.error(e.getMessage());
-            }
-            length = data.length;
+    private IndexFile file;
+    
+    public DBIndexInput(String dirname, String filename){
+        file = IndexFileCache.getInstance().get(dirname, filename);
+        if(file.exists()){
+            fill();
         }
-        position = 0;
+    }
+    
+    private void fill(){
+        buffer = file.getChunkData(filePosition);
+        length = buffer.length;
+        bufferPosition = 0;
     }
 
     @Override
     public byte readByte() throws IOException {
-        if(position + 1 <= length){
-            return data[position++];
-        }else{
-            throw new IOException("Reading past end of file");
+        if(!file.exists()){
+            throw new IOException("File does not exists");
         }
+        if (bufferPosition >= length){
+            fill();
+        }
+        filePosition++;
+        return buffer[bufferPosition++];
     }
 
     @Override
     public void readBytes(byte[] b, int offset, int len) throws IOException {
-        if(position + len <= length){
-            System.arraycopy(data, position, b, offset, len);
-            position += len;
+        if(!file.exists()){
+            throw new IOException("File does not exists");
+        }
+        if (bufferPosition >= length){
+            fill();
+        }
+        if(bufferPosition + len <= length){
+            System.arraycopy(buffer, bufferPosition, b, offset, len);
+            filePosition += len;
+            bufferPosition += len;
         }else{
-            throw new IOException("Reading past end of file");
+            int diff = length - bufferPosition;
+            System.arraycopy(buffer, bufferPosition, b, offset, diff);
+            filePosition += diff;
+            bufferPosition += diff;
+            readBytes(b, offset + diff, len - diff);
         }
     }
 
@@ -73,16 +88,14 @@ public class DBIndexInput extends IndexInput{
 
     @Override
     public long getFilePointer() {
-        return position;
+        return filePosition;
     }
 
     @Override
     public void seek(long pos) throws IOException {
-        if(pos <= length){
-            position = (int)pos;
-        }else{
-            throw new IOException("seeking past end of file");
-        }
+        filePosition = pos;
+        fill();
+        bufferPosition = file.getPositionInChunk(filePosition);
     }
 
     @Override
