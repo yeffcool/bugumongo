@@ -116,6 +116,19 @@ public class BuguDao {
         }
     }
     
+    public void remove(DBObject query){
+        List ids = null;
+        if(listener != null){
+            ids = coll.distinct("_id", query);
+        }
+        coll.remove(query);
+        if(listener != null){
+            for(Object id : ids){
+                listener.entityRemove(clazz, id.toString());
+            }
+        }
+    }
+    
     public void update(BuguEntity obj, DBObject dbo){
         update(obj.getId(), dbo);
     }
