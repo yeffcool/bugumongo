@@ -34,7 +34,6 @@ public class BuguIndex {
     
     private Version version = Version.LUCENE_32;
     private Analyzer analyzer = new StandardAnalyzer(version);
-    private DirectoryType directoryType = DirectoryType.DB;
     private String directoryPath;
     
     private BuguIndex(){
@@ -75,14 +74,6 @@ public class BuguIndex {
 
     public void setAnalyzer(Analyzer analyzer) {
         this.analyzer = analyzer;
-    }
-
-    public DirectoryType getDirectoryType() {
-        return directoryType;
-    }
-
-    public void setDirectoryType(DirectoryType directoryType) {
-        this.directoryType = directoryType;
     }
 
     public String getDirectoryPath() {
