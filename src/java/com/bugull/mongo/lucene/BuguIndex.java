@@ -16,7 +16,6 @@
 package com.bugull.mongo.lucene;
 
 import com.bugull.mongo.lucene.backend.IndexReopenTask;
-import com.bugull.mongo.lucene.directory.DirectoryType;
 import java.util.Timer;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
