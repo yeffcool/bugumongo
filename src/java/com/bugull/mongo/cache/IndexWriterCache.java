@@ -16,13 +16,14 @@
 package com.bugull.mongo.cache;
 
 import com.bugull.mongo.lucene.BuguIndex;
-import com.bugull.mongo.lucene.directory.DirectoryFactory;
+import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 
 /**
  *
@@ -56,9 +57,10 @@ public class IndexWriterCache {
                     writer = cache.get(name);
                 }else{
                     BuguIndex index = BuguIndex.getInstance();
-                    Directory dir = DirectoryFactory.create(index.getDirectoryType(), index.getDirectoryPath(), name);
-                    IndexWriterConfig conf = new IndexWriterConfig(index.getVersion(), index.getAnalyzer());
+                    String path = index.getDirectoryPath();
                     try{
+                        Directory dir = FSDirectory.open(new File(path + "/" + name));
+                        IndexWriterConfig conf = new IndexWriterConfig(index.getVersion(), index.getAnalyzer());
                         writer = new IndexWriter(dir, conf);
                     }catch(Exception e){
                         logger.error(e.getMessage());
