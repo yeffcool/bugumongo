@@ -116,6 +116,10 @@ public class BuguDao {
         }
     }
     
+    public void remove(String key, Object value){
+        remove(new BasicDBObject(key, value));
+    }
+    
     public void remove(DBObject query){
         List ids = null;
         if(listener != null){
