@@ -17,6 +17,7 @@ package com.bugull.mongo;
 
 import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.cache.FieldsCache;
+import com.bugull.mongo.cache.QueryCache;
 import com.bugull.mongo.lucene.annotations.IndexEmbed;
 import com.bugull.mongo.lucene.annotations.IndexFilter;
 import com.bugull.mongo.lucene.annotations.IndexProperty;
@@ -274,13 +275,43 @@ public class BuguDao {
         return toList(cursor);
     }
     
+    public List cacheAll(){
+        QueryCache cache = QueryCache.getInstance();
+        String key = "null-null";
+        List list = null;
+        if(cache.contains(clazz, key)){
+            list = cache.get(clazz, key);
+        }else{
+            list = findAll();
+            cache.put(clazz, key, list);
+        }
+        return list;
+    }
+    
     public List findAll(String orderBy){
         return findAll(getSort(orderBy));
+    }
+    
+    public List cacheAll(String orderBy){
+        return cacheAll(getSort(orderBy));
     }
 
     public List findAll(DBObject orderBy){
         DBCursor cursor = coll.find().sort(orderBy);
         return toList(cursor);
+    }
+    
+    public List cacheAll(DBObject orderBy){
+        QueryCache cache = QueryCache.getInstance();
+        String key = "null-" + orderBy.toString();
+        List list = null;
+        if(cache.contains(clazz, key)){
+            list = cache.get(clazz, key);
+        }else{
+            list = findAll(orderBy);
+            cache.put(clazz, key, list);
+        }
+        return list;
     }
 
     public List findAll(int pageNum, int pageSize){
@@ -300,23 +331,53 @@ public class BuguDao {
     public List find(String key, Object value){
         return find(new BasicDBObject(key, value));
     }
+    
+    public List cache(String key, Object value){
+        return cache(new BasicDBObject(key, value));
+    }
 
     public List find(DBObject query){
         DBCursor cursor = coll.find(query);
         return toList(cursor);
     }
     
+    public List cache(DBObject query){
+        QueryCache cache = QueryCache.getInstance();
+        String key = query.toString() + "-null";
+        List list = null;
+        if(cache.contains(clazz, key)){
+            list = cache.get(clazz, key);
+        }else{
+            list = find(query);
+            cache.put(clazz, key, list);
+        }
+        return list;
+    }
+    
     public List find(String key, Object value, String orderBy){
         return find(new BasicDBObject(key, value), getSort(orderBy));
     }
     
-    public List find(DBObject query, String orderBy){
-        return find(query, getSort(orderBy));
+    public List cache(String key, Object value, String orderBy){
+        return cache(new BasicDBObject(key, value), getSort(orderBy));
     }
 
     public List find(DBObject query, DBObject orderBy){
         DBCursor cursor = coll.find(query).sort(orderBy);
         return toList(cursor);
+    }
+    
+    public List cache(DBObject query, DBObject orderBy){
+        QueryCache cache = QueryCache.getInstance();
+        String key = query.toString() + "-" + orderBy.toString();
+        List list = null;
+        if(cache.contains(clazz, key)){
+            list = cache.get(clazz, key);
+        }else{
+            list = find(query, orderBy);
+            cache.put(clazz, key, list);
+        }
+        return list;
     }
     
     public List find(String key, Object value, int pageNum, int pageSize){
@@ -330,10 +391,6 @@ public class BuguDao {
     
     public List find(String key, Object value, String orderBy, int pageNum, int pageSize){
         return find(new BasicDBObject(key, value), getSort(orderBy), pageNum, pageSize);
-    }
-    
-    public List find(DBObject query, String orderBy, int pageNum, int pageSize){
-        return find(query, getSort(orderBy), pageNum, pageSize);
     }
 
     public List find(DBObject query, DBObject orderBy, int pageNum, int pageSize){

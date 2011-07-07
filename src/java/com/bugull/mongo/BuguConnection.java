@@ -15,9 +15,11 @@
 
 package com.bugull.mongo;
 
+import com.bugull.mongo.cache.ClearExpiredCacheTask;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import java.net.UnknownHostException;
+import java.util.Timer;
 import org.apache.log4j.Logger;
 
 /**
@@ -36,6 +38,9 @@ public class BuguConnection {
     private String username;
     private String password;
     private DB db;
+    
+    private Timer timer;
+    private long cacheTimeout;
     
     private BuguConnection(){
         
@@ -68,6 +73,27 @@ public class BuguConnection {
         }else{
             db = null;
             logger.error("Connect to mongodb failed! Failed to authenticate!");
+        }
+    }
+    
+    /**
+     * 
+     * @param timeout in millisecond
+     */
+    public void setCacheTimeout(long cacheTimeout){
+        this.cacheTimeout = cacheTimeout;
+        close();
+        timer = new Timer();
+        timer.schedule(new ClearExpiredCacheTask(), 60L*1000L, 2L*60L*1000L);
+    }
+    
+    public long getCacheTimeout(){
+        return cacheTimeout;
+    }
+    
+    public void close(){
+        if(timer != null){
+            timer.cancel();
         }
     }
     

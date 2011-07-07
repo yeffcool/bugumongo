@@ -45,13 +45,17 @@ public class BuguIndex {
         return instance;
     }
     
-    public void startIndexReopenTask(long period){
-        cancelIndexReopenTask();
+    /**
+     * 
+     * @param period  in millisecond
+     */
+    public void setIndexReopenPeriod(long period){
+        close();
         timer = new Timer();
         timer.schedule(new IndexReopenTask(), period, period);
     }
     
-    public void cancelIndexReopenTask(){
+    public void close(){
         if(timer != null){
             timer.cancel();
         }
