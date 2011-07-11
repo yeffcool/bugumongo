@@ -361,6 +361,14 @@ public class BuguDao {
     public List cache(String key, Object value, String orderBy){
         return cache(new BasicDBObject(key, value), getSort(orderBy));
     }
+    
+    public List find(DBObject query, String orderBy){
+        return find(query, getSort(orderBy));
+    }
+    
+    public List cache(DBObject query, String orderBy){
+        return cache(query, getSort(orderBy));
+    }
 
     public List find(DBObject query, DBObject orderBy){
         DBCursor cursor = coll.find(query).sort(orderBy);
@@ -391,6 +399,10 @@ public class BuguDao {
     
     public List find(String key, Object value, String orderBy, int pageNum, int pageSize){
         return find(new BasicDBObject(key, value), getSort(orderBy), pageNum, pageSize);
+    }
+    
+    public List find(DBObject query, String orderBy, int pageNum, int pageSize){
+        return find(query, getSort(orderBy), pageNum, pageSize);
     }
 
     public List find(DBObject query, DBObject orderBy, int pageNum, int pageSize){
