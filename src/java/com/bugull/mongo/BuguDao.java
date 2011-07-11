@@ -104,6 +104,10 @@ public class BuguDao {
         }
     }
     
+    public void removeAll(){
+        coll.drop();
+    }
+    
     public void remove(BuguEntity obj){
         remove(obj.getId());
     }
