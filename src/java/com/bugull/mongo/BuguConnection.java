@@ -76,10 +76,6 @@ public class BuguConnection {
         }
     }
     
-    /**
-     * 
-     * @param timeout in millisecond
-     */
     public void setCacheTimeout(long cacheTimeout){
         this.cacheTimeout = cacheTimeout;
         close();
