@@ -101,7 +101,7 @@ public class BuguMapper {
         List<BuguEntity> result = new LinkedList<BuguEntity>();
         for(Object o : list){
             BuguEntity obj = (BuguEntity)o;
-            fetch((BuguEntity)obj, fieldName);
+            fetch(obj, fieldName);
             result.add(obj);
         }
         list = result;
