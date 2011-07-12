@@ -51,14 +51,14 @@ public class RefListDecoder extends AbstractDecoder{
         Type[] types = type.getActualTypeArguments();
         Class clazz = (Class)types[0];
         if(refList.lazy()){
+            BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
             for(DBRef dbRef : list){
-                BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
                 refObj.setId(dbRef.getId().toString());
                 result.add(refObj);
-            } 
+            }
         }else{
+            BuguDao dao = new BuguDao(clazz);
             for(DBRef dbRef : list){
-                BuguDao dao = new BuguDao(clazz);
                 BuguEntity refObj = (BuguEntity)dao.findOne(dbRef.getId().toString());
                 result.add(refObj);
             }
