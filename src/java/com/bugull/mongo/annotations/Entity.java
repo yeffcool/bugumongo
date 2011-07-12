@@ -28,4 +28,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Entity {
     public String name() default "";
+    public boolean capped() default false;
+    public long capSize() default 10L*1024L*1024L;    //10M
 }
