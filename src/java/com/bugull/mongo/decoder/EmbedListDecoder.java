@@ -44,8 +44,9 @@ public class EmbedListDecoder extends AbstractDecoder{
         ParameterizedType type = (ParameterizedType)field.getGenericType();
         Type[] types = type.getActualTypeArguments();
         Class clazz = (Class)types[0];
+        BuguMapper mapper = new BuguMapper();
         for(Object o : list){
-            Object embedObj = new BuguMapper().fromDBObject(clazz, (DBObject)o);
+            Object embedObj = mapper.fromDBObject(clazz, (DBObject)o);
             result.add(embedObj);
         }
         try{
