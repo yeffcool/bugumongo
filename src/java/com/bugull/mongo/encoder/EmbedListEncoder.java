@@ -52,8 +52,9 @@ public class EmbedListEncoder extends AbstractEncoder{
     public Object encode() {
         List list = (List)value;
         List<DBObject> result = new LinkedList<DBObject>();
+        BuguMapper mapper = new BuguMapper();
         for(Object o : list){
-            result.add(new BuguMapper().toDBObject(o));
+            result.add(mapper.toDBObject(o));
         }
         return result;
     }
