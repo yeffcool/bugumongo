@@ -21,15 +21,12 @@ import com.mongodb.DBObject;
 import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.log4j.Logger;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class EmbedListEncoder extends AbstractEncoder{
-    
-    private final static Logger logger = Logger.getLogger(EmbedListEncoder.class);
     
     public EmbedListEncoder(Object obj, Field field){
         super(obj, field);
