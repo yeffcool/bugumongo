@@ -50,8 +50,9 @@ public class RefListEncoder extends AbstractEncoder{
     public Object encode(){
         List<BuguEntity> list = (List<BuguEntity>)value;
         List<DBRef> result = new LinkedList<DBRef>();
+        BuguMapper mapper = new BuguMapper();
         for(BuguEntity entity : list){
-            result.add(new BuguMapper().toDBRef(entity));
+            result.add(mapper.toDBRef(entity));
         }
         return result;
     }
