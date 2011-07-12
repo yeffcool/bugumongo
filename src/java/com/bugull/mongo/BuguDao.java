@@ -25,6 +25,7 @@ import com.bugull.mongo.lucene.annotations.IndexRef;
 import com.bugull.mongo.lucene.annotations.Indexed;
 import com.bugull.mongo.lucene.backend.EntityChangedListener;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -47,11 +48,21 @@ public class BuguDao {
     public BuguDao(Class<?> clazz){
         this.clazz = clazz;
         Entity entity = clazz.getAnnotation(Entity.class);
+        //the collection name
         String name = entity.name();
         if(name.equals("")){
             name = clazz.getSimpleName().toLowerCase();
         }
-        coll = BuguConnection.getInstance().getDB().getCollection(name);
+        //if capped
+        DB db = BuguConnection.getInstance().getDB();
+        if(entity.capped() && !db.collectionExists(name)){
+            DBObject options = new BasicDBObject();
+            options.put("capped", true);
+            options.put("size", entity.capSize());
+            coll = db.createCollection(name, options);
+        }else{
+            coll = db.getCollection(name);
+        }
         //for lucene
         if(clazz.getAnnotation(Indexed.class) != null){
             listener = new EntityChangedListener();
