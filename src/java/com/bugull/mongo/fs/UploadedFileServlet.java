@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 public class UploadedFileServlet extends HttpServlet {
     
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setHeader("Pragma","No-cache");
+        response.setHeader("Pragma","no-cache");
         response.setHeader("Cache-Control","no-cache");
         response.setDateHeader("Expires", 0);
         
