@@ -64,21 +64,23 @@ public class UploadedFileServlet extends HttpServlet {
                 DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
                 df.setTimeZone(TimeZone.getTimeZone("GMT"));
                 Date uploadDate = f.getUploadDate();
+                String lastModified = df.format(uploadDate);
                 if(modifiedSince != null){
+                    Date modifiedDate = null;
                     Date sinceDate = null;
                     try{
+                        modifiedDate = df.parse(lastModified);
                         sinceDate = df.parse(modifiedSince);
                     }catch(ParseException e){
                         logger.error(e.getMessage());
                     }
-                    if(uploadDate.compareTo(sinceDate) <= 0){
+                    if(modifiedDate.compareTo(sinceDate) <= 0){
                         response.setStatus(304);    //Not Modified
                         return;
                     }
                 }
                 long maxAge = 10L * 365L * 24L * 60L * 60L;    //ten years, in seconds
                 response.setHeader("Cache-Control", "max-age=" + maxAge);
-                String lastModified = df.format(uploadDate);
                 response.setHeader("Last-Modified", lastModified);
                 response.setDateHeader("Expires", uploadDate.getTime() + maxAge * 1000L);
             }else{
