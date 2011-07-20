@@ -63,8 +63,8 @@ public class UploadedFileServlet extends HttpServlet {
                 String modifiedSince = request.getHeader("If-Modified-Since");
                 DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
                 df.setTimeZone(TimeZone.getTimeZone("GMT"));
+                Date uploadDate = f.getUploadDate();
                 if(modifiedSince != null){
-                    Date uploadDate = f.getUploadDate();
                     Date sinceDate = null;
                     try{
                         sinceDate = df.parse(modifiedSince);
@@ -78,10 +78,9 @@ public class UploadedFileServlet extends HttpServlet {
                 }
                 long maxAge = 10L * 365L * 24L * 60L * 60L;    //ten years, in seconds
                 response.setHeader("Cache-Control", "max-age=" + maxAge);
-                Date now = new Date();
-                String lastModified = df.format(now);
+                String lastModified = df.format(uploadDate);
                 response.setHeader("Last-Modified", lastModified);
-                response.setDateHeader("Expires", now.getTime() + maxAge * 1000L);
+                response.setDateHeader("Expires", uploadDate.getTime() + maxAge * 1000L);
             }else{
                 response.setContentType("application/octet-stream");
                 response.setHeader("Pragma","no-cache");
