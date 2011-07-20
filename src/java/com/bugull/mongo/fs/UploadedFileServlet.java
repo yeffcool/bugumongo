@@ -72,11 +72,11 @@ public class UploadedFileServlet extends HttpServlet {
                         logger.error(e.getMessage());
                     }
                     if(uploadDate.compareTo(sinceDate) <= 0){
-                        response.setStatus(304);
+                        response.setStatus(304);    //Not Modified
                         return;
                     }
                 }
-                long maxAge = 365L * 24L * 60L * 60L;    //one year, in seconds
+                long maxAge = 10L * 365L * 24L * 60L * 60L;    //ten years, in seconds
                 response.setHeader("Cache-Control", "max-age=" + maxAge);
                 Date now = new Date();
                 String lastModified = df.format(now);
