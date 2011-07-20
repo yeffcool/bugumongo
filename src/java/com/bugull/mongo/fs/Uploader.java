@@ -49,10 +49,7 @@ public class Uploader {
     
     public void save(){
         String[] temp = fName.split("[.]");
-        String ext = temp[temp.length-1].toLowerCase();
-        if(ext.equals("jpg")){
-            ext = "jpeg";
-        }
+        String ext = temp[temp.length-1];
         Date date = new Date();
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         String dateStr = format.format(date);

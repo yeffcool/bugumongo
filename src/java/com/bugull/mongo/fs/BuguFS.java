@@ -63,7 +63,7 @@ public class BuguFS {
         }catch(Exception e){
             logger.error(e.getMessage());
         }
-        f.setFilename(filename);
+        f.setFilename(filename.toLowerCase());
         if(params != null){
             f.putAll(params);
         }
@@ -76,7 +76,7 @@ public class BuguFS {
     
     public void save(byte[] data, String filename, Map params){
         GridFSInputFile f = fs.createFile(data);
-        f.setFilename(filename);
+        f.setFilename(filename.toLowerCase());
         if(params != null){
             f.putAll(params);
         }
@@ -84,7 +84,7 @@ public class BuguFS {
     }
     
     public GridFSDBFile findOne(String filename){
-        return fs.findOne(filename);
+        return fs.findOne(filename.toLowerCase());
     }
     
     public GridFSDBFile findOne(DBObject query){
@@ -92,7 +92,7 @@ public class BuguFS {
     }
     
     public void remove(String filename){
-        fs.remove(filename);
+        fs.remove(filename.toLowerCase());
     }
     
     public void remove(DBObject query){
