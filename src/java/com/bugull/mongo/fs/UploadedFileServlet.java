@@ -19,10 +19,17 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFSDBFile;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -30,12 +37,12 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class UploadedFileServlet extends HttpServlet {
     
+    private final static Logger logger = Logger.getLogger(UploadedFileServlet.class);
+    
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setHeader("Pragma","no-cache");
-        response.setHeader("Cache-Control","no-cache");
-        response.setDateHeader("Expires", 0);
-        
-        String url = request.getContextPath();
+        String url = request.getRequestURI();
+        int second = url.indexOf("/", 1);
+        url = url.substring(second);
         int last = url.lastIndexOf("/");
         String filename = url.substring(last+1).toLowerCase();
         DBObject query = new BasicDBObject("filename", filename);
@@ -53,8 +60,33 @@ public class UploadedFileServlet extends HttpServlet {
             String ext = filename.substring(index+1);
             if(ext.equals("jpeg") || ext.equals("png") || ext.equals("gif") || ext.equals("bmp")){
                 response.setContentType("image/" + ext);
+                String modifiedSince = request.getHeader("If-Modified-Since");
+                DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
+                df.setTimeZone(TimeZone.getTimeZone("GMT"));
+                if(modifiedSince != null){
+                    Date uploadDate = f.getUploadDate();
+                    Date sinceDate = null;
+                    try{
+                        sinceDate = df.parse(modifiedSince);
+                    }catch(ParseException e){
+                        logger.error(e.getMessage());
+                    }
+                    if(uploadDate.compareTo(sinceDate) <= 0){
+                        response.setStatus(304);
+                        return;
+                    }
+                }
+                long maxAge = 365L * 24L * 60L * 60L;    //one year, in seconds
+                response.setHeader("Cache-Control", "max-age=" + maxAge);
+                Date now = new Date();
+                String lastModified = df.format(now);
+                response.setHeader("Last-Modified", lastModified);
+                response.setDateHeader("Expires", now.getTime() + maxAge * 1000L);
             }else{
                 response.setContentType("application/octet-stream");
+                response.setHeader("Pragma","no-cache");
+                response.setHeader("Cache-Control","no-cache");
+                response.setDateHeader("Expires", 0);
             }
             f.writeTo(response.getOutputStream());
         }
