@@ -54,7 +54,7 @@ public class UploadedFileServlet extends HttpServlet {
                 query.put(arr[i], arr[i+1]);
             }
         }
-        GridFSDBFile f = BuguFS.getInstance().getFS().findOne(query);
+        GridFSDBFile f = BuguFS.getInstance().findOne(query);
         if(f != null){
             int index = filename.lastIndexOf(".");
             String ext = filename.substring(index+1);
