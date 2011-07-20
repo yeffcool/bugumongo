@@ -15,14 +15,11 @@
 
 package com.bugull.mongo.fs;
 
-import com.mongodb.gridfs.GridFS;
-import com.mongodb.gridfs.GridFSInputFile;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.log4j.Logger;
 
 /**
  * 
@@ -30,18 +27,17 @@ import org.apache.log4j.Logger;
  */
 public class Uploader {
     
-    private final static Logger logger = Logger.getLogger(Uploader.class);
-    
     protected File file;
     protected String fName;
     protected String filename;
-    protected GridFS fs;
     protected Map<String, Object> map;
+    
+    protected BuguFS fs;
     
     public Uploader(File file, String fName){
         this.file = file;
         this.fName = fName;
-        fs = BuguFS.getInstance().getFS();
+        fs = BuguFS.getInstance();
     }
     
     public void setAttribute(String key, Object value){
@@ -61,17 +57,7 @@ public class Uploader {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         String dateStr = format.format(date);
         filename = dateStr + date.getTime() + "." + ext;
-        GridFSInputFile f = null;
-        try{
-            f = fs.createFile(file);
-        }catch(Exception e){
-            logger.error(e.getMessage());
-        }
-        f.setFilename(filename);
-        if(map != null){
-            f.putAll(map);
-        }
-        f.save();
+        fs.save(file, filename, map);
     }
 
     public String getFilename() {

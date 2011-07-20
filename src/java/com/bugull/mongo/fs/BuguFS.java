@@ -16,13 +16,21 @@
 package com.bugull.mongo.fs;
 
 import com.bugull.mongo.BuguConnection;
+import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFS;
+import com.mongodb.gridfs.GridFSDBFile;
+import com.mongodb.gridfs.GridFSInputFile;
+import java.io.File;
+import java.util.Map;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class BuguFS {
+    
+    private final static Logger logger = Logger.getLogger(BuguFS.class);
     
     private static BuguFS instance = new BuguFS();
     
@@ -38,6 +46,57 @@ public class BuguFS {
     
     public GridFS getFS(){
         return fs;
+    }
+    
+    public void save(File file){
+        save(file, file.getName());
+    }
+    
+    public void save(File file, String filename){
+        save(file, filename, null);
+    }
+    
+    public void save(File file, String filename, Map params){
+        GridFSInputFile f = null;
+        try{
+            f = fs.createFile(file);
+        }catch(Exception e){
+            logger.error(e.getMessage());
+        }
+        f.setFilename(filename);
+        if(params != null){
+            f.putAll(params);
+        }
+        f.save();
+    }
+    
+    public void save(byte[] data, String filename){
+        save(data, filename);
+    }
+    
+    public void save(byte[] data, String filename, Map params){
+        GridFSInputFile f = fs.createFile(data);
+        f.setFilename(filename);
+        if(params != null){
+            f.putAll(params);
+        }
+        f.save();
+    }
+    
+    public GridFSDBFile findOne(String filename){
+        return fs.findOne(filename);
+    }
+    
+    public GridFSDBFile findOne(DBObject query){
+        return fs.findOne(query);
+    }
+    
+    public void remove(String filename){
+        fs.remove(filename);
+    }
+    
+    public void remove(DBObject query){
+        fs.remove(query);
     }
     
 }

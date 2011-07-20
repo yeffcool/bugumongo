@@ -18,7 +18,6 @@ package com.bugull.mongo.fs;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFSDBFile;
-import com.mongodb.gridfs.GridFSInputFile;
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGEncodeParam;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
@@ -55,18 +54,6 @@ public class ImageUploader extends Uploader{
         query.put("dimension", null);
         GridFSDBFile f = fs.findOne(query);
         return f.getInputStream();
-    }
-    
-    private void save(ByteArrayOutputStream baos, String dimension){
-        GridFSInputFile f = fs.createFile(baos.toByteArray());
-        f.setFilename(filename);
-        if(dimension != null){
-            f.put("dimension", dimension);
-        }
-        if(map != null){
-            f.putAll(map);
-        }
-        f.save();
     }
     
     private void addWatermark(Watermark watermark) {
@@ -122,7 +109,7 @@ public class ImageUploader extends Uploader{
         } catch (Exception ex) {
             logger.error(ex);
         }
-        save(baos, null);
+        fs.save(baos.toByteArray(), filename, map);
         close(baos);
     }
     
@@ -165,7 +152,8 @@ public class ImageUploader extends Uploader{
                 logger.error(ex);
             }
         }
-        save(baos, dimension);
+        setAttribute("dimension", dimension);
+        fs.save(baos.toByteArray(), filename, map);
         close(baos);
     }
     
