@@ -19,6 +19,7 @@ import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.annotations.Id;
 import com.bugull.mongo.cache.FieldsCache;
+import com.bugull.mongo.lucene.annotations.BoostSwitch;
 import com.bugull.mongo.lucene.annotations.IndexEmbed;
 import com.bugull.mongo.lucene.annotations.IndexProperty;
 import com.bugull.mongo.lucene.annotations.IndexRef;
@@ -56,6 +57,16 @@ public class IndexCreater {
         Class<?> clazz = obj.getClass();
         java.lang.reflect.Field[] fields = FieldsCache.getInstance().get(clazz);
         for(java.lang.reflect.Field f : fields){
+            BoostSwitch bs = f.getAnnotation(BoostSwitch.class);
+            if(bs != null){
+                CompareChecker checker = new CompareChecker(obj);
+                boolean fit = checker.isFit(f, bs.compare(), bs.value());
+                if(fit){
+                    doc.setBoost(bs.fit());
+                }else{
+                    doc.setBoost(bs.unfit());
+                }
+            }
             Class<?> type = f.getType();
             try{
                 if(type.isArray()){
