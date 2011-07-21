@@ -21,6 +21,8 @@ import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 import java.io.File;
+import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
 
@@ -70,8 +72,21 @@ public class BuguFS {
         f.save();
     }
     
+    public void save(InputStream is, String filename){
+        save(is, filename, null);
+    }
+    
+    public void save(InputStream is, String filename, Map params){
+        GridFSInputFile f = fs.createFile(is);
+        f.setFilename(filename.toLowerCase());
+        if(params != null){
+            f.putAll(params);
+        }
+        f.save();
+    }
+    
     public void save(byte[] data, String filename){
-        save(data, filename);
+        save(data, filename, null);
     }
     
     public void save(byte[] data, String filename, Map params){
@@ -89,6 +104,14 @@ public class BuguFS {
     
     public GridFSDBFile findOne(DBObject query){
         return fs.findOne(query);
+    }
+    
+    public List<GridFSDBFile> find(String filename) {
+        return fs.find(filename);
+    }
+    
+    public List<GridFSDBFile> find(DBObject query){
+        return fs.find(query);
     }
     
     public void remove(String filename){
