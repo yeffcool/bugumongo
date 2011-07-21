@@ -16,7 +16,6 @@
 package com.bugull.mongo.fs;
 
 import com.bugull.mongo.BuguConnection;
-import com.bugull.mongo.BuguEntity;
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
