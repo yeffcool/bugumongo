@@ -34,7 +34,6 @@ public class IndexFilterChecker {
     }
     
     public boolean needIndex(){
-        CompareChecker checker = new CompareChecker(obj);
         Class<?> clazz = obj.getClass();
         Field[] fields = FieldsCache.getInstance().get(clazz);
         for(Field f : fields){
@@ -42,6 +41,7 @@ public class IndexFilterChecker {
             if(filter != null){
                 Compare compare = filter.compare();
                 String value = filter.value();
+                CompareChecker checker = new CompareChecker(obj);
                 if(! checker.isFit(f, compare, value)){
                     return false;
                 }
