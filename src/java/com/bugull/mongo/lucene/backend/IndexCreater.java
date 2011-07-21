@@ -27,6 +27,7 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.document.NumericField;
 
 /**
@@ -127,6 +128,7 @@ public class IndexCreater {
         Field field = new Field(fieldName, sb.toString(),
                     ip.store() ? Field.Store.YES : Field.Store.NO,
                     ip.analyze() ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
+        field.setBoost(ip.boost());
         doc.add(field);
     }
     
@@ -150,43 +152,36 @@ public class IndexCreater {
         String fieldName = prefix + f.getName();
         String typeName = type.getName();
         IndexProperty ip = f.getAnnotation(IndexProperty.class);
+        Fieldable field = null;
         if(typeName.equals("java.lang.String")){
             String fieldValue = f.get(obj).toString();
-            Field field = new Field(fieldName, fieldValue,
+            field = new Field(fieldName, fieldValue,
                     ip.store() ? Field.Store.YES : Field.Store.NO,
                     ip.analyze() ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
-            doc.add(field);
         }
         else if(typeName.equals("boolean") || typeName.equals("java.lang.Boolean")){
             String fieldValue = f.getBoolean(obj) ? "true" : "false";
-            Field field = new Field(fieldName, fieldValue, Field.Store.NO, Field.Index.NOT_ANALYZED);
-            doc.add(field);
+            field = new Field(fieldName, fieldValue, Field.Store.NO, Field.Index.NOT_ANALYZED);
         }
         else if(typeName.equals("char") || typeName.equals("java.lang.Character")){
             String fieldValue = String.valueOf(f.getChar(obj));
-            Field field = new Field(fieldName, fieldValue, Field.Store.NO, Field.Index.NOT_ANALYZED);
-            doc.add(field);
+            field = new Field(fieldName, fieldValue, Field.Store.NO, Field.Index.NOT_ANALYZED);
         }
         else if(typeName.equals("int") || typeName.equals("java.lang.Integer")){
-            NumericField field = new NumericField(fieldName).setIntValue(f.getInt(obj));
-            doc.add(field);
+            field = new NumericField(fieldName).setIntValue(f.getInt(obj));
         }
         else if(typeName.equals("long") || typeName.equals("java.lang.Long")){
-            NumericField field = new NumericField(fieldName).setLongValue(f.getLong(obj));
-            doc.add(field);
+            field = new NumericField(fieldName).setLongValue(f.getLong(obj));
         }
         else if(typeName.equals("float") || typeName.equals("java.lang.Float")){
-            NumericField field = new NumericField(fieldName).setFloatValue(f.getFloat(obj));
-            doc.add(field);
+            field = new NumericField(fieldName).setFloatValue(f.getFloat(obj));
         }
         else if(typeName.equals("double") || typeName.equals("java.lang.Double")){
-            NumericField field = new NumericField(fieldName).setDoubleValue(f.getDouble(obj));
-            doc.add(field);
+            field = new NumericField(fieldName).setDoubleValue(f.getDouble(obj));
         }
         else if(typeName.equals("java.util.Date")){
             Date date = (Date)f.get(obj);
-            NumericField field = new NumericField(fieldName).setLongValue(date.getTime());
-            doc.add(field);
+            field = new NumericField(fieldName).setLongValue(date.getTime());
         }
         else if(typeName.equals("java.util.Set") || typeName.equals("java.util.List")){
             Collection coll = (Collection)f.get(obj);
@@ -195,11 +190,12 @@ public class IndexCreater {
             for(Object o : coll){
                 sb.append(o).append(join);
             }
-            Field field = new Field(fieldName, sb.toString(),
+            field = new Field(fieldName, sb.toString(),
                     ip.store() ? Field.Store.YES : Field.Store.NO,
                     ip.analyze() ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
-            doc.add(field);
         }
+        field.setBoost(ip.boost());
+        doc.add(field);
     }
     
     private void processIndexEmbed(Document doc, java.lang.reflect.Field f) throws Exception{

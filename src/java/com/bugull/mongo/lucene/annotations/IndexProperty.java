@@ -29,5 +29,6 @@ import java.lang.annotation.Target;
 public @interface IndexProperty {
     public boolean analyze() default false;
     public boolean store() default false;
+    public float boost() default 1.0f;
     public String join() default ";";
 }
