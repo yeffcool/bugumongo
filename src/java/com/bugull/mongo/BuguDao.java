@@ -17,7 +17,6 @@ package com.bugull.mongo;
 
 import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.cache.FieldsCache;
-import com.bugull.mongo.fs.BuguFS;
 import com.bugull.mongo.lucene.annotations.IndexEmbed;
 import com.bugull.mongo.lucene.annotations.IndexFilter;
 import com.bugull.mongo.lucene.annotations.IndexProperty;
