@@ -21,6 +21,7 @@ import com.mongodb.DBObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -49,8 +50,14 @@ public class EmbedListDecoder extends AbstractDecoder{
             Object embedObj = mapper.fromDBObject(clazz, (DBObject)o);
             result.add(embedObj);
         }
+        String typeName = field.getType().getName();
         try{
-            field.set(obj, result);
+            if(typeName.equals("java.util.List")){
+                field.set(obj, result);
+            }
+            else if(typeName.equals("java.util.Set")){
+                field.set(obj, new HashSet(result));
+            }
         }catch(Exception e){
             logger.error(e.getMessage());
         }
