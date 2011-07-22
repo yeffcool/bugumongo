@@ -34,6 +34,7 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 
@@ -141,23 +142,30 @@ public class BuguMapper {
             if(o == null){
                 return;
             }
-            List<BuguEntity> list = (List<BuguEntity>)o;
             ParameterizedType type = (ParameterizedType)field.getGenericType();
             Type[] types = type.getActualTypeArguments();
             Class clazz = (Class)types[0];
             BuguDao dao = new BuguDao(clazz);
-            List result = new LinkedList();
-            for(BuguEntity refObj : list){
-                String id = refObj.getId();
-                Object value = dao.findOne(id);
-                result.add(value);
-            }
             String typeName = field.getType().getName();
             if(typeName.equals("java.util.List")){
+                List<BuguEntity> list = (List<BuguEntity>)o;
+                List result = new LinkedList();
+                for(BuguEntity refObj : list){
+                    String id = refObj.getId();
+                    Object value = dao.findOne(id);
+                    result.add(value);
+                }
                 field.set(obj, result);
             }
             else if(typeName.equals("java.util.Set")){
-                field.set(obj, new HashSet(result));
+                Set<BuguEntity> set = (Set<BuguEntity>)o;
+                Set result = new HashSet();
+                for(BuguEntity refObj : set){
+                    String id = refObj.getId();
+                    Object value = dao.findOne(id);
+                    result.add(value);
+                }
+                field.set(obj, result);
             }
         }catch(Exception e){
             logger.error(e.getMessage());
