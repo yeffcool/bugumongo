@@ -40,7 +40,7 @@ public abstract class AbstractEncoder implements Encoder{
             if(type.isArray()){
                 setArrayValue(type.getComponentType());
             }else{
-                setPrimitiveValue(type.getName());
+                setValue(type.getName());
             }
         }catch(Exception e){
             logger.error(e.getMessage());
@@ -114,7 +114,7 @@ public abstract class AbstractEncoder implements Encoder{
         }
     }
     
-    private void setPrimitiveValue(String typeName) throws Exception {
+    private void setValue(String typeName) throws Exception {
         if(typeName.equals("int") || typeName.equals("java.lang.Integer")){
             value = field.getInt(obj);
         }
@@ -133,7 +133,7 @@ public abstract class AbstractEncoder implements Encoder{
         else if(typeName.equals("char") || typeName.equals("java.lang.Character")){
             value = String.valueOf(field.getChar(obj));
         }
-        else{
+        else{  //List, Set, Date, and other Object
             value = field.get(obj);
         }
     }
