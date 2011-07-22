@@ -146,4 +146,8 @@ public class BuguSearcher {
         return list;
     }
     
+    public IndexSearcher getSearcher(){
+        return searcher;
+    }
+    
 }
