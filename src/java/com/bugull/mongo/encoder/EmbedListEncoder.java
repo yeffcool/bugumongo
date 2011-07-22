@@ -19,8 +19,10 @@ import com.bugull.mongo.BuguMapper;
 import com.bugull.mongo.annotations.EmbedList;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -47,13 +49,26 @@ public class EmbedListEncoder extends AbstractEncoder{
 
     @Override
     public Object encode() {
-        List list = (List)value;
-        List<DBObject> result = new LinkedList<DBObject>();
-        BuguMapper mapper = new BuguMapper();
-        for(Object o : list){
-            result.add(mapper.toDBObject(o));
+        String typeName = field.getType().getName();
+        if(typeName.equals("java.util.List")){
+            List list = (List)value;
+            List<DBObject> result = new LinkedList<DBObject>();
+            BuguMapper mapper = new BuguMapper();
+            for(Object o : list){
+                result.add(mapper.toDBObject(o));
+            }
+            return result;
         }
-        return result;
+        else if(typeName.equals("java.util.Set")){
+            Set set = (Set)value;
+            Set<DBObject> result = new HashSet<DBObject>();
+            BuguMapper mapper = new BuguMapper();
+            for(Object o : set){
+                result.add(mapper.toDBObject(o));
+            }
+            return result;
+        }
+        return null;
     }
     
 }
