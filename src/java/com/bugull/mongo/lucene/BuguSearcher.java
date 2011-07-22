@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -42,6 +43,7 @@ public class BuguSearcher {
     private IndexSearcher searcher;
     private Query query;
     private Sort sort;
+    private Filter filter;
     private int pageNumber = 1;
     private int pageSize = 20;
     private int maxPage = 50;
@@ -63,6 +65,10 @@ public class BuguSearcher {
     
     public void setSort(Sort sort){
         this.sort = sort;
+    }
+    
+    public void setFilter(Filter filter){
+        this.filter = filter;
     }
     
     public void setMaxPage(int maxPage){
@@ -92,13 +98,26 @@ public class BuguSearcher {
         return search();
     }
     
+    public List search(Query query, Filter filter){
+        this.query = query;
+        this.filter = filter;
+        return search();
+    }
+    
+    public List search(Query query, Filter filter, Sort sort){
+        this.query = query;
+        this.filter = filter;
+        this.sort = sort;
+        return search();
+    }
+    
     public List search(){
         TopDocs topDocs = null;
         try{
             if(sort == null){
-                topDocs = searcher.search(query, maxPage*pageSize);
+                topDocs = searcher.search(query, filter, maxPage*pageSize);
             }else{
-                topDocs = searcher.search(query, maxPage*pageSize, sort);
+                topDocs = searcher.search(query, filter, maxPage*pageSize, sort);
             }
         }catch(Exception e){
             logger.error(e.getMessage());
