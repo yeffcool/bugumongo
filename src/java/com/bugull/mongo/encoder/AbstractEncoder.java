@@ -38,7 +38,7 @@ public abstract class AbstractEncoder implements Encoder{
         Class<?> type = field.getType();
         try{
             if(type.isArray()){
-                setArrayValue(type.getComponentType());
+                setArrayValue(type.getComponentType().getName());
             }else{
                 setValue(type.getName());
             }
@@ -52,10 +52,9 @@ public abstract class AbstractEncoder implements Encoder{
         return value == null;
     }
     
-    private void setArrayValue(Class<?> dataType) throws Exception {
+    private void setArrayValue(String typeName) throws Exception {
         Object o = field.get(obj);
         int len = Array.getLength(o);
-        String typeName = dataType.getName();
         if(typeName.equals("java.lang.String")){
             String[] arr = new String[len];
             for(int i=0; i<len; i++){
