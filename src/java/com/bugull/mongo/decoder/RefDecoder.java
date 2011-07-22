@@ -37,6 +37,14 @@ public class RefDecoder extends AbstractDecoder{
     public RefDecoder(Field field, DBObject dbo){
         super(field, dbo);
         ref = field.getAnnotation(Ref.class);
+        String fieldName = field.getName();
+        if(ref != null){
+            String name = ref.name();
+            if(!name.equals("")){
+                fieldName = name;
+            }
+        }
+        value = dbo.get(fieldName);
     }
     
     @Override
@@ -57,18 +65,6 @@ public class RefDecoder extends AbstractDecoder{
         }catch(Exception e){
             logger.error(e.getMessage());
         }
-    }
-    
-    @Override
-    public String getFieldName(){
-        String fieldName = field.getName();
-        if(ref != null){
-            String name = ref.name();
-            if(!name.equals("")){
-                fieldName = name;
-            }
-        }
-        return fieldName;
     }
     
 }

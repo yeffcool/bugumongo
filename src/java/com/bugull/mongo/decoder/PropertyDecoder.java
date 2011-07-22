@@ -35,6 +35,15 @@ public class PropertyDecoder extends AbstractDecoder{
     
     public PropertyDecoder(Field field, DBObject dbo){
         super(field, dbo);
+        String fieldName = field.getName();
+        Property property = field.getAnnotation(Property.class);
+        if(property != null){
+            String name = property.name();
+            if(!name.equals("")){
+                fieldName = name;
+            }
+        }
+        value = dbo.get(fieldName);
     }
     
     @Override
@@ -138,19 +147,6 @@ public class PropertyDecoder extends AbstractDecoder{
         else{
             field.set(obj, value);
         }
-    }
-    
-    @Override
-    public String getFieldName(){
-        String fieldName = field.getName();
-        Property property = field.getAnnotation(Property.class);
-        if(property != null){
-            String name = property.name();
-            if(!name.equals("")){
-                fieldName = name;
-            }
-        }
-        return fieldName;
     }
     
 }

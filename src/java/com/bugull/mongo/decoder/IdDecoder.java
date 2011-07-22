@@ -29,6 +29,7 @@ public class IdDecoder extends AbstractDecoder{
     
     public IdDecoder(Field field, DBObject dbo){
         super(field, dbo);
+        value = dbo.get("_id");
     }
     
     @Override
@@ -38,11 +39,6 @@ public class IdDecoder extends AbstractDecoder{
         }catch(Exception e){
             logger.error(e.getMessage());
         }
-    }
-    
-    @Override
-    public String getFieldName(){
-        return "_id";
     }
     
 }

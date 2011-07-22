@@ -27,6 +27,7 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import org.apache.log4j.Logger;
 
 /**
@@ -42,18 +43,26 @@ public class RefListDecoder extends AbstractDecoder{
     public RefListDecoder(Field field, DBObject dbo){
         super(field, dbo);
         refList = field.getAnnotation(RefList.class);
+        String fieldName = field.getName();
+        if(refList != null){
+            String name = refList.name();
+            if(!name.equals("")){
+                fieldName = name;
+            }
+        }
+        value = dbo.get(fieldName);
     }
     
     @Override
     public void decode(Object obj){
         List<DBRef> list = (List<DBRef>)value;
-        List result = new LinkedList();
         ParameterizedType type = (ParameterizedType)field.getGenericType();
         Type[] types = type.getActualTypeArguments();
         Class clazz = (Class)types[0];
+        List<BuguEntity> result = new LinkedList<BuguEntity>();
         if(refList.lazy()){
-            BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
             for(DBRef dbRef : list){
+                BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
                 refObj.setId(dbRef.getId().toString());
                 result.add(refObj);
             }
@@ -64,8 +73,8 @@ public class RefListDecoder extends AbstractDecoder{
                 result.add(refObj);
             }
         }
-        String typeName = field.getType().getName();
         try{
+            String typeName = field.getType().getName();
             if(typeName.equals("java.util.List")){
                 field.set(obj, result);
             }
@@ -75,18 +84,6 @@ public class RefListDecoder extends AbstractDecoder{
         }catch(Exception e){
             logger.error(e.getMessage());
         }
-    }
-    
-    @Override
-    public String getFieldName(){
-        String fieldName = field.getName();
-        if(refList != null){
-            String name = refList.name();
-            if(!name.equals("")){
-                fieldName = name;
-            }
-        }
-        return fieldName;
     }
     
 }

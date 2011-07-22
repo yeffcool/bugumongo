@@ -36,6 +36,15 @@ public class EmbedListDecoder extends AbstractDecoder{
     
     public EmbedListDecoder(Field field, DBObject dbo){
         super(field, dbo);
+        String fieldName = field.getName();
+        EmbedList embedList = field.getAnnotation(EmbedList.class);
+        if(embedList != null){
+            String name = embedList.name();
+            if(!name.equals("")){
+                fieldName = name;
+            }
+        }
+        value = dbo.get(fieldName);
     }
 
     @Override
@@ -61,19 +70,6 @@ public class EmbedListDecoder extends AbstractDecoder{
         }catch(Exception e){
             logger.error(e.getMessage());
         }
-    }
-
-    @Override
-    public String getFieldName() {
-        String fieldName = field.getName();
-        EmbedList embedList = field.getAnnotation(EmbedList.class);
-        if(embedList != null){
-            String name = embedList.name();
-            if(!name.equals("")){
-                fieldName = name;
-            }
-        }
-        return fieldName;
     }
     
 }

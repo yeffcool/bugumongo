@@ -25,6 +25,4 @@ public interface Decoder {
     
     public boolean isNullField();
     
-    public String getFieldName();
-    
 }

@@ -31,7 +31,6 @@ public abstract class AbstractDecoder implements Decoder{
     protected AbstractDecoder(Field field, DBObject dbo){
         this.field = field;
         this.dbo = dbo;
-        value = dbo.get(getFieldName());
     }
     
     @Override
