@@ -72,6 +72,10 @@ public class IndexWriterCache {
         return writer;
     }
     
+    public Map<String, IndexWriter> getAll(){
+        return cache;
+    }
+    
     public Long getLastChange(String name){
         if(lastChange.containsKey(name)){
             return lastChange.get(name);

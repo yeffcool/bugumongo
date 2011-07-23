@@ -17,22 +17,24 @@ package com.bugull.mongo.lucene.backend;
 
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.annotations.Entity;
+import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.cache.IndexWriterCache;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.Term;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class IndexInsertThread implements Runnable {
+public class IndexUpdateTask implements Runnable{
     
-    private final static Logger logger = Logger.getLogger(IndexInsertThread.class);
+    private final static Logger logger = Logger.getLogger(IndexUpdateTask.class);
     
     private BuguEntity obj;
     
-    public IndexInsertThread(BuguEntity obj){
+    public IndexUpdateTask(BuguEntity obj){
         this.obj = obj;
     }
 
@@ -50,7 +52,8 @@ public class IndexInsertThread implements Runnable {
         IndexCreater creater = new IndexCreater(obj, obj.getId(), null);
         creater.process(doc);
         try{
-            writer.addDocument(doc);
+            Term term = new Term(FieldsCache.getInstance().getIdFieldName(clazz), obj.getId());
+            writer.updateDocument(term, doc);
             cache.putLastChange(name, System.currentTimeMillis());
         }catch(Exception e){
             logger.error(e.getMessage());

@@ -15,10 +15,17 @@
 
 package com.bugull.mongo.lucene;
 
+import com.bugull.mongo.cache.IndexWriterCache;
 import com.bugull.mongo.lucene.backend.IndexReopenTask;
-import java.util.Timer;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.util.Version;
 
 /**
@@ -27,13 +34,19 @@ import org.apache.lucene.util.Version;
  */
 public class BuguIndex {
     
-    private static BuguIndex instance = new BuguIndex();
+    private final static Logger logger = Logger.getLogger(BuguIndex.class);
     
-    private Timer timer;
+    private static BuguIndex instance = new BuguIndex();
     
     private Version version = Version.LUCENE_32;
     private Analyzer analyzer = new StandardAnalyzer(version);
     private String directoryPath;
+    
+    private ExecutorService executor;
+    private int poolSize = 5;
+    
+    private ScheduledExecutorService scheduler;
+    private long period = 60L * 1000L;  //one minute
     
     private BuguIndex(){
         
@@ -43,20 +56,39 @@ public class BuguIndex {
         return instance;
     }
     
-    /**
-     * 
-     * @param period  in millisecond
-     */
-    public void setIndexReopenPeriod(long period){
-        close();
-        timer = new Timer();
-        timer.schedule(new IndexReopenTask(), period, period);
+    public void open(){
+        executor = Executors.newFixedThreadPool(poolSize);
+        scheduler = Executors.newScheduledThreadPool(2);
+        scheduler.scheduleAtFixedRate(new IndexReopenTask(), period, period, TimeUnit.MILLISECONDS);
     }
     
     public void close(){
-        if(timer != null){
-            timer.cancel();
+        if(executor != null){
+            executor.shutdown();
         }
+        if(scheduler != null){
+            scheduler.shutdown();
+        }
+        Map<String, IndexWriter>  map = IndexWriterCache.getInstance().getAll();
+        for(IndexWriter writer : map.values()){
+            try{
+                writer.close();
+            }catch(Exception e){
+                logger.error(e.getMessage());
+            }
+        }
+    }
+    
+    public ExecutorService getExecutor(){
+        return executor;
+    }
+    
+    public void setThreadPoolSize(int poolSize){
+        this.poolSize = poolSize;
+    }
+    
+    public void setIndexReopenPeriod(long period){
+        this.period = period;
     }
 
     public Version getVersion() {

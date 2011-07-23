@@ -16,16 +16,18 @@
 package com.bugull.mongo.lucene.backend;
 
 import com.bugull.mongo.cache.IndexSearcherCache;
+import com.bugull.mongo.cache.IndexWriterCache;
 import java.util.Map;
-import java.util.TimerTask;
 import org.apache.log4j.Logger;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class IndexReopenTask extends TimerTask {
+public class IndexReopenTask implements Runnable {
     
     private final static Logger logger = Logger.getLogger(IndexReopenTask.class);
 
@@ -33,11 +35,29 @@ public class IndexReopenTask extends TimerTask {
     public void run() {
         Map<String, IndexSearcher> map = IndexSearcherCache.getInstance().getAll();
         for(String name : map.keySet()){
+            IndexSearcher searcher = map.get(name);
+            IndexSearcherCache searcherCache = IndexSearcherCache.getInstance();
+            if(searcherCache.isOpenning(name)){
+                continue;
+            }
+            searcherCache.putOpenning(name, Boolean.TRUE);
             try{
-                IndexReopenThread thread = new IndexReopenThread(name, map.get(name));
-                new Thread(thread).start();
+                IndexWriterCache writerCache = IndexWriterCache.getInstance();
+                long lastChange = writerCache.getLastChange(name);
+                long lastOpen = searcherCache.getLastOpen(name);
+                if(lastChange > lastOpen){
+                    IndexWriter writer = writerCache.get(name);
+                    writer.optimize();
+                    writer.commit();
+                    IndexReader newReader = searcher.getIndexReader().reopen();
+                    IndexSearcher newSearcher = new IndexSearcher(newReader);
+                    searcherCache.put(name, newSearcher);
+                    searcherCache.putLastOpen(name, System.currentTimeMillis());
+                }
             }catch(Exception e){
                 logger.error(e.getMessage());
+            }finally{
+                searcherCache.putOpenning(name, Boolean.FALSE);
             }
         }
     }

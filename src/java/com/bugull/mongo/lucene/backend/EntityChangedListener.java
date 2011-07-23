@@ -16,6 +16,8 @@
 package com.bugull.mongo.lucene.backend;
 
 import com.bugull.mongo.BuguEntity;
+import com.bugull.mongo.lucene.BuguIndex;
+import java.util.concurrent.ExecutorService;
 
 /**
  *
@@ -23,28 +25,29 @@ import com.bugull.mongo.BuguEntity;
  */
 public class EntityChangedListener {
     
+    private ExecutorService executor = BuguIndex.getInstance().getExecutor();
+    
     public void entityInsert(BuguEntity obj){
         IndexFilterChecker checker = new IndexFilterChecker(obj);
         if(checker.needIndex()){
-            IndexInsertThread thread = new IndexInsertThread(obj);
-            new Thread(thread).start();
+            IndexInsertTask task = new IndexInsertTask(obj);
+            executor.execute(task);
         }
     }
     
     public void entityUpdate(BuguEntity obj){
         IndexFilterChecker checker = new IndexFilterChecker(obj);
         if(checker.needIndex()){
-            IndexUpdateThread thread = new IndexUpdateThread(obj);
-            new Thread(thread).start();
+            IndexUpdateTask task = new IndexUpdateTask(obj);
+            executor.execute(task);
         }else{
             entityRemove(obj.getClass(), obj.getId());
         }
-        
     }
     
     public void entityRemove(Class<?> clazz, String id){
-        IndexRemoveThread thread = new IndexRemoveThread(clazz, id);
-        new Thread(thread).start();
+        IndexRemoveTask task = new IndexRemoveTask(clazz, id);
+        executor.execute(task);
     }
     
 }

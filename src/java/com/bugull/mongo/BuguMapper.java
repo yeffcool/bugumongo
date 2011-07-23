@@ -84,12 +84,19 @@ public class BuguMapper {
     }
     
     public void fetch(BuguEntity obj, String fieldName){
-        Class<?> clazz = obj.getClass();
-        Field field = FieldsCache.getInstance().getField(clazz, fieldName);
-        if(field.getAnnotation(Ref.class) != null){
-            fetchRef(obj, field);
-        }else if(field.getAnnotation(RefList.class) != null){
-            fetchRefList(obj, field);
+        String remainder = null;
+        int index = fieldName.indexOf(".");
+        if(index > 0){
+            remainder = fieldName.substring(index+1);
+            fieldName = fieldName.substring(0, index);
+        }
+        fetchOneLevel(obj, fieldName);
+        if(remainder != null){
+            try{
+                fetchRemainder(obj, fieldName, remainder);
+            }catch(Exception e){
+                logger.error(e.getMessage());
+            }
         }
     }
     
@@ -119,6 +126,41 @@ public class BuguMapper {
         list = result;
     }
     
+    private void fetchOneLevel(BuguEntity obj, String fieldName){
+        Field field = FieldsCache.getInstance().getField(obj.getClass(), fieldName);
+        if(field.getAnnotation(Ref.class) != null){
+            fetchRef(obj, field);
+        }else if(field.getAnnotation(RefList.class) != null){
+            fetchRefList(obj, field);
+        }
+    }
+    
+    private void fetchRemainder(BuguEntity obj, String fieldName, String remainder) throws Exception {
+        Field field = FieldsCache.getInstance().getField(obj.getClass(), fieldName);
+        Object value = field.get(obj);
+        if(value == null){
+            return;
+        }
+        if(field.getAnnotation(Ref.class) != null){
+            BuguEntity entity = (BuguEntity)value;
+            fetch(entity, remainder);
+        }else if(field.getAnnotation(RefList.class) != null){
+            String typeName = field.getType().getName();
+            if(typeName.equals("java.util.List")){
+                List<BuguEntity> list = (List<BuguEntity>)value;
+                for(BuguEntity entity : list){
+                    fetch(entity, remainder);
+                }
+            }
+            else if(typeName.equals("java.util.Set")){
+                Set<BuguEntity> set = (Set<BuguEntity>)value;
+                for(BuguEntity entity : set){
+                    fetch(entity, remainder);
+                }
+            }
+        }
+    }
+    
     private void fetchRef(BuguEntity obj, Field field){
         try{
             Object o = field.get(obj);
@@ -127,8 +169,7 @@ public class BuguMapper {
             }
             BuguEntity refObj = (BuguEntity)o;
             String id = refObj.getId();
-            Class<?> type = field.getType();
-            BuguDao dao = new BuguDao(type);
+            BuguDao dao = new BuguDao(field.getType());
             Object value = dao.findOne(id);
             field.set(obj, value);
         }catch(Exception e){
