@@ -34,11 +34,9 @@ public class RefEncoder extends AbstractEncoder{
     public String getFieldName(){
         String fieldName = field.getName();
         Ref ref = field.getAnnotation(Ref.class);
-        if(ref != null){
-            String name = ref.name();
-            if(!name.equals("")){
-                fieldName = name;
-            }
+        String name = ref.name();
+        if(!name.equals("")){
+            fieldName = name;
         }
         return fieldName;
     }

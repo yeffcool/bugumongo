@@ -38,11 +38,9 @@ public class EmbedListEncoder extends AbstractEncoder{
     public String getFieldName() {
         String fieldName = field.getName();
         EmbedList embedList = field.getAnnotation(EmbedList.class);
-        if(embedList != null){
-            String name = embedList.name();
-            if(!name.equals("")){
-                fieldName = name;
-            }
+        String name = embedList.name();
+        if(!name.equals("")){
+            fieldName = name;
         }
         return fieldName;
     }

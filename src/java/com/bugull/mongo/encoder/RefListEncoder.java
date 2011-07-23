@@ -39,11 +39,9 @@ public class RefListEncoder extends AbstractEncoder{
     public String getFieldName(){
         String fieldName = field.getName();
         RefList refList = field.getAnnotation(RefList.class);
-        if(refList != null){
-            String name = refList.name();
-            if(!name.equals("")){
-                fieldName = name;
-            }
+        String name = refList.name();
+        if(!name.equals("")){
+            fieldName = name;
         }
         return fieldName;
     }
