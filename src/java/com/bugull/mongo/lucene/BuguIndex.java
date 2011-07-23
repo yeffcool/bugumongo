@@ -72,7 +72,8 @@ public class BuguIndex {
         Map<String, IndexWriter>  map = IndexWriterCache.getInstance().getAll();
         for(IndexWriter writer : map.values()){
             try{
-                writer.close();
+                writer.commit();
+                writer.close(true);
             }catch(Exception e){
                 logger.error(e.getMessage());
             }
