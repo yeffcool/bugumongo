@@ -43,11 +43,9 @@ public class RefListDecoder extends AbstractDecoder{
         super(field, dbo);
         refList = field.getAnnotation(RefList.class);
         String fieldName = field.getName();
-        if(refList != null){
-            String name = refList.name();
-            if(!name.equals("")){
-                fieldName = name;
-            }
+        String name = refList.name();
+        if(!name.equals("")){
+            fieldName = name;
         }
         value = dbo.get(fieldName);
     }

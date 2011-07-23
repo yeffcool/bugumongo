@@ -38,11 +38,9 @@ public class EmbedListDecoder extends AbstractDecoder{
         super(field, dbo);
         String fieldName = field.getName();
         EmbedList embedList = field.getAnnotation(EmbedList.class);
-        if(embedList != null){
-            String name = embedList.name();
-            if(!name.equals("")){
-                fieldName = name;
-            }
+        String name = embedList.name();
+        if(!name.equals("")){
+            fieldName = name;
         }
         value = dbo.get(fieldName);
     }
