@@ -18,15 +18,8 @@ package com.bugull.mongo;
 import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
-import com.bugull.mongo.cache.ConstructorCache;
 import com.bugull.mongo.cache.FieldsCache;
-import com.bugull.mongo.decoder.Decoder;
-import com.bugull.mongo.decoder.DecoderFactory;
-import com.bugull.mongo.encoder.Encoder;
-import com.bugull.mongo.encoder.EncoderFactory;
-import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
-import com.mongodb.DBObject;
 import com.mongodb.DBRef;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -45,31 +38,6 @@ import org.bson.types.ObjectId;
 public class BuguMapper {
     
     private final static Logger logger = Logger.getLogger(BuguMapper.class);
-    
-    public Object fromDBObject(Class clazz, DBObject dbo){
-        Object obj = ConstructorCache.getInstance().create(clazz);
-        Field[] fields = FieldsCache.getInstance().get(clazz);
-        for(Field field : fields){
-            Decoder decoder = DecoderFactory.create(field, dbo);
-            if(decoder!=null && !decoder.isNullField()){
-                decoder.decode(obj);
-            }
-        }
-        return obj;
-    }
-    
-    public DBObject toDBObject(Object obj){
-        DBObject dbo = new BasicDBObject();
-        Class<?> clazz = obj.getClass();
-        Field[] fields = FieldsCache.getInstance().get(clazz);
-        for(Field field : fields){
-            Encoder encoder = EncoderFactory.create(obj, field);
-            if(encoder!=null && !encoder.isNullField()){
-                dbo.put(encoder.getFieldName(), encoder.encode());
-            }
-        }
-        return dbo;
-    }
     
     public DBRef toDBRef(BuguEntity obj){
         DB db = BuguConnection.getInstance().getDB();

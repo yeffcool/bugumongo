@@ -23,6 +23,7 @@ import com.bugull.mongo.lucene.annotations.IndexProperty;
 import com.bugull.mongo.lucene.annotations.IndexRef;
 import com.bugull.mongo.lucene.annotations.Indexed;
 import com.bugull.mongo.lucene.backend.EntityChangedListener;
+import com.bugull.mongo.mapper.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -42,7 +43,9 @@ public class BuguDao {
     
     private DBCollection coll;
     private Class<?> clazz;
+    private boolean indexed;
     private EntityChangedListener listener;
+    private ObjectMapper mapper;
     
     public BuguDao(Class<?> clazz){
         this.clazz = clazz;
@@ -64,15 +67,17 @@ public class BuguDao {
         }
         //for lucene
         if(clazz.getAnnotation(Indexed.class) != null){
+            indexed = true;
             listener = new EntityChangedListener();
         }
+        mapper = new ObjectMapper(clazz);
     }
     
     private Object fromDBObject(DBObject dbo){
         if(dbo == null){
             return null;
         }else{
-            return new BuguMapper().fromDBObject(clazz, dbo);
+            return mapper.fromDBObject(dbo);
         }
     }
 
@@ -80,7 +85,7 @@ public class BuguDao {
         if(obj == null){
             return null;
         }else{
-            return new BuguMapper().toDBObject(obj);
+            return mapper.toDBObject(obj);
         }
     }
     
@@ -90,6 +95,7 @@ public class BuguDao {
             DBObject dbo = cursor.next();
             list.add(fromDBObject(dbo));
         }
+        cursor.close();
         return list;
     }
     
@@ -98,7 +104,7 @@ public class BuguDao {
         coll.insert(dbo);
         String id = dbo.get("_id").toString();
         obj.setId(id);
-        if(listener != null){
+        if(indexed){
             listener.entityInsert(obj);
         }
     }
@@ -108,14 +114,14 @@ public class BuguDao {
             insert(obj);
         }else{
             coll.save(toDBObject(obj));
-            if(listener != null){
+            if(indexed){
                 listener.entityUpdate(obj);
             }
         }
     }
     
     public void removeAll(){
-        if(listener == null){
+        if(!indexed){
             coll.drop();
         }else{
             List list = findAll();
@@ -134,7 +140,7 @@ public class BuguDao {
         DBObject query = new BasicDBObject();
         query.put("_id", new ObjectId(id));
         coll.remove(query);
-        if(listener != null){
+        if(indexed){
             listener.entityRemove(clazz, id);
         }
     }
@@ -145,11 +151,11 @@ public class BuguDao {
     
     public void remove(DBObject query){
         List ids = null;
-        if(listener != null){
+        if(indexed){
             ids = coll.distinct("_id", query);
         }
         coll.remove(query);
-        if(listener != null){
+        if(indexed){
             for(Object id : ids){
                 listener.entityRemove(clazz, id.toString());
             }
@@ -162,7 +168,7 @@ public class BuguDao {
     
     public void update(String id, DBObject dbo){
         updateWithOutIndex(id, dbo);
-        if(listener != null){
+        if(indexed){
             BuguEntity entity = (BuguEntity)findOne(id);
             listener.entityUpdate(entity);
         }
@@ -175,11 +181,11 @@ public class BuguDao {
     
     public void update(DBObject query, DBObject dbo){
         List ids = null;
-        if(listener != null){
+        if(indexed){
             ids = coll.distinct("_id", query);
         }
         coll.updateMulti(query, dbo);
-        if(listener != null){
+        if(indexed){
             for(Object id : ids){
                 BuguEntity entity = (BuguEntity)findOne(id.toString());
                 listener.entityUpdate(entity);
@@ -188,7 +194,7 @@ public class BuguDao {
     }
     
     private boolean hasIndexAnnotation(String key){
-        if(listener == null){
+        if(!indexed){
             return false;
         }
         boolean result = false;
