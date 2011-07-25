@@ -18,8 +18,15 @@ package com.bugull.mongo;
 import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
+import com.bugull.mongo.cache.ConstructorCache;
 import com.bugull.mongo.cache.FieldsCache;
+import com.bugull.mongo.decoder.Decoder;
+import com.bugull.mongo.decoder.DecoderFactory;
+import com.bugull.mongo.encoder.Encoder;
+import com.bugull.mongo.encoder.EncoderFactory;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
+import com.mongodb.DBObject;
 import com.mongodb.DBRef;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -39,7 +46,31 @@ public class BuguMapper {
     
     private final static Logger logger = Logger.getLogger(BuguMapper.class);
     
-    public DBRef toDBRef(BuguEntity obj){
+    public static Object fromDBObject(Class<?> clazz, DBObject dbo){
+        Object obj = ConstructorCache.getInstance().create(clazz);
+        Field[] fields = FieldsCache.getInstance().get(clazz);
+        for(Field field : fields){
+            Decoder decoder = DecoderFactory.create(field, dbo);
+            if(decoder!=null && !decoder.isNullField()){
+                decoder.decode(obj);
+            }
+        }
+        return obj;
+    }
+    
+    public static DBObject toDBObject(Object obj){
+        DBObject dbo = new BasicDBObject();
+        Field[] fields = FieldsCache.getInstance().get(obj.getClass());
+        for(Field field : fields){
+            Encoder encoder = EncoderFactory.create(obj, field);
+            if(encoder!=null && !encoder.isNullField()){
+                dbo.put(encoder.getFieldName(), encoder.encode());
+            }
+        }
+        return dbo;
+    }
+    
+    public static DBRef toDBRef(BuguEntity obj){
         DB db = BuguConnection.getInstance().getDB();
         Class<?> clazz = obj.getClass();
         Entity entity = clazz.getAnnotation(Entity.class);
@@ -51,7 +82,7 @@ public class BuguMapper {
         return new DBRef(db, name, id);
     }
     
-    public void fetch(BuguEntity obj, String fieldName){
+    public static void fetch(BuguEntity obj, String fieldName){
         String remainder = null;
         int index = fieldName.indexOf(".");
         if(index > 0){
@@ -68,13 +99,13 @@ public class BuguMapper {
         }
     }
     
-    public void fetch(BuguEntity obj, String[] names){
+    public static void fetch(BuguEntity obj, String[] names){
         for(String fieldName : names){
             fetch(obj, fieldName);
         }
     }
     
-    public void fetch(List list, String fieldName){
+    public static void fetch(List list, String fieldName){
         List<BuguEntity> result = new LinkedList<BuguEntity>();
         for(Object o : list){
             BuguEntity obj = (BuguEntity)o;
@@ -84,7 +115,7 @@ public class BuguMapper {
         list = result;
     }
     
-    public void fetch(List list, String[] names){
+    public static void fetch(List list, String[] names){
         List<BuguEntity> result = new LinkedList<BuguEntity>();
         for(Object o : list){
             BuguEntity obj = (BuguEntity)o;
@@ -94,7 +125,7 @@ public class BuguMapper {
         list = result;
     }
     
-    private void fetchOneLevel(BuguEntity obj, String fieldName){
+    private static void fetchOneLevel(BuguEntity obj, String fieldName){
         Field field = FieldsCache.getInstance().getField(obj.getClass(), fieldName);
         if(field.getAnnotation(Ref.class) != null){
             fetchRef(obj, field);
@@ -103,7 +134,7 @@ public class BuguMapper {
         }
     }
     
-    private void fetchRemainder(BuguEntity obj, String fieldName, String remainder) throws Exception {
+    private static void fetchRemainder(BuguEntity obj, String fieldName, String remainder) throws Exception {
         Field field = FieldsCache.getInstance().getField(obj.getClass(), fieldName);
         Object value = field.get(obj);
         if(value == null){
@@ -129,7 +160,7 @@ public class BuguMapper {
         }
     }
     
-    private void fetchRef(BuguEntity obj, Field field){
+    private static void fetchRef(BuguEntity obj, Field field){
         try{
             Object o = field.get(obj);
             if( o == null){
@@ -145,7 +176,7 @@ public class BuguMapper {
         }
     }
     
-    private void fetchRefList(BuguEntity obj, Field field){
+    private static void fetchRefList(BuguEntity obj, Field field){
         try{
             Object o = field.get(obj);
             if(o == null){

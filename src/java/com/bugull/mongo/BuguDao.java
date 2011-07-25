@@ -23,7 +23,6 @@ import com.bugull.mongo.lucene.annotations.IndexProperty;
 import com.bugull.mongo.lucene.annotations.IndexRef;
 import com.bugull.mongo.lucene.annotations.Indexed;
 import com.bugull.mongo.lucene.backend.EntityChangedListener;
-import com.bugull.mongo.mapper.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -45,7 +44,6 @@ public class BuguDao {
     private Class<?> clazz;
     private boolean indexed;
     private EntityChangedListener listener;
-    private ObjectMapper mapper;
     
     public BuguDao(Class<?> clazz){
         this.clazz = clazz;
@@ -70,14 +68,13 @@ public class BuguDao {
             indexed = true;
             listener = new EntityChangedListener();
         }
-        mapper = new ObjectMapper(clazz);
     }
     
     private Object fromDBObject(DBObject dbo){
         if(dbo == null){
             return null;
         }else{
-            return mapper.fromDBObject(dbo);
+            return BuguMapper.fromDBObject(clazz, dbo);
         }
     }
 
@@ -85,7 +82,7 @@ public class BuguDao {
         if(obj == null){
             return null;
         }else{
-            return mapper.toDBObject(obj);
+            return BuguMapper.toDBObject(obj);
         }
     }
     
