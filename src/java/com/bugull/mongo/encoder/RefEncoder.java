@@ -44,7 +44,7 @@ public class RefEncoder extends AbstractEncoder{
     @Override
     public Object encode(){
         BuguEntity entity = (BuguEntity)value;
-        return new BuguMapper().toDBRef(entity);
+        return BuguMapper.toDBRef(entity);
     }
     
 }

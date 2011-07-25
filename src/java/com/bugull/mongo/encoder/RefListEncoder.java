@@ -52,18 +52,16 @@ public class RefListEncoder extends AbstractEncoder{
         if(typeName.equals("java.util.List")){
             List<BuguEntity> list = (List<BuguEntity>)value;
             List<DBRef> result = new LinkedList<DBRef>();
-            BuguMapper mapper = new BuguMapper();
             for(BuguEntity entity : list){
-                result.add(mapper.toDBRef(entity));
+                result.add(BuguMapper.toDBRef(entity));
             }
             return result;
         }
         else if(typeName.equals("java.util.Set")){
             Set<BuguEntity> set = (Set<BuguEntity>)value;
             Set<DBRef> result = new HashSet<DBRef>();
-            BuguMapper mapper = new BuguMapper();
             for(BuguEntity entity : set){
-                result.add(mapper.toDBRef(entity));
+                result.add(BuguMapper.toDBRef(entity));
             }
             return result;
         }
