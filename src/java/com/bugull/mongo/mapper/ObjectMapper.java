@@ -33,14 +33,16 @@ public class ObjectMapper {
     
     private Class<?> clazz;
     private Field[] fields;
+    private boolean hasClass;
     
     public ObjectMapper(){
-        
+        hasClass = false;
     }
     
     public ObjectMapper(Class<?> clazz){
         this.clazz = clazz;
         fields = FieldsCache.getInstance().get(clazz);
+        hasClass = true;
     }
     
     public Object fromDBObject(DBObject dbo){
@@ -55,9 +57,10 @@ public class ObjectMapper {
     }
     
     public DBObject toDBObject(Object obj){
-        if(clazz == null || fields == null){
+        if(!hasClass){
             clazz = obj.getClass();
             fields = FieldsCache.getInstance().get(clazz);
+            hasClass = true;
         }
         DBObject dbo = new BasicDBObject();
         for(Field field : fields){
