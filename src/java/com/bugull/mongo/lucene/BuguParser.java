@@ -31,23 +31,19 @@ public class BuguParser {
     
     private final static Logger logger = Logger.getLogger(BuguParser.class);
     
-    private BuguIndex index;
+    private static BuguIndex index = BuguIndex.getInstance();
     
-    public BuguParser(){
-        index = BuguIndex.getInstance();
-    }
-    
-    public Query parse(String field, String value){
+    public static Query parse(String field, String value){
         QueryParser parser = new QueryParser(index.getVersion(), field, index.getAnalyzer());
         return parse(parser, value);
     }
     
-    public Query parse(String[] fields, String value){
+    public static Query parse(String[] fields, String value){
         QueryParser parser = new MultiFieldQueryParser(index.getVersion(), fields, index.getAnalyzer());
         return parse(parser, value);
     }
     
-    public Query parse(String[] fields, Occur[] occurs, String value){
+    public static Query parse(String[] fields, Occur[] occurs, String value){
         Query query = null;
         try{
             query = MultiFieldQueryParser.parse(index.getVersion(), value, fields, occurs, index.getAnalyzer());
@@ -57,7 +53,7 @@ public class BuguParser {
         return query;
     }
     
-    private Query parse(QueryParser parser, String value){
+    private static Query parse(QueryParser parser, String value){
         Query query = null;
         try{
             query = parser.parse(value);
@@ -67,45 +63,45 @@ public class BuguParser {
         return query;
     }
     
-    public Query parse(String field, int value){
+    public static Query parse(String field, int value){
         return NumericRangeQuery.newIntRange(field, value, value, true, true);
     }
     
-    public Query parse(String field, int minValue, int maxValue){
+    public static Query parse(String field, int minValue, int maxValue){
         return NumericRangeQuery.newIntRange(field, minValue, maxValue, true, true);
     }
     
-    public Query parse(String field, long value){
+    public static Query parse(String field, long value){
         return NumericRangeQuery.newLongRange(field, value, value, true, true);
     }
     
-    public Query parse(String field, long minValue, long maxValue){
+    public static Query parse(String field, long minValue, long maxValue){
         return NumericRangeQuery.newLongRange(field, minValue, maxValue, true, true);
     }
     
-    public Query parse(String field, float value){
+    public static Query parse(String field, float value){
         return NumericRangeQuery.newFloatRange(field, value, value, true, true);
     }
     
-    public Query parse(String field, float minValue, float maxValue){
+    public static Query parse(String field, float minValue, float maxValue){
         return NumericRangeQuery.newFloatRange(field, minValue, maxValue, true, true);
     }
     
-    public Query parse(String field, double value){
+    public static Query parse(String field, double value){
         return NumericRangeQuery.newDoubleRange(field, value, value, true, true);
     }
     
-    public Query parse(String field, double minValue, double maxValue){
+    public static Query parse(String field, double minValue, double maxValue){
         return NumericRangeQuery.newDoubleRange(field, minValue, maxValue, true, true);
     }
     
-    public Query parse(String field, Date begin, Date end){
+    public static Query parse(String field, Date begin, Date end){
         long beginTime = begin.getTime();
         long endTime = end.getTime();
         return parse(field, beginTime, endTime);
     }
     
-    public Query parse(String field, boolean value){
+    public static Query parse(String field, boolean value){
         if(value){
             return parse(field, "true");
         }else{
@@ -113,7 +109,7 @@ public class BuguParser {
         }
     }
     
-    public Query parse(String field, char value){
+    public static Query parse(String field, char value){
         return parse(field, String.valueOf(value));
     }
     
