@@ -15,8 +15,8 @@
 
 package com.bugull.mongo.decoder;
 
-import com.bugull.mongo.BuguMapper;
 import com.bugull.mongo.annotations.EmbedList;
+import com.bugull.mongo.mapper.ObjectMapper;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -52,8 +52,9 @@ public class EmbedListDecoder extends AbstractDecoder{
         ParameterizedType type = (ParameterizedType)field.getGenericType();
         Type[] types = type.getActualTypeArguments();
         Class clazz = (Class)types[0];
+        ObjectMapper mapper = new ObjectMapper(clazz);
         for(Object o : list){
-            Object embedObj = BuguMapper.fromDBObject(clazz, (DBObject)o);
+            Object embedObj = mapper.fromDBObject((DBObject)o);
             result.add(embedObj);
         }
         String typeName = field.getType().getName();
