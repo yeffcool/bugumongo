@@ -58,7 +58,7 @@ public class UploadedFileServlet extends HttpServlet {
         if(f != null){
             int index = filename.lastIndexOf(".");
             String ext = filename.substring(index+1);
-            if(ext.equals("jpeg") || ext.equals("png") || ext.equals("gif") || ext.equals("bmp")){
+            if(ext.equals("jpg") || ext.equals("jpeg") || ext.equals("png") || ext.equals("gif") || ext.equals("bmp")){
                 response.setContentType("image/" + ext);
                 String modifiedSince = request.getHeader("If-Modified-Since");
                 DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
