@@ -99,25 +99,21 @@ public class BuguDao {
         return list;
     }
     
-    public void insert(BuguEntity obj){
-        DBObject dbo = toDBObject(obj);
-        coll.insert(dbo);
-        String id = dbo.get("_id").toString();
-        obj.setId(id);
-        if(indexed){
-            listener.entityInsert(obj);
-        }
-    }
-    
     public void insert(BuguEntity... arr){
-        for(BuguEntity entity : arr){
-            insert(entity);
+        for(BuguEntity obj : arr){
+            DBObject dbo = toDBObject(obj);
+            coll.insert(dbo);
+            String id = dbo.get("_id").toString();
+            obj.setId(id);
+            if(indexed){
+                listener.entityInsert(obj);
+            }
         }
     }
     
     public void insert(List<BuguEntity> list){
-        for(BuguEntity entity : list){
-            insert(entity);
+        for(BuguEntity obj : list){
+            insert(obj);
         }
     }
     
