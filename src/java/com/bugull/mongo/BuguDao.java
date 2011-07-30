@@ -109,6 +109,18 @@ public class BuguDao {
         }
     }
     
+    public void insert(BuguEntity... arr){
+        for(BuguEntity entity : arr){
+            insert(entity);
+        }
+    }
+    
+    public void insert(List<BuguEntity> list){
+        for(BuguEntity entity : list){
+            insert(entity);
+        }
+    }
+    
     public void save(BuguEntity obj){
         if(obj.getId() == null){
             insert(obj);
@@ -243,7 +255,11 @@ public class BuguDao {
     public void push(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject push = new BasicDBObject("$push", query);
-        updateWithOutIndex(id, push);
+        if(hasIndexAnnotation(key)){
+            update(id, push);
+        }else{
+            updateWithOutIndex(id, push);
+        }
     }
     
     public void pull(BuguEntity obj, String key, Object value){
@@ -253,7 +269,11 @@ public class BuguDao {
     public void pull(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject pull = new BasicDBObject("$pull", query);
-        updateWithOutIndex(id, pull);
+        if(hasIndexAnnotation(key)){
+            update(id, pull);
+        }else{
+            updateWithOutIndex(id, pull);
+        }
     }
     
     public boolean exists(String key, Object value){
