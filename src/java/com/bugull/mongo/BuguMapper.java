@@ -68,7 +68,7 @@ public class BuguMapper {
         }
     }
     
-    public static void fetch(BuguEntity obj, String[] names){
+    public static void fetch(BuguEntity obj, String... names){
         for(String fieldName : names){
             fetch(obj, fieldName);
         }
@@ -84,7 +84,7 @@ public class BuguMapper {
         list = result;
     }
     
-    public static void fetch(List list, String[] names){
+    public static void fetch(List list, String... names){
         List<BuguEntity> result = new LinkedList<BuguEntity>();
         for(Object o : list){
             BuguEntity obj = (BuguEntity)o;
