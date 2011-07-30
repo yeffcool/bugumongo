@@ -51,37 +51,23 @@ public class BuguMapper {
         return new DBRef(db, name, id);
     }
     
-    public static void fetch(BuguEntity obj, String fieldName){
-        String remainder = null;
-        int index = fieldName.indexOf(".");
-        if(index > 0){
-            remainder = fieldName.substring(index+1);
-            fieldName = fieldName.substring(0, index);
-        }
-        fetchOneLevel(obj, fieldName);
-        if(remainder != null){
-            try{
-                fetchRemainder(obj, fieldName, remainder);
-            }catch(Exception e){
-                logger.error(e.getMessage());
-            }
-        }
-    }
-    
     public static void fetch(BuguEntity obj, String... names){
         for(String fieldName : names){
-            fetch(obj, fieldName);
+            String remainder = null;
+            int index = fieldName.indexOf(".");
+            if(index > 0){
+                remainder = fieldName.substring(index+1);
+                fieldName = fieldName.substring(0, index);
+            }
+            fetchOneLevel(obj, fieldName);
+            if(remainder != null){
+                try{
+                    fetchRemainder(obj, fieldName, remainder);
+                }catch(Exception e){
+                    logger.error(e.getMessage());
+                }
+            }
         }
-    }
-    
-    public static void fetch(List list, String fieldName){
-        List<BuguEntity> result = new LinkedList<BuguEntity>();
-        for(Object o : list){
-            BuguEntity obj = (BuguEntity)o;
-            fetch(obj, fieldName);
-            result.add(obj);
-        }
-        list = result;
     }
     
     public static void fetch(List list, String... names){
