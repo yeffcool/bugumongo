@@ -56,10 +56,13 @@ public class UploadedFileServlet extends HttpServlet {
         }
         GridFSDBFile f = BuguFS.getInstance().findOne(query);
         if(f != null){
+            String ext = null;
             int index = filename.lastIndexOf(".");
-            String ext = filename.substring(index+1);
-            if(ext.equals("jpg") || ext.equals("jpeg") || ext.equals("png") || ext.equals("gif") || ext.equals("bmp")){
-                response.setContentType("image/" + ext);
+            if(index > 0){
+                ext = filename.substring(index+1);
+            }
+            response.setContentType(getContentType(ext));
+            if(needCache(ext)){
                 String modifiedSince = request.getHeader("If-Modified-Since");
                 DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
                 df.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -84,13 +87,56 @@ public class UploadedFileServlet extends HttpServlet {
                 response.setHeader("Last-Modified", lastModified);
                 response.setDateHeader("Expires", uploadDate.getTime() + maxAge * 1000L);
             }else{
-                response.setContentType("application/octet-stream");
                 response.setHeader("Pragma","no-cache");
                 response.setHeader("Cache-Control","no-cache");
                 response.setDateHeader("Expires", 0);
             }
             f.writeTo(response.getOutputStream());
         }
+    }
+    
+    private boolean needCache(String ext){
+        if(ext == null){
+            return false;
+        }
+        boolean need = false;
+        String[] arr = {"jpg", "jpeg", "png", "gif", "bmp", "html", "htm", "swf", "mp3", "mp4", "pdf"};
+        for(String s : arr){
+            if(s.equals(ext)){
+                need = true;
+                break;
+            }
+        }
+        return need;
+    }
+    
+    private String getContentType(String ext){
+        if(ext == null){
+            return "application/octet-stream";
+        }
+        String type = null;
+        if(ext.equals("jpg") || ext.equals("jpeg") || ext.equals("png") || ext.equals("gif") || ext.equals("bmp")){
+            type = "image/" + type;
+        }
+        else if(ext.equals("html") || ext.equals("htm")){
+            type = "text/html";
+        }
+        else if(ext.equals("swf")){
+            type = "application/x-shockwave-flash";
+        }
+        else if(ext.equals("mp3")){
+            type = "audio/x-mpeg";
+        }
+        else if(ext.equals("mp4")){
+            type = "video/mp4";
+        }
+        else if(ext.equals("pdf")){
+            type = "application/pdf";
+        }
+        else{
+            type = "application/octet-stream";
+        }
+        return type;
     }
     
     @Override

@@ -51,7 +51,7 @@ public class DecoderFactory {
             decoder = null;
         }
         else{
-            decoder = new PropertyDecoder(field, dbo);  //no mapping annotation or @Property
+            decoder = new PropertyDecoder(field, dbo);
         }
         return decoder;
     }

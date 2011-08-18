@@ -16,12 +16,14 @@
 package com.bugull.mongo.encoder;
 
 import com.bugull.mongo.annotations.EmbedList;
-import com.bugull.mongo.mapper.ObjectMapper;
+import com.bugull.mongo.mapper.MapperUtil;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -48,12 +50,11 @@ public class EmbedListEncoder extends AbstractEncoder{
     @Override
     public Object encode() {
         String typeName = field.getType().getName();
-        ObjectMapper mapper = new ObjectMapper();
         if(typeName.equals("java.util.List")){
             List list = (List)value;
-            List<DBObject> result = new LinkedList<DBObject>();
+            List<DBObject> result = new ArrayList<DBObject>();
             for(Object o : list){
-                result.add(mapper.toDBObject(o));
+                result.add(MapperUtil.toDBObject(o));
             }
             return result;
         }
@@ -61,7 +62,15 @@ public class EmbedListEncoder extends AbstractEncoder{
             Set set = (Set)value;
             Set<DBObject> result = new HashSet<DBObject>();
             for(Object o : set){
-                result.add(mapper.toDBObject(o));
+                result.add(MapperUtil.toDBObject(o));
+            }
+            return result;
+        }
+        else if(typeName.equals("java.util.Map")){
+            Map map = (Map)value;
+            Map result = new HashMap();
+            for(Object key : map.keySet()){
+                result.put(key, MapperUtil.toDBObject(map.get(key)));
             }
             return result;
         }

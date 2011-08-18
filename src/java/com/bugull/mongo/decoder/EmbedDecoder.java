@@ -15,9 +15,8 @@
 
 package com.bugull.mongo.decoder;
 
-import com.bugull.mongo.BuguMapper;
 import com.bugull.mongo.annotations.Embed;
-import com.bugull.mongo.mapper.ObjectMapper;
+import com.bugull.mongo.mapper.MapperUtil;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
 import org.apache.log4j.Logger;
@@ -43,8 +42,7 @@ public class EmbedDecoder extends AbstractDecoder{
     
     @Override
     public void decode(Object obj){
-        ObjectMapper mapper = new ObjectMapper(field.getType());
-        Object o = mapper.fromDBObject((DBObject)value);
+        Object o = MapperUtil.fromDBObject(field.getType(), (DBObject)value);
         try{
             field.set(obj, o);
         }catch(Exception e){

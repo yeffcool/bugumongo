@@ -19,8 +19,8 @@ import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.cache.IndexSearcherCache;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
@@ -127,7 +127,7 @@ public class BuguSearcher {
         }
         resultCount = topDocs.totalHits;
         ScoreDoc[] docs = topDocs.scoreDocs;
-        List list = new LinkedList();
+        List list = new ArrayList();
         BuguDao dao = new BuguDao(clazz);
         int begin = (pageNumber - 1) * pageSize;
         int end = begin + pageSize;

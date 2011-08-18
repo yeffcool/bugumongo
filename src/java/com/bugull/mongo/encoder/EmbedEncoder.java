@@ -16,7 +16,7 @@
 package com.bugull.mongo.encoder;
 
 import com.bugull.mongo.annotations.Embed;
-import com.bugull.mongo.mapper.ObjectMapper;
+import com.bugull.mongo.mapper.MapperUtil;
 import java.lang.reflect.Field;
 
 /**
@@ -42,7 +42,7 @@ public class EmbedEncoder extends AbstractEncoder{
     
     @Override
     public Object encode(){
-        return new ObjectMapper().toDBObject(value);
+        return MapperUtil.toDBObject(value);
     }
     
 }

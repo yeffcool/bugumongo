@@ -132,7 +132,7 @@ public abstract class AbstractEncoder implements Encoder{
         else if(typeName.equals("char") || typeName.equals("java.lang.Character")){
             value = String.valueOf(field.getChar(obj));
         }
-        else{  //List, Set, Date, and other Object
+        else{  //List, Set, Map, Date, and other Object
             value = field.get(obj);
         }
     }

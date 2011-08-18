@@ -55,8 +55,8 @@ public class RefDecoder extends AbstractDecoder{
             refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
             refObj.setId(refId);
         }else{
-            BuguDao buguDao = new BuguDao(clazz);
-            refObj = (BuguEntity)buguDao.findOne(refId);
+            BuguDao dao = new BuguDao(clazz);
+            refObj = (BuguEntity)dao.findOne(refId);
         }
         try{
             field.set(obj, refObj);

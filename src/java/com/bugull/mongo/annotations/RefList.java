@@ -29,4 +29,5 @@ import java.lang.annotation.Target;
 public @interface RefList {
     public String name() default "";
     public boolean lazy() default true;
+    public String sort() default "";
 }

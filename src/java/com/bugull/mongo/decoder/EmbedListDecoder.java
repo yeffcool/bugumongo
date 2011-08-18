@@ -16,14 +16,16 @@
 package com.bugull.mongo.decoder;
 
 import com.bugull.mongo.annotations.EmbedList;
-import com.bugull.mongo.mapper.ObjectMapper;
+import com.bugull.mongo.mapper.MapperUtil;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.apache.log4j.Logger;
 
 /**
@@ -47,26 +49,43 @@ public class EmbedListDecoder extends AbstractDecoder{
 
     @Override
     public void decode(Object obj) {
-        List list = (List)value;
-        List result = new LinkedList();
         ParameterizedType type = (ParameterizedType)field.getGenericType();
         Type[] types = type.getActualTypeArguments();
-        Class clazz = (Class)types[0];
-        ObjectMapper mapper = new ObjectMapper(clazz);
-        for(Object o : list){
-            Object embedObj = mapper.fromDBObject((DBObject)o);
-            result.add(embedObj);
+        int len = types.length;
+        if(len == 1){
+            List list = (List)value;
+            List result = new ArrayList();
+            Class clazz = (Class)types[0];
+            for(Object o : list){
+                Object embedObj = MapperUtil.fromDBObject(clazz, (DBObject)o);
+                result.add(embedObj);
+            }
+            String typeName = field.getType().getName();
+            try{
+                if(typeName.equals("java.util.List")){
+                    field.set(obj, result);
+                }
+                else if(typeName.equals("java.util.Set")){
+                    field.set(obj, new HashSet(result));
+                }
+            }catch(Exception e){
+                logger.error(e.getMessage());
+            }
         }
-        String typeName = field.getType().getName();
-        try{
-            if(typeName.equals("java.util.List")){
+        else if(len == 2){
+            Map map = (Map)value;
+            Map result = new HashMap();
+            Class clazz = (Class)types[1];
+            for(Object key : map.keySet()){
+                Object val = map.get(key);
+                Object embedObj = MapperUtil.fromDBObject(clazz, (DBObject)val);
+                result.put(key, embedObj);
+            }
+            try{
                 field.set(obj, result);
+            }catch(Exception e){
+                logger.error(e.getMessage());
             }
-            else if(typeName.equals("java.util.Set")){
-                field.set(obj, new HashSet(result));
-            }
-        }catch(Exception e){
-            logger.error(e.getMessage());
         }
     }
     

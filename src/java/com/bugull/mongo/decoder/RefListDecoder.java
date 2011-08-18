@@ -19,15 +19,20 @@ import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.ConstructorCache;
+import com.bugull.mongo.mapper.MapperUtil;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.DBRef;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.apache.log4j.Logger;
+import org.bson.types.ObjectId;
 
 /**
  *
@@ -52,34 +57,71 @@ public class RefListDecoder extends AbstractDecoder{
     
     @Override
     public void decode(Object obj){
-        List<DBRef> list = (List<DBRef>)value;
         ParameterizedType type = (ParameterizedType)field.getGenericType();
         Type[] types = type.getActualTypeArguments();
-        Class clazz = (Class)types[0];
-        List<BuguEntity> result = new LinkedList<BuguEntity>();
-        if(refList.lazy()){
-            for(DBRef dbRef : list){
-                BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
-                refObj.setId(dbRef.getId().toString());
-                result.add(refObj);
+        int len = types.length;
+        if(len == 1){
+            Class clazz = (Class)types[0];
+            List<DBRef> list = (List<DBRef>)value;
+            List<BuguEntity> result = new ArrayList<BuguEntity>();
+            if(refList.lazy()){
+                for(DBRef dbRef : list){
+                    BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
+                    refObj.setId(dbRef.getId().toString());
+                    result.add(refObj);
+                }
+            }else{
+                ObjectId[] arr = new ObjectId[list.size()];
+                int i = 0;
+                for(DBRef dbRef : list){
+                    arr[i++] = (ObjectId)dbRef.getId();
+                }
+                DBObject in = new BasicDBObject("$in", arr);
+                DBObject query = new BasicDBObject("_id", in);
+                BuguDao dao = new BuguDao(clazz);
+                String sort = refList.sort();
+                if(sort.equals("")){
+                    result = dao.find(query);
+                }else{
+                    result = dao.find(query, MapperUtil.getSort(sort));
+                }
             }
-        }else{
-            BuguDao dao = new BuguDao(clazz);
-            for(DBRef dbRef : list){
-                BuguEntity refObj = (BuguEntity)dao.findOne(dbRef.getId().toString());
-                result.add(refObj);
+            try{
+                String typeName = field.getType().getName();
+                if(typeName.equals("java.util.List")){
+                    field.set(obj, result);
+                }
+                else if(typeName.equals("java.util.Set")){
+                    field.set(obj, new HashSet(result));
+                }
+            }catch(Exception e){
+                logger.error(e.getMessage());
             }
         }
-        try{
-            String typeName = field.getType().getName();
-            if(typeName.equals("java.util.List")){
+        else if(len == 2){
+            Class clazz = (Class)types[1];
+            Map<Object, DBRef> map = (Map<Object, DBRef>)value;
+            Map<Object, BuguEntity> result = new HashMap<Object, BuguEntity>();
+            if(refList.lazy()){
+                for(Object key : map.keySet()){
+                    DBRef dbRef = map.get(key);
+                    BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
+                    refObj.setId(dbRef.getId().toString());
+                    result.put(key, refObj);
+                }
+            }else{
+                BuguDao dao = new BuguDao(clazz);
+                for(Object key : map.keySet()){
+                    DBRef dbRef = map.get(key);
+                    BuguEntity refObj = (BuguEntity)dao.findOne(dbRef.getId().toString());
+                    result.put(key, refObj);
+                }
+            }
+            try{
                 field.set(obj, result);
+            }catch(Exception e){
+                logger.error(e.getMessage());
             }
-            else if(typeName.equals("java.util.Set")){
-                field.set(obj, new HashSet(result));
-            }
-        }catch(Exception e){
-            logger.error(e.getMessage());
         }
     }
     

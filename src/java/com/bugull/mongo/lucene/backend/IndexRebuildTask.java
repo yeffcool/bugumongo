@@ -43,13 +43,12 @@ public class IndexRebuildTask implements Runnable{
         int remainder = (int) (count % batchSize);
         if(pages > 0){
             for(int i=1; i<=pages; i++){
-                List list = dao.findAll(pages, batchSize);
+                List list = dao.findAll(i, batchSize);
                 process(list);
             }
         }
         if(remainder > 0){
-            pages++;
-            List list = dao.findAll(pages, remainder);
+            List list = dao.findAll(++pages, remainder);
             process(list);
         }
     }

@@ -22,31 +22,24 @@ import com.bugull.mongo.decoder.DecoderFactory;
 import com.bugull.mongo.encoder.Encoder;
 import com.bugull.mongo.encoder.EncoderFactory;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class ObjectMapper {
+public class MapperUtil {
     
-    private Class<?> clazz;
-    private Field[] fields;
-    private boolean hasClass;
-    
-    public ObjectMapper(){
-        hasClass = false;
-    }
-    
-    public ObjectMapper(Class<?> clazz){
-        this.clazz = clazz;
-        fields = FieldsCache.getInstance().get(clazz);
-        hasClass = true;
-    }
-    
-    public Object fromDBObject(DBObject dbo){
+    public static Object fromDBObject(Class<?> clazz, DBObject dbo){
+        if(dbo == null){
+            return null;
+        }
         Object obj = ConstructorCache.getInstance().create(clazz);
+        Field[] fields = FieldsCache.getInstance().get(clazz);
         for(Field field : fields){
             Decoder decoder = DecoderFactory.create(field, dbo);
             if(decoder!=null && !decoder.isNullField()){
@@ -56,12 +49,12 @@ public class ObjectMapper {
         return obj;
     }
     
-    public DBObject toDBObject(Object obj){
-        if(!hasClass){
-            clazz = obj.getClass();
-            fields = FieldsCache.getInstance().get(clazz);
-            hasClass = true;
+    public static DBObject toDBObject(Object obj){
+        if(obj == null){
+            return null;
         }
+        Class<?> clazz = obj.getClass();
+        Field[] fields = FieldsCache.getInstance().get(clazz);
         DBObject dbo = new BasicDBObject();
         for(Field field : fields){
             Encoder encoder = EncoderFactory.create(obj, field);
@@ -70,6 +63,28 @@ public class ObjectMapper {
             }
         }
         return dbo;
+    }
+    
+    public static List toList(Class<?> clazz, DBCursor cursor){
+        List list = new ArrayList();
+        while(cursor.hasNext()){
+            DBObject dbo = cursor.next();
+            list.add(fromDBObject(clazz, dbo));
+        }
+        cursor.close();
+        return list;
+    }
+    
+    public static DBObject getSort(String orderBy){
+        DBObject sort = new BasicDBObject();
+        String[] arr = orderBy.split(",");
+        for(String s : arr){
+            String[] kv = s.split(":");
+            String k = kv[0].trim();
+            String v = kv[1].trim();
+            sort.put(k, Integer.parseInt(v));
+        }
+        return sort;
     }
     
 }

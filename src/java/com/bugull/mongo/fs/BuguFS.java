@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.log4j.Logger;
 
 /**
@@ -58,7 +59,7 @@ public class BuguFS {
         save(file, filename, null);
     }
     
-    public void save(File file, String filename, Map params){
+    public void save(File file, String filename, Map<String, Object> params){
         GridFSInputFile f = null;
         try{
             f = fs.createFile(file);
@@ -66,9 +67,7 @@ public class BuguFS {
             logger.error(e.getMessage());
         }
         f.setFilename(filename.toLowerCase());
-        if(params != null){
-            f.putAll(params);
-        }
+        setParams(f, params);
         f.save();
     }
     
@@ -76,12 +75,10 @@ public class BuguFS {
         save(is, filename, null);
     }
     
-    public void save(InputStream is, String filename, Map params){
+    public void save(InputStream is, String filename, Map<String, Object> params){
         GridFSInputFile f = fs.createFile(is);
         f.setFilename(filename.toLowerCase());
-        if(params != null){
-            f.putAll(params);
-        }
+        setParams(f, params);
         f.save();
     }
     
@@ -89,13 +86,20 @@ public class BuguFS {
         save(data, filename, null);
     }
     
-    public void save(byte[] data, String filename, Map params){
+    public void save(byte[] data, String filename, Map<String, Object> params){
         GridFSInputFile f = fs.createFile(data);
         f.setFilename(filename.toLowerCase());
-        if(params != null){
-            f.putAll(params);
-        }
+        setParams(f, params);
         f.save();
+    }
+    
+    private void setParams(GridFSInputFile f, Map<String, Object> params){
+        if(params != null){
+            Set<String> keys = params.keySet();
+            for(String key : keys){
+                f.put(key, params.get(key));
+            }
+        }
     }
     
     public GridFSDBFile findOne(String filename){

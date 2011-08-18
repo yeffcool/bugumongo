@@ -18,7 +18,7 @@ package com.bugull.mongo.cache;
 import com.bugull.mongo.annotations.Id;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,7 +47,7 @@ public class FieldsCache {
      * @return 
      */
     private Field[] getAllFields(Class<?> clazz){
-        List<Field> allFields = new LinkedList<Field>();
+        List<Field> allFields = new ArrayList<Field>();
         allFields.addAll(filterFields(clazz.getDeclaredFields()));
         Class parent = clazz.getSuperclass();
         while((parent != null) && (parent != Object.class)){
@@ -63,7 +63,7 @@ public class FieldsCache {
      * @return 
      */
     private List<Field> filterFields(Field[] fields){
-        List<Field> result = new LinkedList<Field>();
+        List<Field> result = new ArrayList<Field>();
         for(Field field : fields){
             if (!Modifier.isStatic(field.getModifiers())){
                 field.setAccessible(true);
