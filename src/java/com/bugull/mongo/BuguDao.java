@@ -396,8 +396,8 @@ public class BuguDao {
         map.append("', {'value':this.");
         map.append(key);
         map.append("});}");
-        StringBuilder reduce = new StringBuilder("function(key, values){var max=values[0].value; for(var i=1;i<values.length; i++){if(values[i].value>max){max=values[i].value;}} return {'value':max}}");
-        Iterable<DBObject> results = mapReduce(map.toString(), reduce.toString(), query);
+        String reduce = "function(key, values){var max=values[0].value; for(var i=1;i<values.length; i++){if(values[i].value>max){max=values[i].value;}} return {'value':max}}";
+        Iterable<DBObject> results = mapReduce(map.toString(), reduce, query);
         DBObject result = results.iterator().next();
         DBObject dbo = (DBObject)result.get("value");
         return Double.parseDouble(dbo.get("value").toString());
@@ -413,8 +413,8 @@ public class BuguDao {
         map.append("', {'value':this.");
         map.append(key);
         map.append("});}");
-        StringBuilder reduce = new StringBuilder("function(key, values){var min=values[0].value; for(var i=1;i<values.length; i++){if(values[i].value<min){min=values[i].value;}} return {'value':min}}");
-        Iterable<DBObject> results = mapReduce(map.toString(), reduce.toString(), query);
+        String reduce = "function(key, values){var min=values[0].value; for(var i=1;i<values.length; i++){if(values[i].value<min){min=values[i].value;}} return {'value':min}}";
+        Iterable<DBObject> results = mapReduce(map.toString(), reduce, query);
         DBObject result = results.iterator().next();
         DBObject dbo = (DBObject)result.get("value");
         return Double.parseDouble(dbo.get("value").toString());
@@ -430,8 +430,8 @@ public class BuguDao {
         map.append("', {'value':this.");
         map.append(key);
         map.append("});}");
-        StringBuilder reduce = new StringBuilder("function(key, values){var sum=0; for(var i=0;i<values.length; i++){sum+=values[i].value;} return {'value':sum}}");
-        Iterable<DBObject> results = mapReduce(map.toString(), reduce.toString(), query);
+        String reduce = "function(key, values){var sum=0; for(var i=0;i<values.length; i++){sum+=values[i].value;} return {'value':sum}}";
+        Iterable<DBObject> results = mapReduce(map.toString(), reduce, query);
         DBObject result = results.iterator().next();
         DBObject dbo = (DBObject)result.get("value");
         return Double.parseDouble(dbo.get("value").toString());
