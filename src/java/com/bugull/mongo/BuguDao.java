@@ -446,7 +446,7 @@ public class BuguDao {
     }
     
     public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, DBObject sort, DBObject query) {
-        MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, query);
+        MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
         DBCollection c = output.getOutputCollection();
         DBCursor cursor = c.find().sort(sort);
         List<DBObject> list = new ArrayList<DBObject>();
@@ -457,7 +457,7 @@ public class BuguDao {
     }
     
     public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, DBObject sort, int pageNum, int pageSize, DBObject query) {
-        MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, query);
+        MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
         DBCollection c = output.getOutputCollection();
         DBCursor cursor = c.find().sort(sort).skip((pageNum-1)*pageSize).limit(pageSize);
         List<DBObject> list = new ArrayList<DBObject>();
