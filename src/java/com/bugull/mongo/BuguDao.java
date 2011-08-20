@@ -84,14 +84,14 @@ public class BuguDao {
         }
     }
     
-    public void insert(List list){
+    public void insert(List<BuguEntity> list){
         if(indexed){
-            for(Object obj : list){
-                insert((BuguEntity)obj);
+            for(BuguEntity obj : list){
+                insert(obj);
             }
         }else{
             List<DBObject> dboList = new ArrayList<DBObject>();
-            for(Object obj : list){
+            for(BuguEntity obj : list){
                 dboList.add(MapperUtil.toDBObject(obj));
             }
             coll.insert(dboList);
