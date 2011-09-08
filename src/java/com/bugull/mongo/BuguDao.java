@@ -15,6 +15,7 @@
 
 package com.bugull.mongo;
 
+import com.bugull.mongo.annotations.EnsureIndex;
 import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.IndexEmbed;
@@ -66,6 +67,14 @@ public class BuguDao {
             coll = db.createCollection(name, options);
         }else{
             coll = db.getCollection(name);
+        }
+        //for @EnsureIndex
+        EnsureIndex ei = clazz.getAnnotation(EnsureIndex.class);
+        if(ei != null){
+            DBObject[] dbos = MapperUtil.getIndex(ei.index());
+            for(DBObject dbo : dbos){
+                coll.ensureIndex(dbo);
+            }
         }
         //for lucene
         if(clazz.getAnnotation(Indexed.class) != null){

@@ -36,11 +36,9 @@ public class IndexWriterCache {
     private static IndexWriterCache instance = new IndexWriterCache();
     
     private Map<String, IndexWriter> cache;
-    private Map<String, Long> lastChange;
     
     private IndexWriterCache(){
         cache = new ConcurrentHashMap<String, IndexWriter>();
-        lastChange = new ConcurrentHashMap<String, Long>();
     }
     
     public static IndexWriterCache getInstance(){
@@ -74,18 +72,6 @@ public class IndexWriterCache {
     
     public Map<String, IndexWriter> getAll(){
         return cache;
-    }
-    
-    public Long getLastChange(String name){
-        if(lastChange.containsKey(name)){
-            return lastChange.get(name);
-        }else{
-            return 0L;
-        }
-    }
-    
-    public void putLastChange(String name, Long time){
-        lastChange.put(name, time);
     }
     
 }

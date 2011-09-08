@@ -33,12 +33,10 @@ public class IndexSearcherCache {
     private static IndexSearcherCache instance = new IndexSearcherCache();
     
     private Map<String, IndexSearcher> cache;
-    private Map<String, Long> lastOpen;
     private Map<String, Boolean> openning;
     
     private IndexSearcherCache(){
         cache = new ConcurrentHashMap<String, IndexSearcher>();
-        lastOpen = new ConcurrentHashMap<String, Long>();
         openning = new ConcurrentHashMap<String, Boolean>();
     }
     
@@ -76,18 +74,6 @@ public class IndexSearcherCache {
     
     public void put(String name, IndexSearcher searcher){
         cache.put(name, searcher);
-    }
-    
-    public Long getLastOpen(String name){
-        if(lastOpen.containsKey(name)){
-            return lastOpen.get(name);
-        }else{
-            return 0L;
-        }
-    }
-    
-    public void putLastOpen(String name, Long time){
-        lastOpen.put(name, time);
     }
     
     public Boolean isOpenning(String name){

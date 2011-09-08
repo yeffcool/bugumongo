@@ -54,7 +54,6 @@ public class IndexUpdateTask implements Runnable{
         try{
             Term term = new Term(FieldsCache.getInstance().getIdFieldName(clazz), obj.getId());
             writer.updateDocument(term, doc);
-            cache.putLastChange(name, System.currentTimeMillis());
         }catch(Exception e){
             logger.error(e.getMessage());
         }

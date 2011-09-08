@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -41,6 +42,8 @@ public class BuguSearcher {
     
     private Class<?> clazz;
     private IndexSearcher searcher;
+    private IndexReader reader;
+    
     private Query query;
     private Sort sort;
     private Filter filter;
@@ -57,6 +60,8 @@ public class BuguSearcher {
             name = clazz.getSimpleName().toLowerCase();
         }
         searcher = IndexSearcherCache.getInstance().get(name);
+        reader = searcher.getIndexReader();
+        reader.incRef();
     }
     
     public void setQuery(Query query){
@@ -144,6 +149,14 @@ public class BuguSearcher {
             }
         }
         return list;
+    }
+    
+    public void close(){
+        try{
+            reader.decRef();
+        }catch(Exception e){
+            logger.error(e.getMessage());
+        }
     }
     
     public IndexSearcher getSearcher(){

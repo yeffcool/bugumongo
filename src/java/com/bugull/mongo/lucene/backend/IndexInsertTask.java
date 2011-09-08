@@ -51,7 +51,6 @@ public class IndexInsertTask implements Runnable {
         creater.process(doc);
         try{
             writer.addDocument(doc);
-            cache.putLastChange(name, System.currentTimeMillis());
         }catch(Exception e){
             logger.error(e.getMessage());
         }

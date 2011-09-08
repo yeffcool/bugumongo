@@ -87,4 +87,22 @@ public class MapperUtil {
         return sort;
     }
     
+    public static DBObject[] getIndex(String index){
+        String[] items = index.split(";");
+        int len = items.length;
+        DBObject[] result = new BasicDBObject[len];
+        for(int i=0; i<len; i++){
+            DBObject dbo = new BasicDBObject();
+            String[] arr = items[i].split(",");
+            for(String s : arr){
+                String[] kv = s.split(":");
+                String k = kv[0].trim();
+                String v = kv[1].trim();
+                dbo.put(k, Integer.parseInt(v));
+            }
+            result[i] = dbo;
+        }
+        return result;
+    }
+    
 }

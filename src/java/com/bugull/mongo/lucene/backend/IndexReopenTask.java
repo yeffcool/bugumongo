@@ -16,11 +16,9 @@
 package com.bugull.mongo.lucene.backend;
 
 import com.bugull.mongo.cache.IndexSearcherCache;
-import com.bugull.mongo.cache.IndexWriterCache;
 import java.util.Map;
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
 
 /**
@@ -33,32 +31,31 @@ public class IndexReopenTask implements Runnable {
 
     @Override
     public void run() {
-        Map<String, IndexSearcher> map = IndexSearcherCache.getInstance().getAll();
+        IndexSearcherCache searcherCache = IndexSearcherCache.getInstance();
+        Map<String, IndexSearcher> map = searcherCache.getAll();
         for(String name : map.keySet()){
-            IndexSearcher searcher = map.get(name);
-            IndexSearcherCache searcherCache = IndexSearcherCache.getInstance();
             if(searcherCache.isOpenning(name)){
                 continue;
             }
             searcherCache.putOpenning(name, Boolean.TRUE);
+            IndexSearcher searcher = map.get(name);
+            IndexReader reader = searcher.getIndexReader();
+            IndexReader newReader = null;
             try{
-                IndexWriterCache writerCache = IndexWriterCache.getInstance();
-                long lastChange = writerCache.getLastChange(name);
-                long lastOpen = searcherCache.getLastOpen(name);
-                if(lastChange > lastOpen){
-                    IndexWriter writer = writerCache.get(name);
-                    writer.optimize();
-                    writer.commit();
-                    IndexReader newReader = searcher.getIndexReader().reopen();
-                    IndexSearcher newSearcher = new IndexSearcher(newReader);
-                    searcherCache.put(name, newSearcher);
-                    searcherCache.putLastOpen(name, System.currentTimeMillis());
-                }
+                newReader = reader.reopen();
             }catch(Exception e){
                 logger.error(e.getMessage());
-            }finally{
-                searcherCache.putOpenning(name, Boolean.FALSE);
             }
+            if(newReader!=null && newReader!=reader){
+                try{
+                    reader.decRef();
+                }catch(Exception e){
+                    logger.error(e.getMessage());
+                }
+                IndexSearcher newSearcher = new IndexSearcher(newReader);
+                searcherCache.put(name, newSearcher);
+            }
+            searcherCache.putOpenning(name, Boolean.FALSE);
         }
     }
     

@@ -50,7 +50,6 @@ public class IndexRemoveTask implements Runnable{
         try{
             Term term = new Term(FieldsCache.getInstance().getIdFieldName(clazz), id);
             writer.deleteDocuments(term);
-            cache.putLastChange(name, System.currentTimeMillis());
         }catch(Exception e){
             logger.error(e.getMessage());
         }
