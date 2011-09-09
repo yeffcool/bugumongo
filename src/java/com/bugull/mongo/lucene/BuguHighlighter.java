@@ -37,7 +37,7 @@ public class BuguHighlighter {
     private int maxFragments = 2;
     
     public BuguHighlighter(){
-        
+        //default constructor
     }
     
     public BuguHighlighter(String field, String keywords){
