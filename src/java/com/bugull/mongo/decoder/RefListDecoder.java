@@ -19,6 +19,7 @@ import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.ConstructorCache;
+import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -78,7 +79,7 @@ public class RefListDecoder extends AbstractDecoder{
                 }
                 DBObject in = new BasicDBObject("$in", arr);
                 DBObject query = new BasicDBObject("_id", in);
-                BuguDao dao = new BuguDao(clazz);
+                BuguDao dao = DaoCache.getInstance().get(clazz);
                 String sort = refList.sort();
                 if(sort.equals("")){
                     result = dao.find(query);
@@ -110,7 +111,7 @@ public class RefListDecoder extends AbstractDecoder{
                     result.put(key, refObj);
                 }
             }else{
-                BuguDao dao = new BuguDao(clazz);
+                BuguDao dao = DaoCache.getInstance().get(clazz);
                 for(Object key : map.keySet()){
                     DBRef dbRef = map.get(key);
                     BuguEntity refObj = (BuguEntity)dao.findOne(dbRef.getId().toString());

@@ -18,6 +18,7 @@ package com.bugull.mongo.lucene.backend;
 import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.annotations.Id;
+import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.BoostSwitch;
 import com.bugull.mongo.lucene.annotations.IndexEmbed;
@@ -218,7 +219,7 @@ public class IndexCreater {
     private void processIndexRef(Document doc, java.lang.reflect.Field f) throws Exception{
         BuguEntity entity = (BuguEntity)f.get(obj);
         String refId = entity.getId();
-        BuguDao buguDao = new BuguDao(f.getType());
+        BuguDao buguDao = DaoCache.getInstance().get(f.getType());
         Object refObj = buguDao.findOne(refId);
         IndexCreater creater = new IndexCreater(refObj, null, prefix + f.getName());
         creater.process(doc);

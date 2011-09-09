@@ -18,6 +18,7 @@ package com.bugull.mongo;
 import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
+import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.mongodb.BasicDBObject;
@@ -141,7 +142,7 @@ public class BuguMapper {
         }
         BuguEntity refObj = (BuguEntity)o;
         String id = refObj.getId();
-        BuguDao dao = new BuguDao(field.getType());
+        BuguDao dao = DaoCache.getInstance().get(field.getType());
         Object value = dao.findOne(id);
         field.set(obj, value);
     }
@@ -156,7 +157,7 @@ public class BuguMapper {
         int len = types.length;
         if(len == 1){
             Class clazz = (Class)types[0];
-            BuguDao dao = new BuguDao(clazz);
+            BuguDao dao = DaoCache.getInstance().get(clazz);
             String typeName = field.getType().getName();
             RefList refList = field.getAnnotation(RefList.class);
             if(typeName.equals("java.util.List")){
@@ -198,7 +199,7 @@ public class BuguMapper {
         }
         else if(len == 2){
             Class clazz = (Class)types[1];
-            BuguDao dao = new BuguDao(clazz);
+            BuguDao dao = DaoCache.getInstance().get(clazz);
             Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)o;
             Map result = new HashMap();
             for(Object key : map.keySet()){

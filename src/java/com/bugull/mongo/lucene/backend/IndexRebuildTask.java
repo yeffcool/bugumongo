@@ -18,6 +18,7 @@ package com.bugull.mongo.lucene.backend;
 import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.annotations.Entity;
+import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.cache.IndexWriterCache;
 import java.util.List;
@@ -52,7 +53,7 @@ public class IndexRebuildTask implements Runnable{
 
     @Override
     public void run() {
-        BuguDao dao = new BuguDao(clazz);
+        BuguDao dao = DaoCache.getInstance().get(clazz);
         long count = dao.count();
         int pages = (int) (count / batchSize);
         int remainder = (int) (count % batchSize);
