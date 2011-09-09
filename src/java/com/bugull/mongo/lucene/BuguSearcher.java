@@ -20,6 +20,7 @@ import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.cache.IndexSearcherCache;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -52,6 +53,7 @@ public class BuguSearcher {
     private int pageSize = 20;
     private int maxPage = 50;
     private int resultCount;
+    private BuguHighlighter highlighter;
     
     public BuguSearcher(Class<?> clazz){
         this.clazz = clazz;
@@ -87,6 +89,10 @@ public class BuguSearcher {
     
     public void setPageSize(int pageSize){
         this.pageSize = pageSize;
+    }
+    
+    public void setHighlighter(BuguHighlighter highlighter) {
+        this.highlighter = highlighter;
     }
     
     public int getResultCount(){
@@ -149,6 +155,21 @@ public class BuguSearcher {
                 logger.error(e.getMessage());
             }
         }
+        //process highlighter
+        if(highlighter != null){
+            for(Object obj : list){
+                String[] fields = highlighter.getFields();
+                for(String fieldName : fields){
+                    try{
+                        Field field = FieldsCache.getInstance().getField(clazz, fieldName);
+                        String fieldValue = field.get(obj).toString();
+                        field.set(obj, highlighter.getResult(fieldName, fieldValue));
+                    }catch(Exception e){
+                        logger.error(e.getMessage());
+                    }
+                }
+            }
+        }
         return list;
     }
     
@@ -163,5 +184,5 @@ public class BuguSearcher {
     public IndexSearcher getSearcher(){
         return searcher;
     }
-    
+
 }
