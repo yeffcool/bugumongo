@@ -34,7 +34,7 @@ public class BuguHighlighter {
     private String keywords;
     private String[] fields;
     private Formatter formatter = new SimpleHTMLFormatter("<font color=\"#FF0000\">", "</font>");
-    private int maxFragments = 2;
+    private int maxFragments = 3;
     
     public BuguHighlighter(){
         //default constructor
