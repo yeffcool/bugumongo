@@ -118,7 +118,7 @@ public class BuguDao {
         }
     }
     
-    public void removeAll(){
+    public void drop(){
         if(!indexed){
             coll.drop();
         }else{
@@ -127,6 +127,7 @@ public class BuguDao {
                 BuguEntity entity = (BuguEntity)o;
                 remove(entity);
             }
+            coll.drop();
         }
     }
     
@@ -446,18 +447,23 @@ public class BuguDao {
         return Double.parseDouble(dbo.get("value").toString());
     }
     
-    public Iterable<DBObject> mapReduce(MapReduceCommand command) {
-        return coll.mapReduce(command).results();
+    public Iterable<DBObject> mapReduce(String map, String reduce) {
+        return coll.mapReduce(map, reduce, null, OutputType.INLINE, null).results();
     }
     
     public Iterable<DBObject> mapReduce(String map, String reduce, DBObject query) {
         return coll.mapReduce(map, reduce, null, OutputType.INLINE, query).results();
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, DBObject sort, DBObject query) {
+    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, DBObject orderBy, DBObject query) {
         MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
         DBCollection c = output.getOutputCollection();
-        DBCursor cursor = c.find().sort(sort);
+        DBCursor cursor = null;
+        if(orderBy != null){
+            cursor = c.find().sort(orderBy);
+        }else{
+            cursor = c.find();
+        }
         List<DBObject> list = new ArrayList<DBObject>();
         for(Iterator<DBObject> it = cursor.iterator(); it.hasNext(); ){
             list.add(it.next());
@@ -465,15 +471,24 @@ public class BuguDao {
         return list;
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, DBObject sort, int pageNum, int pageSize, DBObject query) {
+    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, DBObject orderBy, int pageNum, int pageSize, DBObject query) {
         MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
         DBCollection c = output.getOutputCollection();
-        DBCursor cursor = c.find().sort(sort).skip((pageNum-1)*pageSize).limit(pageSize);
+        DBCursor cursor = null;
+        if(orderBy != null){
+            cursor = c.find().sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
+        }else{
+            cursor = c.find().skip((pageNum-1)*pageSize).limit(pageSize);
+        }
         List<DBObject> list = new ArrayList<DBObject>();
         for(Iterator<DBObject> it = cursor.iterator(); it.hasNext(); ){
             list.add(it.next());
         }
         return list;
+    }
+    
+    public DBCollection getCollection(){
+        return coll;
     }
     
 }
