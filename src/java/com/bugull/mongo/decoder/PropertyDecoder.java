@@ -162,6 +162,11 @@ public class PropertyDecoder extends AbstractDecoder{
             Set set = new HashSet(list);
             field.set(obj, set);
         }
+        else if(typeName.equals("java.sql.Timestamp")){
+            Date date = (Date)value;
+            Timestamp ts = new Timestamp(date.getTime());
+            field.set(obj, ts);
+        }
         else{
             field.set(obj, value);
         }
