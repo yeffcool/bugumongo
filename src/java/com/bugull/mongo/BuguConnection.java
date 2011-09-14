@@ -53,8 +53,22 @@ public class BuguConnection {
         this.password = password;
         connect();
     }
-
+    
+    public void connect(String host, int port, String database){
+        this.host = host;
+        this.port = port;
+        this.database = database;
+        connect();
+    }
+    
     public void connect(){
+        connectWithoutAuth();
+        if(username != null && password != null){
+            auth();
+        }
+    }
+
+    private void connectWithoutAuth(){
         Mongo mongo = null;
         try{
             mongo = new Mongo(host, port);
@@ -62,6 +76,9 @@ public class BuguConnection {
             logger.error(e.getMessage());
         }
         db = mongo.getDB(database);
+    }
+    
+    private void auth(){
         boolean auth = db.authenticate(username, password.toCharArray());
         if(auth){
             logger.info("Connected to mongodb successfully!");
