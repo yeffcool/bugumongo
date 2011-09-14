@@ -17,6 +17,7 @@ package com.bugull.mongo.encoder;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.sql.Timestamp;
 import java.util.Date;
 import org.apache.log4j.Logger;
 
@@ -76,6 +77,13 @@ public abstract class AbstractEncoder implements Encoder{
             }
             value = arr;
         }
+        else if(typeName.equals("short") || typeName.equals("java.lang.Short")){
+            short[] arr = new short[len];
+            for(int i=0; i<len; i++){
+                arr[i] = Array.getShort(o, i);
+            }
+            value = arr;
+        }
         else if(typeName.equals("float") || typeName.equals("java.lang.Float")){
             float[] arr = new float[len];
             for(int i=0; i<len; i++){
@@ -111,6 +119,13 @@ public abstract class AbstractEncoder implements Encoder{
             }
             value = arr;
         }
+        else if(typeName.equals("java.sql.Timestamp")){
+            Timestamp[] arr = new Timestamp[len];
+            for(int i=0; i<len; i++){
+                arr[i] = (Timestamp)(Array.get(o, i));
+            }
+            value = arr;
+        }
     }
     
     private void setValue(String typeName) throws Exception {
@@ -119,6 +134,9 @@ public abstract class AbstractEncoder implements Encoder{
         }
         else if(typeName.equals("long") || typeName.equals("java.lang.Long")){
             value = field.getLong(obj);
+        }
+        else if(typeName.equals("short") || typeName.equals("java.lang.Short")){
+            value = field.getShort(obj);
         }
         else if(typeName.equals("float") || typeName.equals("java.lang.Float")){
             value = field.getFloat(obj);
@@ -132,7 +150,7 @@ public abstract class AbstractEncoder implements Encoder{
         else if(typeName.equals("char") || typeName.equals("java.lang.Character")){
             value = String.valueOf(field.getChar(obj));
         }
-        else{  //List, Set, Map, Date, and other Object
+        else{  //List, Set, Map, Date, Timestamp, and other Object
             value = field.get(obj);
         }
     }
