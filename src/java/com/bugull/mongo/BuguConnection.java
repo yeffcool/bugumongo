@@ -62,13 +62,13 @@ public class BuguConnection {
     }
     
     public void connect(){
-        connectWithoutAuth();
+        doConnect();
         if(username != null && password != null){
             auth();
         }
     }
 
-    private void connectWithoutAuth(){
+    private void doConnect(){
         Mongo mongo = null;
         try{
             mongo = new Mongo(host, port);
