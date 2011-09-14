@@ -18,7 +18,7 @@ package com.bugull.mongo.decoder;
 import com.bugull.mongo.annotations.Property;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
-import java.security.Timestamp;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
