@@ -24,6 +24,7 @@ import com.bugull.mongo.lucene.annotations.BoostSwitch;
 import com.bugull.mongo.lucene.annotations.IndexEmbed;
 import com.bugull.mongo.lucene.annotations.IndexProperty;
 import com.bugull.mongo.lucene.annotations.IndexRef;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 import org.apache.log4j.Logger;
@@ -118,6 +119,12 @@ public class IndexCreater {
                 sb.append(e).append(join);
             }
         }
+        else if(typeName.equals("short") || typeName.equals("java.lang.Short")){
+            short[] arr = (short[])value;
+            for(short e : arr){
+                sb.append(e).append(join);
+            }
+        }
         else if(typeName.equals("float") || typeName.equals("java.lang.Float")){
             float[] arr = (float[])value;
             for(float e : arr){
@@ -133,6 +140,12 @@ public class IndexCreater {
         else if(typeName.equals("java.util.Date")){
             Date[] arr = (Date[])value;
             for(Date e : arr){
+                sb.append(e.getTime()).append(join);
+            }
+        }
+        else if(typeName.equals("java.sql.Timestamp")){
+            Timestamp[] arr = (Timestamp[])value;
+            for(Timestamp e : arr){
                 sb.append(e.getTime()).append(join);
             }
         }
@@ -185,6 +198,9 @@ public class IndexCreater {
         else if(typeName.equals("long") || typeName.equals("java.lang.Long")){
             field = new NumericField(fieldName).setLongValue(f.getLong(obj));
         }
+        else if(typeName.equals("short") || typeName.equals("java.lang.Short")){
+            field = new NumericField(fieldName).setIntValue(f.getShort(obj));
+        }
         else if(typeName.equals("float") || typeName.equals("java.lang.Float")){
             field = new NumericField(fieldName).setFloatValue(f.getFloat(obj));
         }
@@ -194,6 +210,10 @@ public class IndexCreater {
         else if(typeName.equals("java.util.Date")){
             Date date = (Date)f.get(obj);
             field = new NumericField(fieldName).setLongValue(date.getTime());
+        }
+        else if(typeName.equals("java.sql.Timestamp")){
+            Timestamp ts = (Timestamp)f.get(obj);
+            field = new NumericField(fieldName).setLongValue(ts.getTime());
         }
         else if(typeName.equals("java.util.Set") || typeName.equals("java.util.List")){
             Collection coll = (Collection)f.get(obj);

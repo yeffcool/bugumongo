@@ -15,6 +15,7 @@
 
 package com.bugull.mongo.lucene;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
@@ -96,6 +97,12 @@ public class BuguParser {
     }
     
     public static Query parse(String field, Date begin, Date end){
+        long beginTime = begin.getTime();
+        long endTime = end.getTime();
+        return parse(field, beginTime, endTime);
+    }
+    
+    public static Query parse(String field, Timestamp begin, Timestamp end){
         long beginTime = begin.getTime();
         long endTime = end.getTime();
         return parse(field, beginTime, endTime);
