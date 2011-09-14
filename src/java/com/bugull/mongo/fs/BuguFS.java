@@ -16,16 +16,23 @@
 package com.bugull.mongo.fs;
 
 import com.bugull.mongo.BuguConnection;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.log4j.Logger;
+import org.bson.types.ObjectId;
 
 /**
  *
@@ -36,11 +43,18 @@ public class BuguFS {
     private final static Logger logger = Logger.getLogger(BuguFS.class);
     
     private static BuguFS instance = new BuguFS();
-    
     private GridFS fs;
+    private DBCollection files;
+    
+    private final static String FS_FILES = "fs.files";
+    private final static String FOLDER = "folder";
+    
+    public final static String FILENAME = "filename";
     
     private BuguFS(){
-        fs = new GridFS(BuguConnection.getInstance().getDB());
+        DB db = BuguConnection.getInstance().getDB();
+        fs = new GridFS(db);
+        files = db.getCollection(FS_FILES);
     }
     
     public static BuguFS getInstance(){
@@ -52,48 +66,66 @@ public class BuguFS {
     }
     
     public void save(File file){
-        save(file, file.getName());
+        save(file, file.getName(), null, null);
     }
     
     public void save(File file, String filename){
-        save(file, filename, null);
+        save(file, filename, null, null);
     }
     
-    public void save(File file, String filename, Map<String, Object> params){
+    public void save(File file, String filename, String folderName){
+        save(file, filename, folderName, null);
+    }
+    
+    public void save(File file, String filename, String folderName, Map<String, Object> params){
         GridFSInputFile f = null;
         try{
             f = fs.createFile(file);
         }catch(Exception e){
             logger.error(e.getMessage());
         }
-        f.setFilename(filename.toLowerCase());
-        setParams(f, params);
+        f.setFilename(filename);
+        setParams(f, folderName, params);
         f.save();
     }
     
     public void save(InputStream is, String filename){
-        save(is, filename, null);
+        save(is, filename, null, null);
     }
     
-    public void save(InputStream is, String filename, Map<String, Object> params){
+    public void save(InputStream is, String filename, String folderName){
+        save(is, filename, folderName, null);
+    }
+    
+    public void save(InputStream is, String filename, String folderName, Map<String, Object> params){
         GridFSInputFile f = fs.createFile(is);
-        f.setFilename(filename.toLowerCase());
-        setParams(f, params);
+        f.setFilename(filename);
+        setParams(f, folderName, params);
         f.save();
     }
     
     public void save(byte[] data, String filename){
-        save(data, filename, null);
+        save(data, filename, null, null);
     }
     
-    public void save(byte[] data, String filename, Map<String, Object> params){
+    public void save(byte[] data, String filename, String folderName){
+        save(data, filename, folderName, null);
+    }
+    
+    public void save(byte[] data, String filename, String folderName, Map<String, Object> params){
         GridFSInputFile f = fs.createFile(data);
-        f.setFilename(filename.toLowerCase());
-        setParams(f, params);
+        f.setFilename(filename);
+        setParams(f, folderName, params);
         f.save();
     }
     
-    private void setParams(GridFSInputFile f, Map<String, Object> params){
+    private void setParams(GridFSInputFile f, String folderName, Map<String, Object> params){
+        if(folderName != null){
+            if(params == null){
+                params = new HashMap<String, Object>();
+            }
+            params.put(FOLDER, folderName);
+        }
         if(params != null){
             Set<String> keys = params.keySet();
             for(String key : keys){
@@ -103,27 +135,117 @@ public class BuguFS {
     }
     
     public GridFSDBFile findOne(String filename){
-        return fs.findOne(filename.toLowerCase());
+        return fs.findOne(filename);
     }
     
     public GridFSDBFile findOne(DBObject query){
         return fs.findOne(query);
     }
     
-    public List<GridFSDBFile> find(String filename) {
-        return fs.find(filename);
-    }
-    
     public List<GridFSDBFile> find(DBObject query){
         return fs.find(query);
     }
     
+    public List<GridFSDBFile> find(DBObject query, int pageNum, int pageSize){
+        DBCursor cursor = files.find(query).skip((pageNum-1)*pageSize).limit(pageSize);
+        return toFileList(cursor);
+    }
+    
+    public List<GridFSDBFile> find(DBObject query, DBObject orderBy){
+        DBCursor cursor = files.find(query).sort(orderBy);
+        return toFileList(cursor);
+    }
+    
+    public List<GridFSDBFile> find(DBObject query, DBObject orderBy, int pageNum, int pageSize){
+        DBCursor cursor = files.find(query).sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
+        return toFileList(cursor);
+    }
+    
+    public List<GridFSDBFile> findByFolder(String folderName){
+        DBObject query = new BasicDBObject(FOLDER, folderName);
+        return find(query);
+    }
+    
+    public List<GridFSDBFile> findByFolder(String folderName, int pageNum, int pageSize){
+        DBObject query = new BasicDBObject(FOLDER, folderName);
+        return find(query, pageNum, pageSize);
+    }
+    
+    public List<GridFSDBFile> findByFolder(String folderName, DBObject orderBy){
+        DBObject query = new BasicDBObject(FOLDER, folderName);
+        return find(query, orderBy);
+    }
+    
+    public List<GridFSDBFile> findByFolder(String folderName, DBObject orderBy, int pageNum, int pageSize){
+        DBObject query = new BasicDBObject(FOLDER, folderName);
+        return find(query, orderBy, pageNum, pageSize);
+    }
+    
+    public List findAllFolder(){
+        return files.distinct(FOLDER);
+    }
+    
+    public void rename(String oldName, String newName){
+        DBObject query = new BasicDBObject(FILENAME, oldName);
+        DBObject dbo = files.findOne(query);
+        dbo.put(FILENAME, newName);
+        files.save(dbo);
+    }
+    
+    public void rename(GridFSDBFile file, String newName){
+        ObjectId id = (ObjectId)file.getId();
+        DBObject query = new BasicDBObject("_id", id);
+        DBObject dbo = files.findOne(query);
+        dbo.put(FILENAME, newName);
+        files.save(dbo);
+    }
+    
+    public void renameFolder(String oldName, String newName){
+        DBObject query = new BasicDBObject(FOLDER, oldName);
+        DBObject dbo = new BasicDBObject(FOLDER, newName);
+        DBObject set = new BasicDBObject("$set", dbo);
+        files.updateMulti(query, set);
+    }
+    
+    public void move(String filename, String folderName){
+        DBObject query = new BasicDBObject(FILENAME, filename);
+        DBObject dbo = files.findOne(query);
+        dbo.put(FOLDER, folderName);
+        files.save(dbo);
+    }
+    
+    public void move(GridFSDBFile file, String folderName){
+        ObjectId id = (ObjectId)file.getId();
+        DBObject query = new BasicDBObject("_id", id);
+        DBObject dbo = files.findOne(query);
+        dbo.put(FOLDER, folderName);
+        files.save(dbo);
+    }
+    
     public void remove(String filename){
-        fs.remove(filename.toLowerCase());
+        fs.remove(filename);
     }
     
     public void remove(DBObject query){
         fs.remove(query);
+    }
+    
+    public void removeFolder(String folderName){
+        DBObject query = new BasicDBObject(FOLDER, folderName);
+        fs.remove(query);
+    }
+    
+    private List<GridFSDBFile> toFileList(DBCursor cursor){
+        List<GridFSDBFile> list = new ArrayList<GridFSDBFile>();
+        while(cursor.hasNext()){
+            DBObject dbo = cursor.next();
+            ObjectId id = (ObjectId)dbo.get("_id");
+            DBObject query = new BasicDBObject("_id", id);
+            GridFSDBFile f = this.findOne(query);
+            list.add(f);
+        }
+        cursor.close();
+        return list;
     }
     
 }

@@ -44,8 +44,8 @@ public class UploadedFileServlet extends HttpServlet {
         int second = url.indexOf("/", 1);
         url = url.substring(second);
         int last = url.lastIndexOf("/");
-        String filename = url.substring(last+1).toLowerCase();
-        DBObject query = new BasicDBObject("filename", filename);
+        String filename = url.substring(last+1);
+        DBObject query = new BasicDBObject(BuguFS.FILENAME, filename);
         int first = url.indexOf("/");
         if(first != last){
             String sub = url.substring(first+1, last);
@@ -115,22 +115,22 @@ public class UploadedFileServlet extends HttpServlet {
             return "application/octet-stream";
         }
         String type = null;
-        if(ext.equals("jpg") || ext.equals("jpeg") || ext.equals("png") || ext.equals("gif") || ext.equals("bmp")){
+        if(ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg") || ext.equalsIgnoreCase("png") || ext.equalsIgnoreCase("gif") || ext.equalsIgnoreCase("bmp")){
             type = "image/" + type;
         }
-        else if(ext.equals("html") || ext.equals("htm")){
+        else if(ext.equalsIgnoreCase("html") || ext.equalsIgnoreCase("htm")){
             type = "text/html";
         }
-        else if(ext.equals("swf")){
+        else if(ext.equalsIgnoreCase("swf")){
             type = "application/x-shockwave-flash";
         }
-        else if(ext.equals("mp3")){
+        else if(ext.equalsIgnoreCase("mp3")){
             type = "audio/x-mpeg";
         }
-        else if(ext.equals("mp4")){
+        else if(ext.equalsIgnoreCase("mp4")){
             type = "video/mp4";
         }
-        else if(ext.equals("pdf")){
+        else if(ext.equalsIgnoreCase("pdf")){
             type = "application/pdf";
         }
         else{

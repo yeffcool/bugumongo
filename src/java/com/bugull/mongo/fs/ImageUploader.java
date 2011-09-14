@@ -38,6 +38,8 @@ public class ImageUploader extends Uploader{
     
     private final static Logger logger = Logger.getLogger(ImageUploader.class);
     
+    private final static String DIMENSION = "dimension";
+    
     public ImageUploader(File file, String fName){
         super(file, fName);
     }
@@ -50,8 +52,8 @@ public class ImageUploader extends Uploader{
     }
     
     private InputStream getOriginalInputStream(){
-        DBObject query = new BasicDBObject("filename", filename);
-        query.put("dimension", null);
+        DBObject query = new BasicDBObject(BuguFS.FILENAME, filename);
+        query.put(DIMENSION, null);
         GridFSDBFile f = fs.findOne(query);
         return f.getInputStream();
     }
@@ -109,12 +111,13 @@ public class ImageUploader extends Uploader{
         } catch (Exception ex) {
             logger.error(ex);
         }
-        fs.save(baos.toByteArray(), filename, map);
+        fs.save(baos.toByteArray(), filename, folder, map);
         close(baos);
     }
     
     public void compress(String dimension, int maxWidth, int maxHeight) {
-        boolean isTransparent = filename.endsWith(".png") || filename.endsWith(".gif");
+        String lower = filename.toLowerCase();
+        boolean isTransparent = lower.endsWith(".png") || lower.endsWith(".gif");
         Image image = null;
         try {
             image = ImageIO.read(getOriginalInputStream());
@@ -152,8 +155,8 @@ public class ImageUploader extends Uploader{
                 logger.error(ex);
             }
         }
-        setAttribute("dimension", dimension);
-        fs.save(baos.toByteArray(), filename, map);
+        setAttribute(DIMENSION, dimension);
+        fs.save(baos.toByteArray(), filename, folder, map);
         close(baos);
     }
     

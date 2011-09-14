@@ -30,14 +30,24 @@ public class Uploader {
     protected File file;
     protected String fName;
     protected String filename;
+    protected String folder;
     protected Map<String, Object> map;
     
     protected BuguFS fs;
     
     public Uploader(File file, String fName){
+        fs = BuguFS.getInstance();
         this.file = file;
         this.fName = fName;
-        fs = BuguFS.getInstance();
+    }
+    
+    public Uploader(File file, String fName, String folder){
+        this(file, fName);
+        this.folder = folder;
+    }
+    
+    public void setFolder(String folder){
+        this.folder = folder;
     }
     
     public void setAttribute(String key, Object value){
@@ -54,7 +64,7 @@ public class Uploader {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         String dateStr = format.format(date);
         filename = dateStr + date.getTime() + "." + ext;
-        fs.save(file, filename, map);
+        fs.save(file, filename, folder, map);
     }
 
     public String getFilename() {
