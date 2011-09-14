@@ -18,6 +18,7 @@ package com.bugull.mongo.decoder;
 import com.bugull.mongo.annotations.Property;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
+import java.security.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -83,6 +84,13 @@ public class PropertyDecoder extends AbstractDecoder{
             }
             field.set(obj, arr);
         }
+        else if(typeName.equals("short") || typeName.equals("java.lang.Short")){
+            short[] arr = new short[size];
+            for(int i=0; i<size; i++){
+                arr[i] = Short.parseShort(list.get(i).toString());
+            }
+            field.set(obj, arr);
+        }
         else if(typeName.equals("float") || typeName.equals("java.lang.Float")){
             float[] arr = new float[size];
             for(int i=0; i<size; i++){
@@ -118,6 +126,13 @@ public class PropertyDecoder extends AbstractDecoder{
             }
             field.set(obj, arr);
         }
+        else if(typeName.equals("java.sql.Timestamp")){
+            Timestamp[] arr = new Timestamp[size];
+            for(int i=0; i<size; i++){
+                arr[i] = (Timestamp)list.get(i);
+            }
+            field.set(obj, arr);
+        }
     }
     
     private void decodePrimitive(Object obj, String typeName) throws Exception {
@@ -126,6 +141,9 @@ public class PropertyDecoder extends AbstractDecoder{
         }
         else if(typeName.equals("long") || typeName.equals("java.lang.Long")){
             field.setLong(obj, Long.parseLong(value.toString()));
+        }
+        else if(typeName.equals("short") || typeName.equals("java.lang.Short")){
+            field.setShort(obj, Short.parseShort(value.toString()));
         }
         else if(typeName.equals("float") || typeName.equals("java.lang.Float")){
             field.setFloat(obj, Float.parseFloat(value.toString()));
