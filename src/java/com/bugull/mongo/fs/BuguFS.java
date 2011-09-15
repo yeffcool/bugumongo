@@ -16,6 +16,7 @@
 package com.bugull.mongo.fs;
 
 import com.bugull.mongo.BuguConnection;
+import com.bugull.mongo.mapper.MapperUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -153,9 +154,17 @@ public class BuguFS {
         return toFileList(cursor);
     }
     
+    public List<GridFSDBFile> find(DBObject query, String orderBy){
+        return find(query, MapperUtil.getSort(orderBy));
+    }
+    
     public List<GridFSDBFile> find(DBObject query, DBObject orderBy){
         DBCursor cursor = files.find(query).sort(orderBy);
         return toFileList(cursor);
+    }
+    
+    public List<GridFSDBFile> find(DBObject query, String orderBy, int pageNum, int pageSize){
+        return find(query, MapperUtil.getSort(orderBy), pageNum, pageSize);
     }
     
     public List<GridFSDBFile> find(DBObject query, DBObject orderBy, int pageNum, int pageSize){
@@ -176,6 +185,14 @@ public class BuguFS {
     public List<GridFSDBFile> findByFolder(String folderName, DBObject orderBy){
         DBObject query = new BasicDBObject(FOLDER, folderName);
         return find(query, orderBy);
+    }
+    
+    public List<GridFSDBFile> findByFolder(String folderName, String orderBy){
+        return findByFolder(folderName, MapperUtil.getSort(orderBy));
+    }
+    
+    public List<GridFSDBFile> findByFolder(String folderName, String orderBy, int pageNum, int pageSize){
+        return findByFolder(folderName, MapperUtil.getSort(orderBy), pageNum, pageSize);
     }
     
     public List<GridFSDBFile> findByFolder(String folderName, DBObject orderBy, int pageNum, int pageSize){
