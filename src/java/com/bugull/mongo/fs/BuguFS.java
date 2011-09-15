@@ -47,9 +47,11 @@ public class BuguFS {
     private DBCollection files;
     
     private final static String FS_FILES = "fs.files";
-    private final static String FOLDER = "folder";
     
+    public final static String FOLDER = "folder";
     public final static String FILENAME = "filename";
+    public final static String LENGTH = "length";
+    public final static String UPLOADDATE = "uploadDate";
     
     private BuguFS(){
         DB db = BuguConnection.getInstance().getDB();
