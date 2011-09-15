@@ -44,6 +44,10 @@ public class ImageUploader extends Uploader{
         super(file, fName);
     }
     
+    public ImageUploader(File file, String fName, String folderName){
+        super(file, fName, folderName);
+    }
+    
     public void save(Watermark watermark){
         this.save();
         if(watermark != null){
