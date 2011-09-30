@@ -213,7 +213,7 @@ public class BuguFS {
     
     public void rename(GridFSDBFile file, String newName){
         ObjectId id = (ObjectId)file.getId();
-        DBObject query = new BasicDBObject("_id", id);
+        DBObject query = new BasicDBObject(MapperUtil.ID, id);
         DBObject dbo = files.findOne(query);
         dbo.put(FILENAME, newName);
         files.save(dbo);
@@ -235,7 +235,7 @@ public class BuguFS {
     
     public void move(GridFSDBFile file, String folderName){
         ObjectId id = (ObjectId)file.getId();
-        DBObject query = new BasicDBObject("_id", id);
+        DBObject query = new BasicDBObject(MapperUtil.ID, id);
         DBObject dbo = files.findOne(query);
         dbo.put(FOLDER, folderName);
         files.save(dbo);
@@ -258,8 +258,8 @@ public class BuguFS {
         List<GridFSDBFile> list = new ArrayList<GridFSDBFile>();
         while(cursor.hasNext()){
             DBObject dbo = cursor.next();
-            ObjectId id = (ObjectId)dbo.get("_id");
-            DBObject query = new BasicDBObject("_id", id);
+            ObjectId id = (ObjectId)dbo.get(MapperUtil.ID);
+            DBObject query = new BasicDBObject(MapperUtil.ID, id);
             GridFSDBFile f = this.findOne(query);
             list.add(f);
         }

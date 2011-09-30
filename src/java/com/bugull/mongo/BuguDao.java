@@ -30,12 +30,8 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.MapReduceCommand;
-import com.mongodb.MapReduceCommand.OutputType;
-import com.mongodb.MapReduceOutput;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import org.bson.types.ObjectId;
 
@@ -45,10 +41,10 @@ import org.bson.types.ObjectId;
  */
 public class BuguDao {
     
-    private DBCollection coll;
-    private Class<?> clazz;
-    private boolean indexed;
-    private EntityChangedListener listener;
+    protected DBCollection coll;
+    protected Class<?> clazz;
+    protected boolean indexed;
+    protected EntityChangedListener listener;
     
     public BuguDao(Class<?> clazz){
         this.clazz = clazz;
@@ -86,7 +82,7 @@ public class BuguDao {
     public void insert(BuguEntity obj){
         DBObject dbo = MapperUtil.toDBObject(obj);
         coll.insert(dbo);
-        String id = dbo.get("_id").toString();
+        String id = dbo.get(MapperUtil.ID).toString();
         obj.setId(id);
         if(indexed){
             listener.entityInsert(obj);
@@ -137,10 +133,22 @@ public class BuguDao {
 
     public void remove(String id){
         DBObject query = new BasicDBObject();
-        query.put("_id", new ObjectId(id));
+        query.put(MapperUtil.ID, new ObjectId(id));
         coll.remove(query);
         if(indexed){
             listener.entityRemove(clazz, id);
+        }
+    }
+    
+    public void remove(String... ids){
+        if(indexed){
+            for(String id : ids){
+                remove(id);
+            }
+        }else{
+            DBObject in = new BasicDBObject("$in", ids);
+            DBObject query = new BasicDBObject(MapperUtil.ID, in);
+            coll.remove(query);
         }
     }
     
@@ -151,7 +159,7 @@ public class BuguDao {
     public void remove(DBObject query){
         List ids = null;
         if(indexed){
-            ids = coll.distinct("_id", query);
+            ids = coll.distinct(MapperUtil.ID, query);
         }
         coll.remove(query);
         if(indexed){
@@ -174,14 +182,14 @@ public class BuguDao {
     }
     
     private void updateWithOutIndex(String id, DBObject dbo){
-        DBObject query = new BasicDBObject("_id", new ObjectId(id));
+        DBObject query = new BasicDBObject(MapperUtil.ID, new ObjectId(id));
         coll.update(query, dbo);
     }
     
     public void update(DBObject query, DBObject dbo){
         List ids = null;
         if(indexed){
-            ids = coll.distinct("_id", query);
+            ids = coll.distinct(MapperUtil.ID, query);
         }
         coll.updateMulti(query, dbo);
         if(indexed){
@@ -277,14 +285,14 @@ public class BuguDao {
     }
     
     public boolean exists(BuguEntity obj, String key, Object value){
-        DBObject query = new BasicDBObject("_id", new ObjectId(obj.getId()));
+        DBObject query = new BasicDBObject(MapperUtil.ID, new ObjectId(obj.getId()));
         query.put(key, value);
         return exists(query);
     }
     
     public Object findOne(String id){
         DBObject dbo = new BasicDBObject();
-        dbo.put("_id", new ObjectId(id));
+        dbo.put(MapperUtil.ID, new ObjectId(id));
         DBObject result = coll.findOne(dbo);
         return MapperUtil.fromDBObject(clazz, result);
     }
@@ -372,14 +380,14 @@ public class BuguDao {
     
     public List distinct(String key){
         if(key.equals("id")){
-            key = "_id";
+            key = MapperUtil.ID;
         }
         return coll.distinct(key);
     }
 
     public List distinct(String key, DBObject query){
         if(key.equals("id")){
-            key = "_id";
+            key = MapperUtil.ID;
         }
         return coll.distinct(key, query);
     }
@@ -394,97 +402,6 @@ public class BuguDao {
 
     public long count(DBObject query){
         return coll.count(query);
-    }
-    
-    public double max(String key){
-        return max(key, null);
-    }
-    
-    public double max(String key, DBObject query){
-        StringBuilder map = new StringBuilder("function(){emit('");
-        map.append(key);
-        map.append("', {'value':this.");
-        map.append(key);
-        map.append("});}");
-        String reduce = "function(key, values){var max=values[0].value; for(var i=1;i<values.length; i++){if(values[i].value>max){max=values[i].value;}} return {'value':max}}";
-        Iterable<DBObject> results = mapReduce(map.toString(), reduce, query);
-        DBObject result = results.iterator().next();
-        DBObject dbo = (DBObject)result.get("value");
-        return Double.parseDouble(dbo.get("value").toString());
-    }
-    
-    public double min(String key){
-        return min(key, null);
-    }
-    
-    public double min(String key, DBObject query){
-        StringBuilder map = new StringBuilder("function(){emit('");
-        map.append(key);
-        map.append("', {'value':this.");
-        map.append(key);
-        map.append("});}");
-        String reduce = "function(key, values){var min=values[0].value; for(var i=1;i<values.length; i++){if(values[i].value<min){min=values[i].value;}} return {'value':min}}";
-        Iterable<DBObject> results = mapReduce(map.toString(), reduce, query);
-        DBObject result = results.iterator().next();
-        DBObject dbo = (DBObject)result.get("value");
-        return Double.parseDouble(dbo.get("value").toString());
-    }
-    
-    public double sum(String key){
-        return sum(key, null);
-    }
-    
-    public double sum(String key, DBObject query){
-        StringBuilder map = new StringBuilder("function(){emit('");
-        map.append(key);
-        map.append("', {'value':this.");
-        map.append(key);
-        map.append("});}");
-        String reduce = "function(key, values){var sum=0; for(var i=0;i<values.length; i++){sum+=values[i].value;} return {'value':sum}}";
-        Iterable<DBObject> results = mapReduce(map.toString(), reduce, query);
-        DBObject result = results.iterator().next();
-        DBObject dbo = (DBObject)result.get("value");
-        return Double.parseDouble(dbo.get("value").toString());
-    }
-    
-    public Iterable<DBObject> mapReduce(String map, String reduce) {
-        return coll.mapReduce(map, reduce, null, OutputType.INLINE, null).results();
-    }
-    
-    public Iterable<DBObject> mapReduce(String map, String reduce, DBObject query) {
-        return coll.mapReduce(map, reduce, null, OutputType.INLINE, query).results();
-    }
-    
-    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, DBObject orderBy, DBObject query) {
-        MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
-        DBCollection c = output.getOutputCollection();
-        DBCursor cursor = null;
-        if(orderBy != null){
-            cursor = c.find().sort(orderBy);
-        }else{
-            cursor = c.find();
-        }
-        List<DBObject> list = new ArrayList<DBObject>();
-        for(Iterator<DBObject> it = cursor.iterator(); it.hasNext(); ){
-            list.add(it.next());
-        }
-        return list;
-    }
-    
-    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, DBObject orderBy, int pageNum, int pageSize, DBObject query) {
-        MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
-        DBCollection c = output.getOutputCollection();
-        DBCursor cursor = null;
-        if(orderBy != null){
-            cursor = c.find().sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
-        }else{
-            cursor = c.find().skip((pageNum-1)*pageSize).limit(pageSize);
-        }
-        List<DBObject> list = new ArrayList<DBObject>();
-        for(Iterator<DBObject> it = cursor.iterator(); it.hasNext(); ){
-            list.add(it.next());
-        }
-        return list;
     }
     
     public DBCollection getCollection(){

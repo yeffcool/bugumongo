@@ -168,7 +168,7 @@ public class BuguMapper {
                     arr[i++] = new ObjectId(ent.getId());
                 }
                 DBObject in = new BasicDBObject("$in", arr);
-                DBObject query = new BasicDBObject("_id", in);
+                DBObject query = new BasicDBObject(MapperUtil.ID, in);
                 String sort = refList.sort();
                 List result = null;
                 if(sort.equals("")){
@@ -186,7 +186,7 @@ public class BuguMapper {
                     arr[i++] = new ObjectId(ent.getId());
                 }
                 DBObject in = new BasicDBObject("$in", arr);
-                DBObject query = new BasicDBObject("_id", in);
+                DBObject query = new BasicDBObject(MapperUtil.ID, in);
                 String sort = refList.sort();
                 List result = null;
                 if(sort.equals("")){

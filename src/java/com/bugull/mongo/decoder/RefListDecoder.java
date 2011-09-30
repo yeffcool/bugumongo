@@ -78,7 +78,7 @@ public class RefListDecoder extends AbstractDecoder{
                     arr[i++] = (ObjectId)dbRef.getId();
                 }
                 DBObject in = new BasicDBObject("$in", arr);
-                DBObject query = new BasicDBObject("_id", in);
+                DBObject query = new BasicDBObject(MapperUtil.ID, in);
                 BuguDao dao = DaoCache.getInstance().get(clazz);
                 String sort = refList.sort();
                 if(sort.equals("")){

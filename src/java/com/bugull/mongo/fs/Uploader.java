@@ -16,6 +16,7 @@
 package com.bugull.mongo.fs;
 
 import java.io.File;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,22 +29,47 @@ import java.util.Map;
 public class Uploader {
     
     protected File file;
-    protected String fName;
+    protected InputStream input;
+    protected byte[] data;
+    protected String originalName;
+    protected boolean rename;
     protected String filename;
     protected String folder;
     protected Map<String, Object> map;
     
     protected BuguFS fs;
     
-    public Uploader(File file, String fName){
+    public Uploader(File file, String originalName){
         fs = BuguFS.getInstance();
         this.file = file;
-        this.fName = fName;
+        this.originalName = originalName;
     }
     
-    public Uploader(File file, String fName, String folder){
-        this(file, fName);
-        this.folder = folder;
+    public Uploader(File file, String originalName, boolean rename){
+        this(file, originalName);
+        this.rename = rename;
+    }
+    
+    public Uploader(InputStream input, String originalName){
+        fs = BuguFS.getInstance();
+        this.input = input;
+        this.originalName = originalName;
+    }
+    
+    public Uploader(InputStream input, String originalName, boolean rename){
+        this(input, originalName);
+        this.rename = rename;
+    }
+    
+    public Uploader(byte[] data, String originalName){
+        fs = BuguFS.getInstance();
+        this.data = data;
+        this.originalName = originalName;
+    }
+    
+    public Uploader(byte[] data, String originalName, boolean rename){
+        this(data, originalName);
+        this.rename = rename;
     }
     
     public void setFolder(String folder){
@@ -58,17 +84,34 @@ public class Uploader {
     }
     
     public void save(){
-        String[] temp = fName.split("[.]");
-        String ext = temp[temp.length-1];
-        Date date = new Date();
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-        String dateStr = format.format(date);
-        filename = dateStr + date.getTime() + "." + ext;
-        fs.save(file, filename, folder, map);
+        if(rename){
+            String ext = "";
+            int index = originalName.lastIndexOf(".");
+            if(index > 0){
+                ext = originalName.substring(index);
+            }
+            Date date = new Date();
+            SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+            String dateStr = format.format(date);
+            filename = dateStr + date.getTime() + ext;
+        }else{
+            filename = originalName;
+        }
+        if(file != null){
+            fs.save(file, filename, folder, map);
+        }else if(input != null){
+            fs.save(input, filename, folder, map);
+        }else if(data != null){
+            fs.save(data, filename, folder, map);
+        }
     }
 
     public String getFilename() {
         return filename;
+    }
+    
+    public long getLength(){
+        return file.length();
     }
     
 }

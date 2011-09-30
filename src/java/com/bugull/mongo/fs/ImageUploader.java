@@ -15,9 +15,6 @@
 
 package com.bugull.mongo.fs;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.gridfs.GridFSDBFile;
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGEncodeParam;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
@@ -40,12 +37,28 @@ public class ImageUploader extends Uploader{
     
     private final static String DIMENSION = "dimension";
     
-    public ImageUploader(File file, String fName){
-        super(file, fName);
+    public ImageUploader(File file, String originalName){
+        super(file, originalName);
     }
     
-    public ImageUploader(File file, String fName, String folderName){
-        super(file, fName, folderName);
+    public ImageUploader(File file, String originalName, boolean rename){
+        super(file, originalName, rename);
+    }
+    
+    public ImageUploader(InputStream input, String originalName){
+        super(input, originalName);
+    }
+    
+    public ImageUploader(InputStream input, String originalName, boolean rename){
+        super(input, originalName, rename);
+    }
+    
+    public ImageUploader(byte[] data, String originalName){
+        super(data, originalName);
+    }
+    
+    public ImageUploader(byte[] data, String originalName, boolean rename){
+        super(data, originalName, rename);
     }
     
     public void save(Watermark watermark){
@@ -55,18 +68,11 @@ public class ImageUploader extends Uploader{
         }
     }
     
-    private InputStream getOriginalInputStream(){
-        DBObject query = new BasicDBObject(BuguFS.FILENAME, filename);
-        query.put(DIMENSION, null);
-        GridFSDBFile f = fs.findOne(query);
-        return f.getInputStream();
-    }
-    
     private void addWatermark(Watermark watermark) {
         //original image
         BufferedImage imageOriginal = null;
         try {
-            imageOriginal = ImageIO.read(getOriginalInputStream());
+            imageOriginal = ImageIO.read(file);
         } catch (Exception ex) {
             logger.error(ex);
             return;
@@ -124,7 +130,7 @@ public class ImageUploader extends Uploader{
         boolean isTransparent = lower.endsWith(".png") || lower.endsWith(".gif");
         Image image = null;
         try {
-            image = ImageIO.read(getOriginalInputStream());
+            image = ImageIO.read(file);
         } catch (Exception ex) {
             logger.error(ex);
             return;
@@ -162,6 +168,19 @@ public class ImageUploader extends Uploader{
         setAttribute(DIMENSION, dimension);
         fs.save(baos.toByteArray(), filename, folder, map);
         close(baos);
+    }
+    
+    public int[] getSize(){
+        int[] size = new int[2];
+        Image image = null;
+        try {
+            image = ImageIO.read(file);
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+        size[0] = image.getWidth(null);
+        size[1] = image.getHeight(null);
+        return size;
     }
     
     private void close(ByteArrayOutputStream baos){

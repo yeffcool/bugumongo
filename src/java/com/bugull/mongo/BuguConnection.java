@@ -17,7 +17,10 @@ package com.bugull.mongo;
 
 import com.mongodb.DB;
 import com.mongodb.Mongo;
+import com.mongodb.MongoOptions;
+import com.mongodb.ServerAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
@@ -32,6 +35,8 @@ public class BuguConnection {
     
     private String host;
     private int port;
+    private List<ServerAddress> replicaSet;
+    private MongoOptions options;
     private String database;
     private String username;
     private String password;
@@ -45,6 +50,13 @@ public class BuguConnection {
         return instance;
     }
     
+    public void connect(String host, int port, String database){
+        this.host = host;
+        this.port = port;
+        this.database = database;
+        connect();
+    }
+    
     public void connect(String host, int port, String database, String username, String password){
         this.host = host;
         this.port = port;
@@ -54,10 +66,11 @@ public class BuguConnection {
         connect();
     }
     
-    public void connect(String host, int port, String database){
-        this.host = host;
-        this.port = port;
+    public void connect(List<ServerAddress> replicaSet, String database, String username, String password){
+        this.replicaSet = replicaSet;
         this.database = database;
+        this.username = username;
+        this.password = password;
         connect();
     }
     
@@ -71,7 +84,21 @@ public class BuguConnection {
     private void doConnect(){
         Mongo mongo = null;
         try{
-            mongo = new Mongo(host, port);
+            if(host != null && port != 0){
+                ServerAddress sa = new ServerAddress(host, port);
+                if(options != null){
+                    mongo = new Mongo(sa, options);
+                }else{
+                    mongo = new Mongo(sa);
+                }
+            }
+            else if(replicaSet != null){
+                if(options != null){
+                    mongo = new Mongo(replicaSet, options);
+                }else{
+                    mongo = new Mongo(replicaSet);
+                }
+            }
         }catch(UnknownHostException e){
             logger.error(e.getMessage());
         }
@@ -106,6 +133,14 @@ public class BuguConnection {
     
     public void setPassword(String password){
         this.password = password;
+    }
+
+    public void setOptions(MongoOptions options) {
+        this.options = options;
+    }
+
+    public void setReplicaSet(List<ServerAddress> replicaSet) {
+        this.replicaSet = replicaSet;
     }
 
     public DB getDB(){

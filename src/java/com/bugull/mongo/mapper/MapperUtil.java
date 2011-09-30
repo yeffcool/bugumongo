@@ -34,6 +34,8 @@ import java.util.List;
  */
 public class MapperUtil {
     
+    public final static String ID = "_id";
+    
     public static Object fromDBObject(Class<?> clazz, DBObject dbo){
         if(dbo == null){
             return null;
@@ -77,6 +79,7 @@ public class MapperUtil {
     
     public static DBObject getSort(String orderBy){
         DBObject sort = new BasicDBObject();
+        orderBy = orderBy.replaceAll("[{}'']", "");
         String[] arr = orderBy.split(",");
         for(String s : arr){
             String[] kv = s.split(":");
@@ -88,6 +91,8 @@ public class MapperUtil {
     }
     
     public static DBObject[] getIndex(String index){
+        index = index.replaceAll("\\}[^{^}]+\\{", "};{");
+        index = index.replaceAll("[{}'']", "");
         String[] items = index.split(";");
         int len = items.length;
         DBObject[] result = new BasicDBObject[len];
