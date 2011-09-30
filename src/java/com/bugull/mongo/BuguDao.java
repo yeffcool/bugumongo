@@ -379,16 +379,10 @@ public class BuguDao {
     }
     
     public List distinct(String key){
-        if(key.equals("id")){
-            key = MapperUtil.ID;
-        }
         return coll.distinct(key);
     }
 
     public List distinct(String key, DBObject query){
-        if(key.equals("id")){
-            key = MapperUtil.ID;
-        }
         return coll.distinct(key, query);
     }
 
