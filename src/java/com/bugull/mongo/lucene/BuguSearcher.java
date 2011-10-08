@@ -67,32 +67,39 @@ public class BuguSearcher {
         reader.incRef();
     }
     
-    public void setQuery(Query query){
+    public BuguSearcher setQuery(Query query){
         this.query = query;
+        return this;
     }
     
-    public void setSort(Sort sort){
+    public BuguSearcher setSort(Sort sort){
         this.sort = sort;
+        return this;
     }
     
-    public void setFilter(Filter filter){
+    public BuguSearcher setFilter(Filter filter){
         this.filter = filter;
+        return this;
     }
     
-    public void setMaxPage(int maxPage){
+    public BuguSearcher setMaxPage(int maxPage){
         this.maxPage = maxPage;
+        return this;
     }
     
-    public void setPageNumber(int pageNumber){
+    public BuguSearcher setPageNumber(int pageNumber){
         this.pageNumber = pageNumber;
+        return this;
     }
     
-    public void setPageSize(int pageSize){
+    public BuguSearcher setPageSize(int pageSize){
         this.pageSize = pageSize;
+        return this;
     }
     
-    public void setHighlighter(BuguHighlighter highlighter) {
+    public BuguSearcher setHighlighter(BuguHighlighter highlighter) {
         this.highlighter = highlighter;
+        return this;
     }
     
     public int getResultCount(){
