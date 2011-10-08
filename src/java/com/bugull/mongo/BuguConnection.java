@@ -115,32 +115,39 @@ public class BuguConnection {
         }
     }
     
-    public void setHost(String host){
+    public BuguConnection setHost(String host){
         this.host = host;
+        return this;
     }
     
-    public void setPort(int port){
+    public BuguConnection setPort(int port){
         this.port = port;
+        return this;
     }
     
-    public void setDatabase(String database){
+    public BuguConnection setDatabase(String database){
         this.database = database;
+        return this;
     }
     
-    public void setUsername(String username){
+    public BuguConnection setUsername(String username){
         this.username = username;
+        return this;
     }
     
-    public void setPassword(String password){
+    public BuguConnection setPassword(String password){
         this.password = password;
+        return this;
     }
 
-    public void setOptions(MongoOptions options) {
+    public BuguConnection setOptions(MongoOptions options) {
         this.options = options;
+        return this;
     }
 
-    public void setReplicaSet(List<ServerAddress> replicaSet) {
+    public BuguConnection setReplicaSet(List<ServerAddress> replicaSet) {
         this.replicaSet = replicaSet;
+        return this;
     }
 
     public DB getDB(){
