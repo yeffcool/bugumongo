@@ -18,6 +18,7 @@ package com.bugull.mongo;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.GroupCommand;
 import com.mongodb.MapReduceCommand;
 import com.mongodb.MapReduceCommand.OutputType;
 import com.mongodb.MapReduceOutput;
@@ -84,6 +85,25 @@ public class AdvancedDao extends BuguDao{
         DBObject result = results.iterator().next();
         DBObject dbo = (DBObject)result.get("value");
         return Double.parseDouble(dbo.get("value").toString());
+    }
+    
+    public Iterable<DBObject> group(GroupCommand cmd){
+        DBObject dbo = coll.group(cmd);
+        return (ArrayList)dbo;
+    }
+    
+    public Iterable<DBObject> group(DBObject key, DBObject query, DBObject initial, String reduce){
+        DBObject dbo = coll.group(key, query, initial, reduce);
+        return (ArrayList)dbo;
+    }
+    
+    public Iterable<DBObject> group(DBObject key, DBObject query, DBObject initial, String reduce, String finalize){
+        DBObject dbo = coll.group(key, query, initial, reduce, finalize);
+        return (ArrayList)dbo;
+    }
+    
+    public Iterable<DBObject> mapReduce(MapReduceCommand cmd) {
+        return coll.mapReduce(cmd).results();
     }
     
     public Iterable<DBObject> mapReduce(String map, String reduce) {
