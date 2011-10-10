@@ -95,35 +95,39 @@ public class AdvancedDao extends BuguDao{
     }
     
     public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, DBObject orderBy, DBObject query) {
-        MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
-        DBCollection c = output.getOutputCollection();
-        DBCursor cursor = null;
-        if(orderBy != null){
-            cursor = c.find().sort(orderBy);
-        }else{
-            cursor = c.find();
+        synchronized(outputTarget){
+            MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
+            DBCollection c = output.getOutputCollection();
+            DBCursor cursor = null;
+            if(orderBy != null){
+                cursor = c.find().sort(orderBy);
+            }else{
+                cursor = c.find();
+            }
+            List<DBObject> list = new ArrayList<DBObject>();
+            for(Iterator<DBObject> it = cursor.iterator(); it.hasNext(); ){
+                list.add(it.next());
+            }
+            return list;
         }
-        List<DBObject> list = new ArrayList<DBObject>();
-        for(Iterator<DBObject> it = cursor.iterator(); it.hasNext(); ){
-            list.add(it.next());
-        }
-        return list;
     }
     
     public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, DBObject orderBy, int pageNum, int pageSize, DBObject query) {
-        MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
-        DBCollection c = output.getOutputCollection();
-        DBCursor cursor = null;
-        if(orderBy != null){
-            cursor = c.find().sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
-        }else{
-            cursor = c.find().skip((pageNum-1)*pageSize).limit(pageSize);
+        synchronized(outputTarget){
+            MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
+            DBCollection c = output.getOutputCollection();
+            DBCursor cursor = null;
+            if(orderBy != null){
+                cursor = c.find().sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
+            }else{
+                cursor = c.find().skip((pageNum-1)*pageSize).limit(pageSize);
+            }
+            List<DBObject> list = new ArrayList<DBObject>();
+            for(Iterator<DBObject> it = cursor.iterator(); it.hasNext(); ){
+                list.add(it.next());
+            }
+            return list;
         }
-        List<DBObject> list = new ArrayList<DBObject>();
-        for(Iterator<DBObject> it = cursor.iterator(); it.hasNext(); ){
-            list.add(it.next());
-        }
-        return list;
     }
     
 }
