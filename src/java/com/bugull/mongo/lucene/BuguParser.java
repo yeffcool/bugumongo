@@ -20,6 +20,7 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.queryParser.QueryParser.Operator;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
@@ -35,12 +36,22 @@ public class BuguParser {
     private static BuguIndex index = BuguIndex.getInstance();
     
     public static Query parse(String field, String value){
+        return parse(field, value, Operator.OR);
+    }
+    
+    public static Query parse(String field, String value, Operator op){
         QueryParser parser = new QueryParser(index.getVersion(), field, index.getAnalyzer());
+        parser.setDefaultOperator(op);
         return parse(parser, value);
     }
     
     public static Query parse(String[] fields, String value){
+        return parse(fields, value, Operator.OR);
+    }
+    
+    public static Query parse(String[] fields, String value, Operator op){
         QueryParser parser = new MultiFieldQueryParser(index.getVersion(), fields, index.getAnalyzer());
+        parser.setDefaultOperator(op);
         return parse(parser, value);
     }
     
