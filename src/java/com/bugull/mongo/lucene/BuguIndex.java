@@ -48,6 +48,8 @@ public class BuguIndex {
     private ScheduledExecutorService scheduler;
     private long period = 60L * 1000L;  //one minute
     
+    private boolean reopening = false;
+    
     private BuguIndex(){
         
     }
@@ -114,6 +116,14 @@ public class BuguIndex {
 
     public void setDirectoryPath(String directoryPath) {
         this.directoryPath = directoryPath;
+    }
+
+    public boolean isReopening() {
+        return reopening;
+    }
+
+    public void setReopening(boolean reopening) {
+        this.reopening = reopening;
     }
     
 }

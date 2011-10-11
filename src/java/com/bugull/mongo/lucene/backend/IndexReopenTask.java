@@ -16,6 +16,7 @@
 package com.bugull.mongo.lucene.backend;
 
 import com.bugull.mongo.cache.IndexSearcherCache;
+import com.bugull.mongo.lucene.BuguIndex;
 import java.util.Map;
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.IndexReader;
@@ -31,13 +32,14 @@ public class IndexReopenTask implements Runnable {
 
     @Override
     public void run() {
+        BuguIndex index = BuguIndex.getInstance();
+        if(index.isReopening()){
+            return;
+        }
+        index.setReopening(true);
         IndexSearcherCache searcherCache = IndexSearcherCache.getInstance();
         Map<String, IndexSearcher> map = searcherCache.getAll();
         for(String name : map.keySet()){
-            if(searcherCache.isOpenning(name)){
-                continue;
-            }
-            searcherCache.putOpenning(name, Boolean.TRUE);
             IndexSearcher searcher = map.get(name);
             IndexReader reader = searcher.getIndexReader();
             IndexReader newReader = null;
@@ -55,8 +57,8 @@ public class IndexReopenTask implements Runnable {
                 IndexSearcher newSearcher = new IndexSearcher(newReader);
                 searcherCache.put(name, newSearcher);
             }
-            searcherCache.putOpenning(name, Boolean.FALSE);
         }
+        index.setReopening(false);
     }
     
 }

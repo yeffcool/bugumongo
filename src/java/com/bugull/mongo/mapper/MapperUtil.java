@@ -103,7 +103,11 @@ public class MapperUtil {
                 String[] kv = s.split(":");
                 String k = kv[0].trim();
                 String v = kv[1].trim();
-                dbo.put(k, Integer.parseInt(v));
+                if(v.equalsIgnoreCase("2d")){
+                    dbo.put(k, v);
+                }else{
+                    dbo.put(k, Integer.parseInt(v));
+                }
             }
             result[i] = dbo;
         }

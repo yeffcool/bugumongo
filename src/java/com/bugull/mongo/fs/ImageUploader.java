@@ -121,7 +121,7 @@ public class ImageUploader extends Uploader{
         } catch (Exception ex) {
             logger.error(ex);
         }
-        fs.save(baos.toByteArray(), filename, folder, map);
+        fs.save(baos.toByteArray(), filename, folder, params);
         close(baos);
     }
     
@@ -166,7 +166,7 @@ public class ImageUploader extends Uploader{
             }
         }
         setAttribute(DIMENSION, dimension);
-        fs.save(baos.toByteArray(), filename, folder, map);
+        fs.save(baos.toByteArray(), filename, folder, params);
         close(baos);
     }
     

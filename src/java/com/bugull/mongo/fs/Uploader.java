@@ -35,7 +35,7 @@ public class Uploader {
     protected boolean rename;
     protected String filename;
     protected String folder;
-    protected Map<String, Object> map;
+    protected Map<String, Object> params;
     
     protected BuguFS fs;
     
@@ -77,10 +77,10 @@ public class Uploader {
     }
     
     public void setAttribute(String key, Object value){
-        if(map == null){
-            map = new HashMap<String, Object>();
+        if(params == null){
+            params = new HashMap<String, Object>();
         }
-        map.put(key, value);
+        params.put(key, value);
     }
     
     public void save(){
@@ -98,11 +98,11 @@ public class Uploader {
             filename = originalName;
         }
         if(file != null){
-            fs.save(file, filename, folder, map);
+            fs.save(file, filename, folder, params);
         }else if(input != null){
-            fs.save(input, filename, folder, map);
+            fs.save(input, filename, folder, params);
         }else if(data != null){
-            fs.save(data, filename, folder, map);
+            fs.save(data, filename, folder, params);
         }
     }
 
