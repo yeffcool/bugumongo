@@ -15,7 +15,6 @@
 
 package com.bugull.mongo;
 
-import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.DaoCache;
@@ -48,11 +47,7 @@ public class BuguMapper {
     public static DBRef toDBRef(BuguEntity obj){
         DB db = BuguConnection.getInstance().getDB();
         Class<?> clazz = obj.getClass();
-        Entity entity = clazz.getAnnotation(Entity.class);
-        String name = entity.name();
-        if(name.equals("")){
-            name = clazz.getSimpleName().toLowerCase();
-        }
+        String name = MapperUtil.getEntityName(clazz);
         ObjectId id = new ObjectId(obj.getId());
         return new DBRef(db, name, id);
     }

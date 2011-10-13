@@ -48,14 +48,10 @@ public class BuguDao {
     
     public BuguDao(Class<?> clazz){
         this.clazz = clazz;
-        Entity entity = clazz.getAnnotation(Entity.class);
-        //the collection name
-        String name = entity.name();
-        if(name.equals("")){
-            name = clazz.getSimpleName().toLowerCase();
-        }
         //if capped
         DB db = BuguConnection.getInstance().getDB();
+        Entity entity = clazz.getAnnotation(Entity.class);
+        String name = MapperUtil.getEntityName(clazz) ;
         if(entity.capped() && !db.collectionExists(name)){
             DBObject options = new BasicDBObject();
             options.put("capped", true);

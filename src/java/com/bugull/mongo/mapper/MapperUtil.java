@@ -15,6 +15,7 @@
 
 package com.bugull.mongo.mapper;
 
+import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.cache.ConstructorCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.decoder.Decoder;
@@ -112,6 +113,15 @@ public class MapperUtil {
             result[i] = dbo;
         }
         return result;
+    }
+    
+    public static String getEntityName(Class<?> clazz){
+        Entity entity = clazz.getAnnotation(Entity.class);
+        String name = entity.name();
+        if(name.equals("")){
+            name = clazz.getSimpleName().toLowerCase();
+        }
+        return name;
     }
     
 }

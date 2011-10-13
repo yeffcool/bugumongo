@@ -15,9 +15,9 @@
 
 package com.bugull.mongo.lucene.backend;
 
-import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.cache.IndexWriterCache;
+import com.bugull.mongo.mapper.MapperUtil;
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
@@ -40,11 +40,7 @@ public class IndexRemoveTask implements Runnable{
 
     @Override
     public void run() {
-        Entity entity = clazz.getAnnotation(Entity.class);
-        String name = entity.name();
-        if(name.equals("")){
-            name = clazz.getSimpleName().toLowerCase();
-        }
+        String name = MapperUtil.getEntityName(clazz);
         IndexWriterCache cache = IndexWriterCache.getInstance();
         IndexWriter writer = cache.get(name);
         try{

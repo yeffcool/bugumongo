@@ -16,10 +16,10 @@
 package com.bugull.mongo.lucene;
 
 import com.bugull.mongo.BuguDao;
-import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.cache.IndexSearcherCache;
+import com.bugull.mongo.mapper.MapperUtil;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,11 +57,7 @@ public class BuguSearcher {
     
     public BuguSearcher(Class<?> clazz){
         this.clazz = clazz;
-        Entity entity = clazz.getAnnotation(Entity.class);
-        String name = entity.name();
-        if(name.equals("")){
-            name = clazz.getSimpleName().toLowerCase();
-        }
+        String name = MapperUtil.getEntityName(clazz);
         searcher = IndexSearcherCache.getInstance().get(name);
         reader = searcher.getIndexReader();
         reader.incRef();
