@@ -15,6 +15,9 @@
 
 package com.bugull.mongo.fs;
 
+import java.awt.Color;
+import java.awt.Font;
+
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
@@ -24,10 +27,17 @@ public class Watermark {
     public final static int CENTER = 1;
     public final static int BOTTOM_RIGHT = 2;
     
-    private String filePath;
-    private int align;
-    private int right;
-    private int bottom;
+    private String imagePath;
+    private String text;
+    
+    private String fontName = "宋体";
+    private int fontStyle = Font.PLAIN;
+    private Color color = Color.GRAY;
+    private int fontSize = 30;
+    private float alpha = 0.5f;
+    private int align = CENTER;
+    private int right = 20;
+    private int bottom = 20;
 
     public int getAlign() {
         return align;
@@ -37,12 +47,12 @@ public class Watermark {
         this.align = align;
     }
 
-    public String getFilePath() {
-        return filePath;
+    public String getImagePath() {
+        return imagePath;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public int getBottom() {
@@ -59,6 +69,54 @@ public class Watermark {
 
     public void setRight(int right) {
         this.right = right;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public int getFontSize() {
+        return fontSize;
+    }
+
+    public void setFontSize(int fontSize) {
+        this.fontSize = fontSize;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public float getAlpha() {
+        return alpha;
+    }
+
+    public void setAlpha(float alpha) {
+        this.alpha = alpha;
+    }
+
+    public String getFontName() {
+        return fontName;
+    }
+
+    public void setFontName(String fontName) {
+        this.fontName = fontName;
+    }
+
+    public int getFontStyle() {
+        return fontStyle;
+    }
+
+    public void setFontStyle(int fontStyle) {
+        this.fontStyle = fontStyle;
     }
     
 }

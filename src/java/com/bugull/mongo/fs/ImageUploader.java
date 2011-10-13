@@ -15,11 +15,15 @@
 
 package com.bugull.mongo.fs;
 
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGEncodeParam;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
-import java.awt.Graphics;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+import com.mongodb.gridfs.GridFSDBFile;
+import java.awt.AlphaComposite;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -35,7 +39,7 @@ public class ImageUploader extends Uploader{
     
     private final static Logger logger = Logger.getLogger(ImageUploader.class);
     
-    private final static String DIMENSION = "dimension";
+    public final static String DIMENSION = "dimension";
     
     public ImageUploader(File file, String originalName){
         super(file, originalName);
@@ -62,133 +66,139 @@ public class ImageUploader extends Uploader{
     }
     
     public void save(Watermark watermark){
-        this.save();
-        if(watermark != null){
-            addWatermark(watermark);
+        processFilename();
+        if(watermark.getText() != null){
+            pressText(watermark);
+        }
+        else if(watermark.getImagePath() != null){
+            pressImage(watermark);
+        }
+        else{
+            fs.save(input, filename, folder, params);
         }
     }
     
-    private void addWatermark(Watermark watermark) {
-        //original image
-        BufferedImage imageOriginal = null;
-        try {
-            imageOriginal = ImageIO.read(file);
-        } catch (Exception ex) {
-            logger.error(ex);
-            return;
-        }
-        int widthOriginal = imageOriginal.getWidth(null);
-        int heightOriginal = imageOriginal.getHeight(null);
-        BufferedImage bufImage = new BufferedImage(widthOriginal, heightOriginal, imageOriginal.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : imageOriginal.getType());
-        Graphics g = bufImage.createGraphics();
-        g.drawImage(imageOriginal, 0, 0, widthOriginal, heightOriginal, null);
-        //watermark image
-        BufferedImage imageWaterMark = null;
-        String watermarkFilePath = watermark.getFilePath();
-        if(watermarkFilePath == null || watermarkFilePath.trim().equals("")){
-            return;
-        }
-        try {
-            imageWaterMark = ImageIO.read(new File(watermarkFilePath));
-        } catch (Exception ex) {
-            logger.error(ex);
-            return;
-        }
-        int widthWaterMark = imageWaterMark.getWidth(null);
-        int heightWaterMark = imageWaterMark.getHeight(null);
-        if (widthOriginal < widthWaterMark || heightOriginal < heightWaterMark) {
-            return;
-        } 
-        //position of the watermark
+    private void pressText(Watermark watermark){
+        BufferedImage originalImage = openImage(input);
+        int originalWidth = originalImage.getWidth(null);
+        int originalHeight = originalImage.getHeight(null);
+        BufferedImage newImage = new BufferedImage(originalWidth, originalHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = newImage.createGraphics();
+        g.drawImage(originalImage, 0, 0, originalWidth, originalHeight, null);
+        g.setColor(watermark.getColor());
+        g.setFont(new Font(watermark.getFontName(), watermark.getFontStyle(), watermark.getFontSize())); 
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, watermark.getAlpha())); 
+        String text = watermark.getText();
+        int len = text.length();
+        int fontSize = watermark.getFontSize();
         switch(watermark.getAlign()){
             case Watermark.BOTTOM_RIGHT:
-                g.drawImage(imageWaterMark, widthOriginal - widthWaterMark - watermark.getRight(), heightOriginal - heightWaterMark - watermark.getBottom(), widthWaterMark, heightWaterMark, null);
+                g.drawString(text, originalWidth - (len * fontSize) - watermark.getRight(), originalHeight - fontSize - watermark.getBottom());
                 break;
             case Watermark.CENTER:
-                g.drawImage(imageWaterMark, (widthOriginal - widthWaterMark) / 2, (heightOriginal - heightWaterMark) / 2, widthWaterMark, heightWaterMark, null);
+                g.drawString(text, (originalWidth - (len * fontSize)) / 2, (originalHeight - fontSize) / 2);
                 break;
             default:
                 break;
         }
         g.dispose();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(baos);
-        JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(bufImage);
-        param.setQuality(1f, false);
-        try {
-            encoder.setJPEGEncodeParam(param);
-            encoder.encode(bufImage);
-        } catch (Exception ex) {
-            logger.error(ex);
+        saveImage(newImage);
+    }
+    
+    private void pressImage(Watermark watermark){
+        BufferedImage originalImage = openImage(input);
+        BufferedImage watermarkImage = openImage(new File(watermark.getImagePath()));
+        int originalWidth = originalImage.getWidth(null);
+        int originalHeight = originalImage.getHeight(null);
+        int watermarkWidth = watermarkImage.getWidth(null);
+        int watermarkHeight = watermarkImage.getHeight(null);
+        if (originalWidth < watermarkWidth || originalHeight < watermarkHeight) {
+            fs.save(input, filename, folder, params);
+            return;
         }
-        fs.save(baos.toByteArray(), filename, folder, params);
-        close(baos);
+        BufferedImage newImage = new BufferedImage(originalWidth, originalHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = newImage.createGraphics();
+        g.drawImage(originalImage, 0, 0, originalWidth, originalHeight, null);
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, watermark.getAlpha())); 
+        //position of the watermark
+        switch(watermark.getAlign()){
+            case Watermark.BOTTOM_RIGHT:
+                g.drawImage(watermarkImage, originalWidth - watermarkWidth - watermark.getRight(), originalHeight - watermarkHeight - watermark.getBottom(), watermarkWidth, watermarkHeight, null);
+                break;
+            case Watermark.CENTER:
+                g.drawImage(watermarkImage, (originalWidth - watermarkWidth) / 2, (originalHeight - watermarkHeight) / 2, watermarkWidth, watermarkHeight, null);
+                break;
+            default:
+                break;
+        }
+        g.dispose();
+        saveImage(newImage);
     }
     
     public void compress(String dimension, int maxWidth, int maxHeight) {
-        String lower = filename.toLowerCase();
-        boolean isTransparent = lower.endsWith(".png") || lower.endsWith(".gif");
-        Image image = null;
-        try {
-            image = ImageIO.read(file);
-        } catch (Exception ex) {
-            logger.error(ex);
+        setAttribute(DIMENSION, dimension);
+        BufferedImage srcImage = openImage(getOriginalInputStream());
+        int srcWidth = srcImage.getWidth(null);
+        int srcHeight = srcImage.getHeight(null);
+        if(srcWidth <= maxWidth && srcHeight <= maxHeight){
+            saveImage(srcImage);
             return;
         }
-        int srcWidth = image.getWidth(null);
-        int srcHeight = image.getHeight(null);
-        int newWidth = srcWidth;
-        int newHeight = srcHeight;
-        if (srcWidth > maxWidth || srcHeight > maxHeight) {
-            float f = Math.max((float) srcWidth / maxWidth, (float) srcHeight / maxHeight);
-            newWidth = Math.round(srcWidth / f);
-            newHeight = Math.round(srcHeight / f);
-        }
-        BufferedImage bufImg = new BufferedImage(newWidth, newHeight, isTransparent ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
-        bufImg.getGraphics().drawImage(image, 0, 0, newWidth, newHeight, null);
-        bufImg.getGraphics().dispose();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        if (isTransparent) {
-            try {
-                ImageIO.write(bufImg, "png", baos);
-            } catch (Exception ex) {
-                logger.error(ex);
-            }
-        }
-        else{
-            JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(baos);
-            JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(bufImg);
-            param.setQuality(1.0f, true);
-            try {
-                encoder.encode(bufImg, param);
-            } catch (Exception ex) {
-                logger.error(ex);
-            }
-        }
-        setAttribute(DIMENSION, dimension);
-        fs.save(baos.toByteArray(), filename, folder, params);
-        close(baos);
+        Image scaledImage = srcImage.getScaledInstance(srcWidth, srcHeight, Image.SCALE_SMOOTH); 
+        double ratio = Math.min((double) maxWidth / srcWidth, (double) maxHeight / srcHeight);
+        AffineTransformOp op = new AffineTransformOp(AffineTransform.getScaleInstance(ratio, ratio), null); 
+        scaledImage = op.filter(srcImage, null);
+        saveImage((BufferedImage)scaledImage);
     }
     
-    public int[] getSize(){
-        int[] size = new int[2];
-        Image image = null;
+    private InputStream getOriginalInputStream(){
+        DBObject query = new BasicDBObject(BuguFS.FILENAME, filename);
+        query.put(DIMENSION, null);
+        GridFSDBFile f = fs.findOne(query);
+        return f.getInputStream();
+    }
+    
+    private BufferedImage openImage(File f){
+        BufferedImage bi = null;
         try {
-            image = ImageIO.read(file);
+            bi = ImageIO.read(f);
         } catch (Exception ex) {
             logger.error(ex);
         }
-        size[0] = image.getWidth(null);
-        size[1] = image.getHeight(null);
-        return size;
+        return bi;
     }
     
-    private void close(ByteArrayOutputStream baos){
+    private BufferedImage openImage(InputStream is){
+        BufferedImage bi = null;
+        try {
+            bi = ImageIO.read(is);
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+        return bi;
+    }
+    
+    private void saveImage(BufferedImage bi){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(bi, getExtention(), baos);
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+        fs.save(baos.toByteArray(), filename, folder, params);
         try{
             baos.close();
         }catch(Exception e){
             logger.error(e.getMessage());
         }
+    }
+    
+    public int[] getSize(){
+        int[] size = new int[2];
+        BufferedImage image = openImage(getOriginalInputStream());
+        size[0] = image.getWidth(null);
+        size[1] = image.getHeight(null);
+        return size;
     }
     
 }

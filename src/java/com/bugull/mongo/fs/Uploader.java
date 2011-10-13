@@ -15,12 +15,15 @@
 
 package com.bugull.mongo.fs;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.log4j.Logger;
 
 /**
  * 
@@ -28,11 +31,12 @@ import java.util.Map;
  */
 public class Uploader {
     
-    protected File file;
+    private final static Logger logger = Logger.getLogger(Uploader.class);
+    
     protected InputStream input;
-    protected byte[] data;
     protected String originalName;
     protected boolean rename;
+    
     protected String filename;
     protected String folder;
     protected Map<String, Object> params;
@@ -41,7 +45,11 @@ public class Uploader {
     
     public Uploader(File file, String originalName){
         fs = BuguFS.getInstance();
-        this.file = file;
+        try{
+            this.input = new FileInputStream(file);
+        }catch(Exception e){
+            logger.error(e.getMessage());
+        }
         this.originalName = originalName;
     }
     
@@ -63,7 +71,7 @@ public class Uploader {
     
     public Uploader(byte[] data, String originalName){
         fs = BuguFS.getInstance();
-        this.data = data;
+        this.input = new ByteArrayInputStream(data);
         this.originalName = originalName;
     }
     
@@ -84,34 +92,37 @@ public class Uploader {
     }
     
     public void save(){
-        if(rename){
-            String ext = "";
-            int index = originalName.lastIndexOf(".");
-            if(index > 0){
-                ext = originalName.substring(index);
-            }
-            Date date = new Date();
-            SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-            String dateStr = format.format(date);
-            filename = dateStr + date.getTime() + ext;
-        }else{
-            filename = originalName;
-        }
-        if(file != null){
-            fs.save(file, filename, folder, params);
-        }else if(input != null){
-            fs.save(input, filename, folder, params);
-        }else if(data != null){
-            fs.save(data, filename, folder, params);
-        }
+        processFilename();
+        fs.save(input, filename, folder, params);
     }
 
     public String getFilename() {
         return filename;
     }
     
-    public long getLength(){
-        return file.length();
+    protected void processFilename(){
+        if(rename){
+            Date date = new Date();
+            SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+            String dateStr = format.format(date);
+            StringBuilder sb = new StringBuilder();
+            sb.append(dateStr).append(date.getTime()).append(".").append(getExtention());
+            filename = sb.toString();
+        }else{
+            filename = originalName;
+        }
+    }
+    
+    /**
+     * @return the extension name, such as doc, png, jpeg
+     */
+    protected String getExtention(){
+        String ext = "";
+        int index = originalName.lastIndexOf(".");
+        if(index > 0){
+            ext = originalName.substring(index + 1);
+        }
+        return ext;
     }
     
 }

@@ -46,6 +46,7 @@ public class UploadedFileServlet extends HttpServlet {
         int last = url.lastIndexOf("/");
         String filename = url.substring(last+1);
         DBObject query = new BasicDBObject(BuguFS.FILENAME, filename);
+        query.put(ImageUploader.DIMENSION, null);
         int first = url.indexOf("/");
         if(first != last){
             String sub = url.substring(first+1, last);
