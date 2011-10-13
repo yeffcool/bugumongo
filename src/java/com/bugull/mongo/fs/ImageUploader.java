@@ -74,7 +74,7 @@ public class ImageUploader extends Uploader{
             pressImage(watermark);
         }
         else{
-            fs.save(input, filename, folder, params);
+            saveInputStream();
         }
     }
     
@@ -113,7 +113,7 @@ public class ImageUploader extends Uploader{
         int watermarkWidth = watermarkImage.getWidth(null);
         int watermarkHeight = watermarkImage.getHeight(null);
         if (originalWidth < watermarkWidth || originalHeight < watermarkHeight) {
-            fs.save(input, filename, folder, params);
+            saveInputStream();
             return;
         }
         BufferedImage newImage = new BufferedImage(originalWidth, originalHeight, BufferedImage.TYPE_INT_RGB);
@@ -172,6 +172,7 @@ public class ImageUploader extends Uploader{
         BufferedImage bi = null;
         try {
             bi = ImageIO.read(is);
+            is.close();
         } catch (Exception ex) {
             logger.error(ex);
         }

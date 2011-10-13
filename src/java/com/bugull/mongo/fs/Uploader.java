@@ -93,7 +93,7 @@ public class Uploader {
     
     public void save(){
         processFilename();
-        fs.save(input, filename, folder, params);
+        saveInputStream();
     }
 
     public String getFilename() {
@@ -110,6 +110,15 @@ public class Uploader {
             filename = sb.toString();
         }else{
             filename = originalName;
+        }
+    }
+    
+    protected void saveInputStream(){
+        fs.save(input, filename, folder, params);
+        try{
+            input.close();
+        }catch(Exception e){
+            logger.error(e.getMessage());
         }
     }
     
