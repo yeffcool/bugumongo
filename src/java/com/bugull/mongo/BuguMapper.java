@@ -19,7 +19,9 @@ import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
+import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.MapperUtil;
+import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
@@ -109,19 +111,19 @@ public class BuguMapper {
             fetch(entity, remainder);
         }else if(field.getAnnotation(RefList.class) != null){
             String typeName = field.getType().getName();
-            if(typeName.equals("java.util.List")){
+            if(DataType.isList(typeName)){
                 List<BuguEntity> list = (List<BuguEntity>)value;
                 for(BuguEntity entity : list){
                     fetch(entity, remainder);
                 }
             }
-            else if(typeName.equals("java.util.Set")){
+            else if(DataType.isSet(typeName)){
                 Set<BuguEntity> set = (Set<BuguEntity>)value;
                 for(BuguEntity entity : set){
                     fetch(entity, remainder);
                 }
             }
-            else if(typeName.equals("java.util.Map")){
+            else if(DataType.isMap(typeName)){
                 Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
                 for(Object key : map.keySet()){
                     fetch(map.get(key), remainder);
@@ -155,15 +157,15 @@ public class BuguMapper {
             BuguDao dao = DaoCache.getInstance().get(clazz);
             String typeName = field.getType().getName();
             RefList refList = field.getAnnotation(RefList.class);
-            if(typeName.equals("java.util.List")){
+            if(DataType.isList(typeName)){
                 List<BuguEntity> list = (List<BuguEntity>)o;
                 ObjectId[] arr = new ObjectId[list.size()];
                 int i = 0;
                 for(BuguEntity ent : list){
                     arr[i++] = new ObjectId(ent.getId());
                 }
-                DBObject in = new BasicDBObject("$in", arr);
-                DBObject query = new BasicDBObject(MapperUtil.ID, in);
+                DBObject in = new BasicDBObject(Operator.IN, arr);
+                DBObject query = new BasicDBObject(Operator.ID, in);
                 String sort = refList.sort();
                 List result = null;
                 if(sort.equals("")){
@@ -173,15 +175,15 @@ public class BuguMapper {
                 }
                 field.set(obj, result);
             }
-            else if(typeName.equals("java.util.Set")){
+            else if(DataType.isSet(typeName)){
                 Set<BuguEntity> set = (Set<BuguEntity>)o;
                 ObjectId[] arr = new ObjectId[set.size()];
                 int i = 0;
                 for(BuguEntity ent : set){
                     arr[i++] = new ObjectId(ent.getId());
                 }
-                DBObject in = new BasicDBObject("$in", arr);
-                DBObject query = new BasicDBObject(MapperUtil.ID, in);
+                DBObject in = new BasicDBObject(Operator.IN, arr);
+                DBObject query = new BasicDBObject(Operator.ID, in);
                 String sort = refList.sort();
                 List result = null;
                 if(sort.equals("")){

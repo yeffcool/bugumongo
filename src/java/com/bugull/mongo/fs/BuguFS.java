@@ -17,6 +17,7 @@ package com.bugull.mongo.fs;
 
 import com.bugull.mongo.BuguConnection;
 import com.bugull.mongo.mapper.MapperUtil;
+import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -213,7 +214,7 @@ public class BuguFS {
     
     public void rename(GridFSDBFile file, String newName){
         ObjectId id = (ObjectId)file.getId();
-        DBObject query = new BasicDBObject(MapperUtil.ID, id);
+        DBObject query = new BasicDBObject(Operator.ID, id);
         DBObject dbo = files.findOne(query);
         dbo.put(FILENAME, newName);
         files.save(dbo);
@@ -235,7 +236,7 @@ public class BuguFS {
     
     public void move(GridFSDBFile file, String folderName){
         ObjectId id = (ObjectId)file.getId();
-        DBObject query = new BasicDBObject(MapperUtil.ID, id);
+        DBObject query = new BasicDBObject(Operator.ID, id);
         DBObject dbo = files.findOne(query);
         dbo.put(FOLDER, folderName);
         files.save(dbo);
@@ -258,8 +259,8 @@ public class BuguFS {
         List<GridFSDBFile> list = new ArrayList<GridFSDBFile>();
         while(cursor.hasNext()){
             DBObject dbo = cursor.next();
-            ObjectId id = (ObjectId)dbo.get(MapperUtil.ID);
-            DBObject query = new BasicDBObject(MapperUtil.ID, id);
+            ObjectId id = (ObjectId)dbo.get(Operator.ID);
+            DBObject query = new BasicDBObject(Operator.ID, id);
             GridFSDBFile f = this.findOne(query);
             list.add(f);
         }

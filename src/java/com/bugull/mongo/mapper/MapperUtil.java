@@ -35,8 +35,6 @@ import java.util.List;
  */
 public class MapperUtil {
     
-    public final static String ID = "_id";
-    
     public static Object fromDBObject(Class<?> clazz, DBObject dbo){
         if(dbo == null){
             return null;

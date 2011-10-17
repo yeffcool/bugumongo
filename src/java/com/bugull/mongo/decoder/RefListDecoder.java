@@ -21,6 +21,7 @@ import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.ConstructorCache;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.mapper.MapperUtil;
+import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.DBRef;
@@ -78,7 +79,7 @@ public class RefListDecoder extends AbstractDecoder{
                     arr[i++] = (ObjectId)dbRef.getId();
                 }
                 DBObject in = new BasicDBObject("$in", arr);
-                DBObject query = new BasicDBObject(MapperUtil.ID, in);
+                DBObject query = new BasicDBObject(Operator.ID, in);
                 BuguDao dao = DaoCache.getInstance().get(clazz);
                 String sort = refList.sort();
                 if(sort.equals("")){

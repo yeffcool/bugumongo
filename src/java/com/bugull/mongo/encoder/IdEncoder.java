@@ -15,7 +15,7 @@
 
 package com.bugull.mongo.encoder;
 
-import com.bugull.mongo.mapper.MapperUtil;
+import com.bugull.mongo.mapper.Operator;
 import java.lang.reflect.Field;
 import org.bson.types.ObjectId;
 
@@ -36,7 +36,7 @@ public class IdEncoder extends AbstractEncoder{
     
     @Override
     public String getFieldName(){
-        return MapperUtil.ID;
+        return Operator.ID;
     }
     
     @Override

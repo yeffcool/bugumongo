@@ -16,6 +16,7 @@
 package com.bugull.mongo.lucene.backend;
 
 import com.bugull.mongo.lucene.annotations.Compare;
+import com.bugull.mongo.mapper.DataType;
 import java.lang.reflect.Field;
 import org.apache.log4j.Logger;
 
@@ -72,31 +73,31 @@ public class CompareChecker {
     
     private boolean isEquals(Field f, String value) throws Exception {
         String typeName = f.getType().getName();
-        if(typeName.equals("java.lang.String")){
+        if(DataType.isString(typeName)){
             String fieldValue = f.get(obj).toString();
             return value.equals(fieldValue);
         }
-        else if(typeName.equals("boolean") || typeName.equals("java.lang.Boolean")){
+        else if(DataType.isBoolean(typeName)){
             boolean fieldValue = f.getBoolean(obj);
             return  fieldValue == Boolean.parseBoolean(value);
         }
-        else if(typeName.equals("char") || typeName.equals("java.lang.Character")){
+        else if(DataType.isChar(typeName)){
             char fieldValue = f.getChar(obj);
             return fieldValue == value.charAt(0);
         }
-        else if(typeName.equals("int") || typeName.equals("java.lang.Integer")){
+        else if(DataType.isInteger(typeName)){
             int fieldValue = f.getInt(obj);
             return fieldValue == Integer.parseInt(value);
         }
-        else if(typeName.equals("long") || typeName.equals("java.lang.Long")){
+        else if(DataType.isLong(typeName)){
             long fieldValue = f.getLong(obj);
             return fieldValue == Long.parseLong(value);
         }
-        else if(typeName.equals("float") || typeName.equals("java.lang.Float")){
+        else if(DataType.isFloat(typeName)){
             float fieldValue = f.getFloat(obj);
             return fieldValue == Float.parseFloat(value);
         }
-        else if(typeName.equals("double") || typeName.equals("java.lang.Double")){
+        else if(DataType.isDouble(typeName)){
             double fieldValue = f.getDouble(obj);
             return fieldValue == Double.parseDouble(value);
         }
@@ -111,19 +112,19 @@ public class CompareChecker {
     
     private boolean greaterThan(Field f, String value) throws Exception{
         String typeName = f.getType().getName();
-        if(typeName.equals("int") || typeName.equals("java.lang.Integer")){
+        if(DataType.isInteger(typeName)){
             int fieldValue = f.getInt(obj);
             return fieldValue > Integer.parseInt(value);
         }
-        else if(typeName.equals("long") || typeName.equals("java.lang.Long")){
+        else if(DataType.isLong(typeName)){
             long fieldValue = f.getLong(obj);
             return fieldValue > Long.parseLong(value);
         }
-        else if(typeName.equals("float") || typeName.equals("java.lang.Float")){
+        else if(DataType.isFloat(typeName)){
             float fieldValue = f.getFloat(obj);
             return fieldValue > Float.parseFloat(value);
         }
-        else if(typeName.equals("double") || typeName.equals("java.lang.Double")){
+        else if(DataType.isDouble(typeName)){
             double fieldValue = f.getDouble(obj);
             return fieldValue > Double.parseDouble(value);
         }
@@ -134,19 +135,19 @@ public class CompareChecker {
     
     private boolean greaterThanEquals(Field f, String value) throws Exception{
         String typeName = f.getType().getName();
-        if(typeName.equals("int") || typeName.equals("java.lang.Integer")){
+        if(DataType.isInteger(typeName)){
             int fieldValue = f.getInt(obj);
             return fieldValue >= Integer.parseInt(value);
         }
-        else if(typeName.equals("long") || typeName.equals("java.lang.Long")){
+        else if(DataType.isLong(typeName)){
             long fieldValue = f.getLong(obj);
             return fieldValue >= Long.parseLong(value);
         }
-        else if(typeName.equals("float") || typeName.equals("java.lang.Float")){
+        else if(DataType.isFloat(typeName)){
             float fieldValue = f.getFloat(obj);
             return fieldValue >= Float.parseFloat(value);
         }
-        else if(typeName.equals("double") || typeName.equals("java.lang.Double")){
+        else if(DataType.isDouble(typeName)){
             double fieldValue = f.getDouble(obj);
             return fieldValue >= Double.parseDouble(value);
         }

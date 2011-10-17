@@ -25,6 +25,7 @@ import com.bugull.mongo.lucene.annotations.IndexRef;
 import com.bugull.mongo.lucene.annotations.Indexed;
 import com.bugull.mongo.lucene.backend.EntityChangedListener;
 import com.bugull.mongo.mapper.MapperUtil;
+import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -78,7 +79,7 @@ public class BuguDao {
     public void insert(BuguEntity obj){
         DBObject dbo = MapperUtil.toDBObject(obj);
         coll.insert(dbo);
-        String id = dbo.get(MapperUtil.ID).toString();
+        String id = dbo.get(Operator.ID).toString();
         obj.setId(id);
         if(indexed){
             listener.entityInsert(obj);
@@ -129,7 +130,7 @@ public class BuguDao {
 
     public void remove(String id){
         DBObject query = new BasicDBObject();
-        query.put(MapperUtil.ID, new ObjectId(id));
+        query.put(Operator.ID, new ObjectId(id));
         coll.remove(query);
         if(indexed){
             listener.entityRemove(clazz, id);
@@ -142,8 +143,13 @@ public class BuguDao {
                 remove(id);
             }
         }else{
-            DBObject in = new BasicDBObject("$in", ids);
-            DBObject query = new BasicDBObject(MapperUtil.ID, in);
+            int len = ids.length;
+            ObjectId[] arr = new ObjectId[len];
+            for(int i=0; i<len; i++){
+                arr[i] = new ObjectId(ids[i]);
+            }
+            DBObject in = new BasicDBObject(Operator.IN, arr);
+            DBObject query = new BasicDBObject(Operator.ID, in);
             coll.remove(query);
         }
     }
@@ -155,7 +161,7 @@ public class BuguDao {
     public void remove(DBObject query){
         List ids = null;
         if(indexed){
-            ids = coll.distinct(MapperUtil.ID, query);
+            ids = coll.distinct(Operator.ID, query);
         }
         coll.remove(query);
         if(indexed){
@@ -178,14 +184,14 @@ public class BuguDao {
     }
     
     private void updateWithOutIndex(String id, DBObject dbo){
-        DBObject query = new BasicDBObject(MapperUtil.ID, new ObjectId(id));
+        DBObject query = new BasicDBObject(Operator.ID, new ObjectId(id));
         coll.update(query, dbo);
     }
     
     public void update(DBObject query, DBObject dbo){
         List ids = null;
         if(indexed){
-            ids = coll.distinct(MapperUtil.ID, query);
+            ids = coll.distinct(Operator.ID, query);
         }
         coll.updateMulti(query, dbo);
         if(indexed){
@@ -217,7 +223,7 @@ public class BuguDao {
     
     public void set(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
-        DBObject set = new BasicDBObject("$set", query);
+        DBObject set = new BasicDBObject(Operator.SET, query);
         if(hasIndexAnnotation(key)){
             update(id, set);
         }else{
@@ -231,7 +237,7 @@ public class BuguDao {
     
     public void inc(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
-        DBObject inc = new BasicDBObject("$inc", query);
+        DBObject inc = new BasicDBObject(Operator.INC, query);
         if(hasIndexAnnotation(key)){
             update(id, inc);
         }else{
@@ -245,7 +251,7 @@ public class BuguDao {
     
     public void push(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
-        DBObject push = new BasicDBObject("$push", query);
+        DBObject push = new BasicDBObject(Operator.PUSH, query);
         if(hasIndexAnnotation(key)){
             update(id, push);
         }else{
@@ -259,7 +265,7 @@ public class BuguDao {
     
     public void pull(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
-        DBObject pull = new BasicDBObject("$pull", query);
+        DBObject pull = new BasicDBObject(Operator.PULL, query);
         if(hasIndexAnnotation(key)){
             update(id, pull);
         }else{
@@ -281,14 +287,14 @@ public class BuguDao {
     }
     
     public boolean exists(BuguEntity obj, String key, Object value){
-        DBObject query = new BasicDBObject(MapperUtil.ID, new ObjectId(obj.getId()));
+        DBObject query = new BasicDBObject(Operator.ID, new ObjectId(obj.getId()));
         query.put(key, value);
         return exists(query);
     }
     
     public Object findOne(String id){
         DBObject dbo = new BasicDBObject();
-        dbo.put(MapperUtil.ID, new ObjectId(id));
+        dbo.put(Operator.ID, new ObjectId(id));
         DBObject result = coll.findOne(dbo);
         return MapperUtil.fromDBObject(clazz, result);
     }
@@ -396,6 +402,10 @@ public class BuguDao {
     
     public DBCollection getCollection(){
         return coll;
+    }
+    
+    public Query query(){
+        return new Query(coll, clazz);
     }
     
 }

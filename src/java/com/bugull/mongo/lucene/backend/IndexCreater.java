@@ -24,6 +24,7 @@ import com.bugull.mongo.lucene.annotations.BoostSwitch;
 import com.bugull.mongo.lucene.annotations.IndexEmbed;
 import com.bugull.mongo.lucene.annotations.IndexProperty;
 import com.bugull.mongo.lucene.annotations.IndexRef;
+import com.bugull.mongo.mapper.DataType;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
@@ -89,61 +90,61 @@ public class IndexCreater {
         String typeName = type.getComponentType().getName();
         StringBuilder sb = new StringBuilder();
         Object value = f.get(obj);
-        if(typeName.equals("java.lang.String")){
+        if(DataType.isString(typeName)){
             String[] arr = (String[])value;
             for(String e : arr){
                 sb.append(e).append(join);
             }
         }
-        else if(typeName.equals("boolean") || typeName.equals("java.lang.Boolean")){
+        else if(DataType.isBoolean(typeName)){
             boolean[] arr = (boolean[])value;
             for(boolean e : arr){
                 sb.append(e).append(join);
             }
         }
-        else if(typeName.equals("char") || typeName.equals("java.lang.Character")){
+        else if(DataType.isChar(typeName)){
             char[] arr = (char[])value;
             for(char e : arr){
                 sb.append(e).append(join);
             }
         }
-        else if(typeName.equals("int") || typeName.equals("java.lang.Integer")){
+        else if(DataType.isInteger(typeName)){
             int[] arr = (int[])value;
             for(int e : arr){
                 sb.append(e).append(join);
             }
         }
-        else if(typeName.equals("long") || typeName.equals("java.lang.Long")){
+        else if(DataType.isLong(typeName)){
             long[] arr = (long[])value;
             for(long e : arr){
                 sb.append(e).append(join);
             }
         }
-        else if(typeName.equals("short") || typeName.equals("java.lang.Short")){
+        else if(DataType.isShort(typeName)){
             short[] arr = (short[])value;
             for(short e : arr){
                 sb.append(e).append(join);
             }
         }
-        else if(typeName.equals("float") || typeName.equals("java.lang.Float")){
+        else if(DataType.isFloat(typeName)){
             float[] arr = (float[])value;
             for(float e : arr){
                 sb.append(e).append(join);
             }
         }
-        else if(typeName.equals("double") || typeName.equals("java.lang.Double")){
+        else if(DataType.isDouble(typeName)){
             double[] arr = (double[])value;
             for(double e : arr){
                 sb.append(e).append(join);
             }
         }
-        else if(typeName.equals("java.util.Date")){
+        else if(DataType.isDate(typeName)){
             Date[] arr = (Date[])value;
             for(Date e : arr){
                 sb.append(e.getTime()).append(join);
             }
         }
-        else if(typeName.equals("java.sql.Timestamp")){
+        else if(DataType.isTimestamp(typeName)){
             Timestamp[] arr = (Timestamp[])value;
             for(Timestamp e : arr){
                 sb.append(e.getTime()).append(join);
@@ -178,44 +179,44 @@ public class IndexCreater {
         String typeName = type.getName();
         IndexProperty ip = f.getAnnotation(IndexProperty.class);
         Fieldable field = null;
-        if(typeName.equals("java.lang.String")){
+        if(DataType.isString(typeName)){
             String fieldValue = f.get(obj).toString();
             field = new Field(fieldName, fieldValue,
                     ip.store() ? Field.Store.YES : Field.Store.NO,
                     ip.analyze() ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
         }
-        else if(typeName.equals("boolean") || typeName.equals("java.lang.Boolean")){
+        else if(DataType.isBoolean(typeName)){
             String fieldValue = f.getBoolean(obj) ? "true" : "false";
             field = new Field(fieldName, fieldValue, Field.Store.NO, Field.Index.NOT_ANALYZED);
         }
-        else if(typeName.equals("char") || typeName.equals("java.lang.Character")){
+        else if(DataType.isChar(typeName)){
             String fieldValue = String.valueOf(f.getChar(obj));
             field = new Field(fieldName, fieldValue, Field.Store.NO, Field.Index.NOT_ANALYZED);
         }
-        else if(typeName.equals("int") || typeName.equals("java.lang.Integer")){
+        else if(DataType.isInteger(typeName)){
             field = new NumericField(fieldName).setIntValue(f.getInt(obj));
         }
-        else if(typeName.equals("long") || typeName.equals("java.lang.Long")){
+        else if(DataType.isLong(typeName)){
             field = new NumericField(fieldName).setLongValue(f.getLong(obj));
         }
-        else if(typeName.equals("short") || typeName.equals("java.lang.Short")){
+        else if(DataType.isShort(typeName)){
             field = new NumericField(fieldName).setIntValue(f.getShort(obj));
         }
-        else if(typeName.equals("float") || typeName.equals("java.lang.Float")){
+        else if(DataType.isFloat(typeName)){
             field = new NumericField(fieldName).setFloatValue(f.getFloat(obj));
         }
-        else if(typeName.equals("double") || typeName.equals("java.lang.Double")){
+        else if(DataType.isDouble(typeName)){
             field = new NumericField(fieldName).setDoubleValue(f.getDouble(obj));
         }
-        else if(typeName.equals("java.util.Date")){
+        else if(DataType.isDate(typeName)){
             Date date = (Date)f.get(obj);
             field = new NumericField(fieldName).setLongValue(date.getTime());
         }
-        else if(typeName.equals("java.sql.Timestamp")){
+        else if(DataType.isTimestamp(typeName)){
             Timestamp ts = (Timestamp)f.get(obj);
             field = new NumericField(fieldName).setLongValue(ts.getTime());
         }
-        else if(typeName.equals("java.util.Set") || typeName.equals("java.util.List")){
+        else if(DataType.isSet(typeName) || DataType.isList(typeName)){
             Collection coll = (Collection)f.get(obj);
             StringBuilder sb = new StringBuilder();
             String join = ip.join();

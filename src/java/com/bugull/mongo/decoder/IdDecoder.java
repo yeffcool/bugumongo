@@ -15,7 +15,7 @@
 
 package com.bugull.mongo.decoder;
 
-import com.bugull.mongo.mapper.MapperUtil;
+import com.bugull.mongo.mapper.Operator;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
 import org.apache.log4j.Logger;
@@ -30,7 +30,7 @@ public class IdDecoder extends AbstractDecoder{
     
     public IdDecoder(Field field, DBObject dbo){
         super(field, dbo);
-        value = dbo.get(MapperUtil.ID);
+        value = dbo.get(Operator.ID);
     }
     
     @Override
