@@ -38,7 +38,7 @@ public class BuguIndex {
     
     private static BuguIndex instance = new BuguIndex();
     
-    private Version version = Version.LUCENE_32;
+    private Version version = Version.LUCENE_34;
     private Analyzer analyzer = new StandardAnalyzer(version);
     private String directoryPath;
     
