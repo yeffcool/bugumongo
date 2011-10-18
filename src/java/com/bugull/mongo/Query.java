@@ -265,6 +265,10 @@ public class Query {
         }
         return MapperUtil.toList(clazz, cursor);
     }
+    
+    public long count(){
+        return coll.count(condition);
+    }
 
     public DBObject getCondition() {
         return condition;
