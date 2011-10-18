@@ -112,11 +112,11 @@ public class UploadedFileServlet extends HttpServlet {
     }
     
     private String getContentType(String ext){
-        if(ext == null){
-            return "application/octet-stream";
-        }
         String type = null;
-        if(ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg") || ext.equalsIgnoreCase("png") || ext.equalsIgnoreCase("gif") || ext.equalsIgnoreCase("bmp")){
+        if(ext == null){
+            type = "application/octet-stream";
+        }
+        else if(ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg") || ext.equalsIgnoreCase("png") || ext.equalsIgnoreCase("gif") || ext.equalsIgnoreCase("bmp")){
             type = "image/" + type;
         }
         else if(ext.equalsIgnoreCase("html") || ext.equalsIgnoreCase("htm")){
