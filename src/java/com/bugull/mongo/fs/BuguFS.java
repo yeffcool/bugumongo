@@ -223,7 +223,7 @@ public class BuguFS {
     public void renameFolder(String oldName, String newName){
         DBObject query = new BasicDBObject(FOLDER, oldName);
         DBObject dbo = new BasicDBObject(FOLDER, newName);
-        DBObject set = new BasicDBObject("$set", dbo);
+        DBObject set = new BasicDBObject(Operator.SET, dbo);
         files.updateMulti(query, set);
     }
     

@@ -16,6 +16,7 @@
 package com.bugull.mongo.encoder;
 
 import com.bugull.mongo.annotations.EmbedList;
+import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
@@ -50,7 +51,7 @@ public class EmbedListEncoder extends AbstractEncoder{
     @Override
     public Object encode() {
         String typeName = field.getType().getName();
-        if(typeName.equals("java.util.List")){
+        if(DataType.isList(typeName)){
             List list = (List)value;
             List<DBObject> result = new ArrayList<DBObject>();
             for(Object o : list){
@@ -58,7 +59,7 @@ public class EmbedListEncoder extends AbstractEncoder{
             }
             return result;
         }
-        else if(typeName.equals("java.util.Set")){
+        else if(DataType.isSet(typeName)){
             Set set = (Set)value;
             Set<DBObject> result = new HashSet<DBObject>();
             for(Object o : set){
@@ -66,7 +67,7 @@ public class EmbedListEncoder extends AbstractEncoder{
             }
             return result;
         }
-        else if(typeName.equals("java.util.Map")){
+        else if(DataType.isMap(typeName)){
             Map map = (Map)value;
             Map result = new HashMap();
             for(Object key : map.keySet()){

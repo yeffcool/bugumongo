@@ -16,6 +16,7 @@
 package com.bugull.mongo.decoder;
 
 import com.bugull.mongo.annotations.EmbedList;
+import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
@@ -62,10 +63,10 @@ public class EmbedListDecoder extends AbstractDecoder{
             }
             String typeName = field.getType().getName();
             try{
-                if(typeName.equals("java.util.List")){
+                if(DataType.isList(typeName)){
                     field.set(obj, result);
                 }
-                else if(typeName.equals("java.util.Set")){
+                else if(DataType.isSet(typeName)){
                     field.set(obj, new HashSet(result));
                 }
             }catch(Exception e){

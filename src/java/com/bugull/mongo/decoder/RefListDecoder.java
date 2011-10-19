@@ -20,6 +20,7 @@ import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.ConstructorCache;
 import com.bugull.mongo.cache.DaoCache;
+import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
@@ -78,7 +79,7 @@ public class RefListDecoder extends AbstractDecoder{
                 for(DBRef dbRef : list){
                     arr[i++] = (ObjectId)dbRef.getId();
                 }
-                DBObject in = new BasicDBObject("$in", arr);
+                DBObject in = new BasicDBObject(Operator.IN, arr);
                 DBObject query = new BasicDBObject(Operator.ID, in);
                 BuguDao dao = DaoCache.getInstance().get(clazz);
                 String sort = refList.sort();
@@ -90,10 +91,10 @@ public class RefListDecoder extends AbstractDecoder{
             }
             try{
                 String typeName = field.getType().getName();
-                if(typeName.equals("java.util.List")){
+                if(DataType.isList(typeName)){
                     field.set(obj, result);
                 }
-                else if(typeName.equals("java.util.Set")){
+                else if(DataType.isSet(typeName)){
                     field.set(obj, new HashSet(result));
                 }
             }catch(Exception e){
