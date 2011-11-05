@@ -43,8 +43,8 @@ public class IndexInsertTask implements Runnable {
         IndexWriterCache cache = IndexWriterCache.getInstance();
         IndexWriter writer = cache.get(name);
         Document doc = new Document();
-        IndexCreater creater = new IndexCreater(obj, obj.getId(), null);
-        creater.process(doc);
+        IndexCreator creator = new ObjectIndexCreator(obj, null);
+        creator.process(doc);
         try{
             writer.addDocument(doc);
         }catch(Exception e){

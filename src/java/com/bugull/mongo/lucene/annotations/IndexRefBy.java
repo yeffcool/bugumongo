@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bugull.mongo.lucene.annotations;
 
 import java.lang.annotation.ElementType;
@@ -26,8 +25,9 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface IndexProperty {
-    public boolean analyze() default false;
-    public boolean store() default false;
-    public float boost() default 1.0f;
+public @interface IndexRefBy {
+    public Class<?>[] value();
+    public boolean[] analyze() default {};
+    public boolean[] store() default {};
+    public float[] boost() default {};
 }

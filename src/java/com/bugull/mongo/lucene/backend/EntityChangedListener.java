@@ -16,7 +16,13 @@
 package com.bugull.mongo.lucene.backend;
 
 import com.bugull.mongo.BuguEntity;
+import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.BuguIndex;
+import com.bugull.mongo.lucene.annotations.IndexRefBy;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -26,6 +32,27 @@ import java.util.concurrent.ExecutorService;
 public class EntityChangedListener {
     
     private ExecutorService executor = BuguIndex.getInstance().getExecutor();
+    
+    private Class<?> clazz;
+    private boolean hasRefBy;
+    private RefEntityChangedListener refListener;
+    
+    public EntityChangedListener(Class<?> clazz){
+        this.clazz = clazz;
+        Set<Class<?>> refBySet = new HashSet<Class<?>>();
+        Field[] fields = FieldsCache.getInstance().get(clazz);
+        for(Field f : fields){
+            IndexRefBy irb = f.getAnnotation(IndexRefBy.class);
+            if(irb != null){
+                Class<?>[] cls = irb.value();
+                refBySet.addAll(Arrays.asList(cls));
+            }
+        }
+        if(refBySet.size() > 0){
+            hasRefBy = true;
+            refListener = new RefEntityChangedListener(refBySet);
+        }
+    }
     
     public void entityInsert(BuguEntity obj){
         IndexFilterChecker checker = new IndexFilterChecker(obj);
@@ -41,13 +68,22 @@ public class EntityChangedListener {
             IndexUpdateTask task = new IndexUpdateTask(obj);
             executor.execute(task);
         }else{
-            entityRemove(obj.getClass(), obj.getId());
+            IndexRemoveTask task = new IndexRemoveTask(clazz, obj.getId());
+            executor.execute(task);
+        }
+        //for refBy
+        if(hasRefBy){
+            refListener.entityChange(clazz, obj.getId());
         }
     }
     
-    public void entityRemove(Class<?> clazz, String id){
+    public void entityRemove(String id){
         IndexRemoveTask task = new IndexRemoveTask(clazz, id);
         executor.execute(task);
+        //for refBy
+        if(hasRefBy){
+            refListener.entityChange(clazz, id);
+        }
     }
     
 }

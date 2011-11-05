@@ -15,6 +15,7 @@
 
 package com.bugull.mongo.mapper;
 
+import com.bugull.mongo.BuguConnection;
 import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.cache.ConstructorCache;
 import com.bugull.mongo.cache.FieldsCache;
@@ -23,11 +24,14 @@ import com.bugull.mongo.decoder.DecoderFactory;
 import com.bugull.mongo.encoder.Encoder;
 import com.bugull.mongo.encoder.EncoderFactory;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.DBRef;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import org.bson.types.ObjectId;
 
 /**
  *
@@ -120,6 +124,13 @@ public class MapperUtil {
             name = clazz.getSimpleName().toLowerCase();
         }
         return name;
+    }
+    
+    public static DBRef toDBRef(Class<?> clazz, String id){
+        DB db = BuguConnection.getInstance().getDB();
+        String name = getEntityName(clazz);
+        ObjectId oid = new ObjectId(id);
+        return new DBRef(db, name, oid);
     }
     
 }

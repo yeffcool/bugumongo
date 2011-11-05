@@ -18,10 +18,14 @@ package com.bugull.mongo;
 import com.bugull.mongo.annotations.EnsureIndex;
 import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.cache.FieldsCache;
+import com.bugull.mongo.lucene.annotations.BoostSwitch;
 import com.bugull.mongo.lucene.annotations.IndexEmbed;
+import com.bugull.mongo.lucene.annotations.IndexEmbedList;
 import com.bugull.mongo.lucene.annotations.IndexFilter;
 import com.bugull.mongo.lucene.annotations.IndexProperty;
 import com.bugull.mongo.lucene.annotations.IndexRef;
+import com.bugull.mongo.lucene.annotations.IndexRefBy;
+import com.bugull.mongo.lucene.annotations.IndexRefList;
 import com.bugull.mongo.lucene.annotations.Indexed;
 import com.bugull.mongo.lucene.backend.EntityChangedListener;
 import com.bugull.mongo.mapper.MapperUtil;
@@ -64,7 +68,7 @@ public class BuguDao {
         //for @EnsureIndex
         EnsureIndex ei = clazz.getAnnotation(EnsureIndex.class);
         if(ei != null){
-            DBObject[] dbos = MapperUtil.getIndex(ei.index());
+            DBObject[] dbos = MapperUtil.getIndex(ei.value());
             for(DBObject dbo : dbos){
                 coll.ensureIndex(dbo);
             }
@@ -72,7 +76,7 @@ public class BuguDao {
         //for lucene
         if(clazz.getAnnotation(Indexed.class) != null){
             indexed = true;
-            listener = new EntityChangedListener();
+            listener = new EntityChangedListener(clazz);
         }
     }
     
@@ -133,7 +137,7 @@ public class BuguDao {
         query.put(Operator.ID, new ObjectId(id));
         coll.remove(query);
         if(indexed){
-            listener.entityRemove(clazz, id);
+            listener.entityRemove(id);
         }
     }
     
@@ -166,7 +170,7 @@ public class BuguDao {
         coll.remove(query);
         if(indexed){
             for(Object id : ids){
-                listener.entityRemove(clazz, id.toString());
+                listener.entityRemove(id.toString());
             }
         }
     }
@@ -210,7 +214,11 @@ public class BuguDao {
         Field field = FieldsCache.getInstance().getField(clazz, key);
         if(field.getAnnotation(IndexProperty.class)!=null
                 || field.getAnnotation(IndexEmbed.class)!=null
+                || field.getAnnotation(IndexEmbedList.class)!=null
                 || field.getAnnotation(IndexRef.class)!= null
+                || field.getAnnotation(IndexRefList.class)!= null
+                || field.getAnnotation(IndexRefBy.class)!=null
+                || field.getAnnotation(BoostSwitch.class)!=null
                 || field.getAnnotation(IndexFilter.class)!=null){
             result = true;
         }

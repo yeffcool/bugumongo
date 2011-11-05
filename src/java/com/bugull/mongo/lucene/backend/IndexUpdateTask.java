@@ -45,8 +45,8 @@ public class IndexUpdateTask implements Runnable{
         IndexWriterCache cache = IndexWriterCache.getInstance();
         IndexWriter writer = cache.get(name);
         Document doc = new Document();
-        IndexCreater creater = new IndexCreater(obj, obj.getId(), null);
-        creater.process(doc);
+        IndexCreator creator = new ObjectIndexCreator(obj, null);
+        creator.process(doc);
         try{
             Term term = new Term(FieldsCache.getInstance().getIdFieldName(clazz), obj.getId());
             writer.updateDocument(term, doc);
