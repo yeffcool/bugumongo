@@ -93,28 +93,38 @@ public class MapperUtil {
         return sort;
     }
     
-    public static DBObject[] getIndex(String index){
+    public static List<DBIndex> getIndex(String index){
+        List<DBIndex> list = new ArrayList<DBIndex>();
         index = index.replaceAll("\\}[^{^}]+\\{", "};{");
         index = index.replaceAll("[{}'']", "");
         String[] items = index.split(";");
-        int len = items.length;
-        DBObject[] result = new BasicDBObject[len];
-        for(int i=0; i<len; i++){
-            DBObject dbo = new BasicDBObject();
-            String[] arr = items[i].split(",");
+        for(String item : items){
+            DBObject keys = new BasicDBObject();
+            DBObject options = new BasicDBObject("background", true);
+            String[] arr = item.split(",");
             for(String s : arr){
                 String[] kv = s.split(":");
                 String k = kv[0].trim();
                 String v = kv[1].trim();
                 if(v.equalsIgnoreCase("2d")){
-                    dbo.put(k, v);
-                }else{
-                    dbo.put(k, Integer.parseInt(v));
+                    keys.put(k, v);
+                }
+                else if(v.equals("1") || v.equals("-1")){
+                    keys.put(k, Integer.parseInt(v));
+                }
+                else if(v.equalsIgnoreCase("true") || v.equalsIgnoreCase("false")){
+                    options.put(k, Boolean.parseBoolean(v));
+                }
+                else if(k.equalsIgnoreCase("name")){
+                    options.put(k, v);
                 }
             }
-            result[i] = dbo;
+            DBIndex dbi = new DBIndex();
+            dbi.setKeys(keys);
+            dbi.setOptions(options);
+            list.add(dbi);
         }
-        return result;
+        return list;
     }
     
     public static String getEntityName(Class<?> clazz){

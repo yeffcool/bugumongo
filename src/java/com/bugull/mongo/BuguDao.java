@@ -28,6 +28,7 @@ import com.bugull.mongo.lucene.annotations.IndexRefBy;
 import com.bugull.mongo.lucene.annotations.IndexRefList;
 import com.bugull.mongo.lucene.annotations.Indexed;
 import com.bugull.mongo.lucene.backend.EntityChangedListener;
+import com.bugull.mongo.mapper.DBIndex;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
@@ -68,9 +69,9 @@ public class BuguDao {
         //for @EnsureIndex
         EnsureIndex ei = clazz.getAnnotation(EnsureIndex.class);
         if(ei != null){
-            DBObject[] dbos = MapperUtil.getIndex(ei.value());
-            for(DBObject dbo : dbos){
-                coll.ensureIndex(dbo);
+            List<DBIndex> list = MapperUtil.getIndex(ei.value());
+            for(DBIndex dbi : list){
+                coll.ensureIndex(dbi.getKeys(), dbi.getOptions());
             }
         }
         //for lucene
