@@ -28,4 +28,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Property {
     public String name() default "";
+    public boolean lazy() default false;
 }

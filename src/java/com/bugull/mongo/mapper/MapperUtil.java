@@ -16,7 +16,10 @@
 package com.bugull.mongo.mapper;
 
 import com.bugull.mongo.BuguConnection;
+import com.bugull.mongo.annotations.Embed;
+import com.bugull.mongo.annotations.EmbedList;
 import com.bugull.mongo.annotations.Entity;
+import com.bugull.mongo.annotations.Property;
 import com.bugull.mongo.cache.ConstructorCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.decoder.Decoder;
@@ -93,7 +96,7 @@ public class MapperUtil {
         return sort;
     }
     
-    public static List<DBIndex> getIndex(String index){
+    public static List<DBIndex> getDBIndex(String index){
         List<DBIndex> list = new ArrayList<DBIndex>();
         index = index.replaceAll("\\}[^{^}]+\\{", "};{");
         index = index.replaceAll("[{}'']", "");
@@ -134,6 +137,42 @@ public class MapperUtil {
             name = clazz.getSimpleName().toLowerCase();
         }
         return name;
+    }
+    
+    public static DBObject getZeroFields(Class<?> clazz){
+        DBObject zeros = new BasicDBObject();
+        Field[] fields = FieldsCache.getInstance().get(clazz);
+        for(Field field : fields){
+            String fieldName = field.getName();
+            Property property = field.getAnnotation(Property.class);
+            if(property!=null && property.lazy()){
+                String name = property.name();
+                if(!name.equals("")){
+                    fieldName = name;
+                }
+                zeros.put(fieldName, 0);
+                continue;
+            }
+            Embed embed = field.getAnnotation(Embed.class);
+            if(embed!=null && embed.lazy()){
+                String name = embed.name();
+                if(!name.equals("")){
+                    fieldName = name;
+                }
+                zeros.put(fieldName, 0);
+                continue;
+            }
+            EmbedList embedList = field.getAnnotation(EmbedList.class);
+            if(embedList!=null && embedList.lazy()){
+                String name = embedList.name();
+                if(!name.equals("")){
+                    fieldName = name;
+                }
+                zeros.put(fieldName, 0);
+                continue;
+            }
+        }
+        return zeros;
     }
     
     public static DBRef toDBRef(Class<?> clazz, String id){
