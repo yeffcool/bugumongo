@@ -6,7 +6,7 @@ package com.bugull.mongo.mapper;
  */
 public class Operator {
     
-    public final static String ID = "_id";
+    public static final String ID = "_id";
     
     public static final String GT = "$gt";
     public static final String GTE = "$gte";
