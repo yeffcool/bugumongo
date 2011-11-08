@@ -19,6 +19,7 @@ import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.BoostSwitch;
 import com.bugull.mongo.lucene.handler.FieldHandler;
 import com.bugull.mongo.lucene.handler.FieldHandlerFactory;
+import java.lang.reflect.Field;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
 
@@ -33,19 +34,14 @@ public class IndexCreator{
     protected Object obj;
     protected String prefix;
     
-    public IndexCreator(Object obj){
-        this.obj = obj;
-        this.prefix = "";
-    }
-    
     public IndexCreator(Object obj, String prefix){
         this.obj = obj;
-        this.prefix = prefix + ".";
+        this.prefix = prefix;
     }
     
     public void create(Document doc){
-        java.lang.reflect.Field[] fields = FieldsCache.getInstance().get(obj.getClass());
-        for(java.lang.reflect.Field f : fields){
+        Field[] fields = FieldsCache.getInstance().get(obj.getClass());
+        for(Field f : fields){
             BoostSwitch bs = f.getAnnotation(BoostSwitch.class);
             if(bs != null){
                 CompareChecker checker = new CompareChecker(obj);
@@ -59,7 +55,9 @@ public class IndexCreator{
             try{
                 if(f.get(obj) != null){
                     FieldHandler handler = FieldHandlerFactory.create(obj, f, prefix);
-                    handler.handle(doc);
+                    if(handler != null){
+                        handler.handle(doc);
+                    }
                 }
             }catch(Exception e){
                 logger.error(e.getMessage());

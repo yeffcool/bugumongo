@@ -32,7 +32,7 @@ public class EmbedFieldHandler extends AbstractFieldHandler{
     @Override
     public void handle(Document doc) throws Exception{
         Object embedObj = field.get(obj);
-        IndexCreator creator = new IndexCreator(embedObj, field.getName());
+        IndexCreator creator = new IndexCreator(embedObj, prefix);
         creator.create(doc);
     }
     

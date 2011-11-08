@@ -15,6 +15,7 @@
 
 package com.bugull.mongo.lucene.handler;
 
+import com.bugull.mongo.lucene.annotations.IndexProperty;
 import java.util.List;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -27,6 +28,12 @@ public class ListPropertyFieldHandler extends PropertyFieldHandler{
     
     protected ListPropertyFieldHandler(Object obj, java.lang.reflect.Field field, String prefix){
         super(obj, field, prefix);
+    }
+    
+    @Override
+    public void handle(Document doc) throws Exception{
+        IndexProperty ip = field.getAnnotation(IndexProperty.class);
+        processList((List)obj, doc, ip.analyze(), ip.store(), ip.boost());
     }
     
     protected void processList(List objList, Document doc, boolean analyze, boolean store, float boost) throws Exception{

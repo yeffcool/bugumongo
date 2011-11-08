@@ -38,17 +38,17 @@ public class Query {
     
     private DBCollection coll;
     private Class<?> clazz;
-    private DBObject zeros;
+    private DBObject keys;
     
     private String orderBy;
     private DBObject condition;
     private int pageNumber = 0;
     private int pageSize = 0;
     
-    public Query(DBCollection coll, Class<?> clazz, DBObject zeros){
+    public Query(DBCollection coll, Class<?> clazz, DBObject keys){
         this.coll = coll;
         this.clazz = clazz;
-        this.zeros = zeros;
+        this.keys = keys;
         condition = new BasicDBObject();
     }
     
@@ -259,7 +259,7 @@ public class Query {
     }
     
     public List results(){
-        DBCursor cursor = coll.find(condition, zeros);
+        DBCursor cursor = coll.find(condition, keys);
         if(orderBy != null){
             cursor.sort(MapperUtil.getSort(orderBy));
         }

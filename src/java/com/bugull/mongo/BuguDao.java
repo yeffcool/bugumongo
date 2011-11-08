@@ -49,7 +49,7 @@ public class BuguDao {
     
     protected DBCollection coll;
     protected Class<?> clazz;
-    protected DBObject zeros;
+    protected DBObject keys;
     protected boolean indexed;
     protected EntityChangedListener listener;
     
@@ -68,7 +68,7 @@ public class BuguDao {
             coll = db.getCollection(name);
         }
         //for keys
-        zeros = MapperUtil.getZeroFields(clazz);
+        keys = MapperUtil.getKeyFields(clazz);
         //for @EnsureIndex
         EnsureIndex ei = clazz.getAnnotation(EnsureIndex.class);
         if(ei != null){
@@ -321,7 +321,7 @@ public class BuguDao {
     }
 
     public List findAll(){
-        DBCursor cursor = coll.find(new BasicDBObject(), zeros);
+        DBCursor cursor = coll.find(new BasicDBObject(), keys);
         return MapperUtil.toList(clazz, cursor);
     }
     
@@ -330,12 +330,12 @@ public class BuguDao {
     }
 
     public List findAll(DBObject orderBy){
-        DBCursor cursor = coll.find(new BasicDBObject(), zeros).sort(orderBy);
+        DBCursor cursor = coll.find(new BasicDBObject(), keys).sort(orderBy);
         return MapperUtil.toList(clazz, cursor);
     }
 
     public List findAll(int pageNum, int pageSize){
-        DBCursor cursor = coll.find(new BasicDBObject(), zeros).skip((pageNum-1)*pageSize).limit(pageSize);
+        DBCursor cursor = coll.find(new BasicDBObject(), keys).skip((pageNum-1)*pageSize).limit(pageSize);
         return MapperUtil.toList(clazz, cursor);
     }
     
@@ -344,7 +344,7 @@ public class BuguDao {
     }
 
     public List findAll(DBObject orderBy, int pageNum, int pageSize){
-        DBCursor cursor = coll.find(new BasicDBObject(), zeros).sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
+        DBCursor cursor = coll.find(new BasicDBObject(), keys).sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
         return MapperUtil.toList(clazz, cursor);
     }
     
@@ -353,7 +353,7 @@ public class BuguDao {
     }
 
     public List find(DBObject query){
-        DBCursor cursor = coll.find(query, zeros);
+        DBCursor cursor = coll.find(query, keys);
         return MapperUtil.toList(clazz, cursor);
     }
     
@@ -366,7 +366,7 @@ public class BuguDao {
     }
 
     public List find(DBObject query, DBObject orderBy){
-        DBCursor cursor = coll.find(query, zeros).sort(orderBy);
+        DBCursor cursor = coll.find(query, keys).sort(orderBy);
         return MapperUtil.toList(clazz, cursor);
     }
     
@@ -375,7 +375,7 @@ public class BuguDao {
     }
 
     public List find(DBObject query, int pageNum, int pageSize){
-        DBCursor cursor = coll.find(query, zeros).skip((pageNum-1)*pageSize).limit(pageSize);
+        DBCursor cursor = coll.find(query, keys).skip((pageNum-1)*pageSize).limit(pageSize);
         return MapperUtil.toList(clazz, cursor);
     }
     
@@ -388,7 +388,7 @@ public class BuguDao {
     }
 
     public List find(DBObject query, DBObject orderBy, int pageNum, int pageSize){
-        DBCursor cursor = coll.find(query, zeros).sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
+        DBCursor cursor = coll.find(query, keys).sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
         return MapperUtil.toList(clazz, cursor);
     }
     
@@ -417,7 +417,7 @@ public class BuguDao {
     }
     
     public Query query(){
-        return new Query(coll, clazz, zeros);
+        return new Query(coll, clazz, keys);
     }
     
 }

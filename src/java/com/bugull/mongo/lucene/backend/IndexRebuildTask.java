@@ -82,7 +82,7 @@ public class IndexRebuildTask implements Runnable{
         IndexFilterChecker checker = new IndexFilterChecker(obj);
         if(checker.needIndex()){
             Document doc = new Document();
-            IndexCreator creator = new IndexCreator(obj);
+            IndexCreator creator = new IndexCreator(obj, "");
             creator.create(doc);
             try{
                 Term term = new Term(FieldsCache.getInstance().getIdFieldName(clazz), obj.getId());

@@ -56,12 +56,14 @@ public class RefListFieldHandler extends AbstractFieldHandler{
             DBObject in = new BasicDBObject(Operator.IN, ids);
             DBObject query = new BasicDBObject(Operator.ID, in);
             List list = dao.find(query);
-            Field[] fields = FieldsCache.getInstance().get(cls);
-            for(Field f : fields){
-                IndexRefBy irb = f.getAnnotation(IndexRefBy.class);
-                if(irb != null){
-                    FieldHandler handler = new RefByFieldHandler(obj.getClass(), list, f, field.getName());
-                    handler.handle(doc);
+            if(list!=null && list.size()>0){
+                Field[] fields = FieldsCache.getInstance().get(cls);
+                for(Field f : fields){
+                    IndexRefBy irb = f.getAnnotation(IndexRefBy.class);
+                    if(irb != null){
+                        FieldHandler handler = new RefByFieldHandler(obj.getClass(), list, f, prefix);
+                        handler.handle(doc);
+                    }
                 }
             }
         }

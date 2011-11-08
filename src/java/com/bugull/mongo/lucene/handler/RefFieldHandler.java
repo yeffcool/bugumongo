@@ -45,7 +45,7 @@ public class RefFieldHandler extends AbstractFieldHandler{
             for(Field f : fields){
                 IndexRefBy irb = f.getAnnotation(IndexRefBy.class);
                 if(irb != null){
-                    FieldHandler handler = new RefByFieldHandler(obj.getClass(), refObj, f, field.getName());
+                    FieldHandler handler = new RefByFieldHandler(obj.getClass(), refObj, f, prefix);
                     handler.handle(doc);
                 }
             }

@@ -27,7 +27,7 @@ import org.apache.lucene.document.Document;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class EmbedListFieldHandler extends ListPropertyFieldHandler{
+public class EmbedListFieldHandler extends AbstractFieldHandler{
     
     public EmbedListFieldHandler(Object obj, Field field, String prefix){
         super(obj, field, prefix);
@@ -44,7 +44,8 @@ public class EmbedListFieldHandler extends ListPropertyFieldHandler{
             for(Field f : fields){
                 IndexProperty ip = f.getAnnotation(IndexProperty.class);
                 if(ip != null){
-                    processList(list, doc, ip.analyze(), ip.store(), ip.boost());
+                    FieldHandler handler = new ListPropertyFieldHandler(list, f, prefix);
+                    handler.handle(doc);
                 }
             }
         }
