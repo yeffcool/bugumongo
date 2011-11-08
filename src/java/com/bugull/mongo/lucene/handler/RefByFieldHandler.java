@@ -13,30 +13,27 @@
  * limitations under the License.
  */
 
-package com.bugull.mongo.lucene.backend;
+package com.bugull.mongo.lucene.handler;
 
 import com.bugull.mongo.lucene.annotations.IndexRefBy;
 import java.util.List;
-import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class RefListIndexCreator extends ObjectsIndexCreator {
-    
-    private final static Logger logger = Logger.getLogger(RefListIndexCreator.class);
+public class RefByFieldHandler extends ListPropertyFieldHandler{
     
     private Class<?> refBy;
     
-    public RefListIndexCreator(Class<?> refBy, List objList, java.lang.reflect.Field field, String prefix){
-        super(objList, field, prefix);
+    public RefByFieldHandler(Class<?> refBy, Object obj, java.lang.reflect.Field field, String prefix){
+        super(obj, field, prefix);
         this.refBy = refBy;
     }
-    
+
     @Override
-    public void process(Document doc) {
+    public void handle(Document doc) throws Exception {
         IndexRefBy irb = field.getAnnotation(IndexRefBy.class);
         Class<?>[] cls = irb.value();
         int len = cls.length;
@@ -57,10 +54,10 @@ public class RefListIndexCreator extends ObjectsIndexCreator {
                 if(bs.length > 0){
                     boost = bs[i];
                 }
-                try{
-                    processProperty(doc, analyze, store, boost);
-                }catch(Exception e){
-                    logger.error(e.getMessage());
+                if(obj instanceof List){
+                    processList((List)obj, doc, analyze, store, boost);
+                }else{
+                    process(doc, analyze, store, boost);
                 }
                 break;
             }

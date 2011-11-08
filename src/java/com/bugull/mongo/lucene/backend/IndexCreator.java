@@ -15,84 +15,56 @@
 
 package com.bugull.mongo.lucene.backend;
 
-import com.bugull.mongo.mapper.DataType;
-import java.sql.Timestamp;
-import java.util.Date;
+import com.bugull.mongo.cache.FieldsCache;
+import com.bugull.mongo.lucene.annotations.BoostSwitch;
+import com.bugull.mongo.lucene.handler.FieldHandler;
+import com.bugull.mongo.lucene.handler.FieldHandlerFactory;
+import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public abstract class IndexCreator {
+public class IndexCreator{
     
-    public final static String JOIN = ";";
+    private final static Logger logger = Logger.getLogger(IndexCreator.class);
     
-    protected String getArrayString(Object value, String typeName){
-        StringBuilder sb = new StringBuilder();
-        if(DataType.isString(typeName)){
-            String[] arr = (String[])value;
-            for(String e : arr){
-                sb.append(e).append(JOIN);
-            }
-        }
-        else if(DataType.isBoolean(typeName)){
-            boolean[] arr = (boolean[])value;
-            for(boolean e : arr){
-                sb.append(e).append(JOIN);
-            }
-        }
-        else if(DataType.isChar(typeName)){
-            char[] arr = (char[])value;
-            for(char e : arr){
-                sb.append(e).append(JOIN);
-            }
-        }
-        else if(DataType.isInteger(typeName)){
-            int[] arr = (int[])value;
-            for(int e : arr){
-                sb.append(e).append(JOIN);
-            }
-        }
-        else if(DataType.isLong(typeName)){
-            long[] arr = (long[])value;
-            for(long e : arr){
-                sb.append(e).append(JOIN);
-            }
-        }
-        else if(DataType.isShort(typeName)){
-            short[] arr = (short[])value;
-            for(short e : arr){
-                sb.append(e).append(JOIN);
-            }
-        }
-        else if(DataType.isFloat(typeName)){
-            float[] arr = (float[])value;
-            for(float e : arr){
-                sb.append(e).append(JOIN);
-            }
-        }
-        else if(DataType.isDouble(typeName)){
-            double[] arr = (double[])value;
-            for(double e : arr){
-                sb.append(e).append(JOIN);
-            }
-        }
-        else if(DataType.isDate(typeName)){
-            Date[] arr = (Date[])value;
-            for(Date e : arr){
-                sb.append(e.getTime()).append(JOIN);
-            }
-        }
-        else if(DataType.isTimestamp(typeName)){
-            Timestamp[] arr = (Timestamp[])value;
-            for(Timestamp e : arr){
-                sb.append(e.getTime()).append(JOIN);
-            }
-        }
-        return sb.toString();
+    protected Object obj;
+    protected String prefix;
+    
+    public IndexCreator(Object obj){
+        this.obj = obj;
+        this.prefix = "";
     }
     
-    public abstract void process(Document doc);
+    public IndexCreator(Object obj, String prefix){
+        this.obj = obj;
+        this.prefix = prefix + ".";
+    }
+    
+    public void create(Document doc){
+        java.lang.reflect.Field[] fields = FieldsCache.getInstance().get(obj.getClass());
+        for(java.lang.reflect.Field f : fields){
+            BoostSwitch bs = f.getAnnotation(BoostSwitch.class);
+            if(bs != null){
+                CompareChecker checker = new CompareChecker(obj);
+                boolean fit = checker.isFit(f, bs.compare(), bs.value());
+                if(fit){
+                    doc.setBoost(bs.fit());
+                }else{
+                    doc.setBoost(bs.unfit());
+                }
+            }
+            try{
+                if(f.get(obj) != null){
+                    FieldHandler handler = FieldHandlerFactory.create(obj, f, prefix);
+                    handler.handle(doc);
+                }
+            }catch(Exception e){
+                logger.error(e.getMessage());
+            }
+        }
+    }
     
 }

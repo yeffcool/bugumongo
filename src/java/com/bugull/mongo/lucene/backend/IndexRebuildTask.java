@@ -82,8 +82,8 @@ public class IndexRebuildTask implements Runnable{
         IndexFilterChecker checker = new IndexFilterChecker(obj);
         if(checker.needIndex()){
             Document doc = new Document();
-            IndexCreator creator = new ObjectIndexCreator(obj, null);
-            creator.process(doc);
+            IndexCreator creator = new IndexCreator(obj);
+            creator.create(doc);
             try{
                 Term term = new Term(FieldsCache.getInstance().getIdFieldName(clazz), obj.getId());
                 writer.updateDocument(term, doc);
