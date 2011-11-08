@@ -150,13 +150,14 @@ public class BuguSearcher {
             end = resultCount;
         }
         for(int i=begin; i<end; i++){
+            Document doc = null;
             try{
-                Document doc = searcher.doc(docs[i].doc);
-                String id = doc.get(FieldsCache.getInstance().getIdFieldName(clazz));
-                list.add(dao.findOne(id));
+                doc = searcher.doc(docs[i].doc);
             }catch(Exception e){
                 logger.error(e.getMessage());
             }
+            String id = doc.get(FieldsCache.getInstance().getIdFieldName(clazz));
+            list.add(dao.findOne(id));
         }
         //process highlighter
         if(highlighter != null){
