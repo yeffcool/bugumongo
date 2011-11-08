@@ -16,6 +16,7 @@
 package com.bugull.mongo.lucene.handler;
 
 import com.bugull.mongo.lucene.annotations.IndexRefBy;
+import java.lang.reflect.Field;
 import java.util.List;
 import org.apache.lucene.document.Document;
 
@@ -27,7 +28,7 @@ public class RefByFieldHandler extends ListPropertyFieldHandler{
     
     private Class<?> refBy;
     
-    public RefByFieldHandler(Class<?> refBy, Object obj, java.lang.reflect.Field field, String prefix){
+    public RefByFieldHandler(Class<?> refBy, Object obj, Field field, String prefix){
         super(obj, field, prefix);
         this.refBy = refBy;
     }
