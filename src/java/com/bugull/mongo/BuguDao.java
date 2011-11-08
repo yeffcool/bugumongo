@@ -17,15 +17,6 @@ package com.bugull.mongo;
 
 import com.bugull.mongo.annotations.EnsureIndex;
 import com.bugull.mongo.annotations.Entity;
-import com.bugull.mongo.cache.FieldsCache;
-import com.bugull.mongo.lucene.annotations.BoostSwitch;
-import com.bugull.mongo.lucene.annotations.IndexEmbed;
-import com.bugull.mongo.lucene.annotations.IndexEmbedList;
-import com.bugull.mongo.lucene.annotations.IndexFilter;
-import com.bugull.mongo.lucene.annotations.IndexProperty;
-import com.bugull.mongo.lucene.annotations.IndexRef;
-import com.bugull.mongo.lucene.annotations.IndexRefBy;
-import com.bugull.mongo.lucene.annotations.IndexRefList;
 import com.bugull.mongo.lucene.annotations.Indexed;
 import com.bugull.mongo.lucene.backend.EntityChangedListener;
 import com.bugull.mongo.mapper.DBIndex;
@@ -36,7 +27,6 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import org.bson.types.ObjectId;
@@ -210,25 +200,6 @@ public class BuguDao {
         }
     }
     
-    private boolean hasIndexAnnotation(String key){
-        if(!indexed){
-            return false;
-        }
-        boolean result = false;
-        Field field = FieldsCache.getInstance().getField(clazz, key);
-        if(field.getAnnotation(IndexProperty.class)!=null
-                || field.getAnnotation(IndexEmbed.class)!=null
-                || field.getAnnotation(IndexEmbedList.class)!=null
-                || field.getAnnotation(IndexRef.class)!= null
-                || field.getAnnotation(IndexRefList.class)!= null
-                || field.getAnnotation(IndexRefBy.class)!=null
-                || field.getAnnotation(BoostSwitch.class)!=null
-                || field.getAnnotation(IndexFilter.class)!=null){
-            result = true;
-        }
-        return result;
-    }
-    
     public void set(BuguEntity obj, String key, Object value){
         set(obj.getId(), key, value);
     }
@@ -236,7 +207,7 @@ public class BuguDao {
     public void set(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject set = new BasicDBObject(Operator.SET, query);
-        if(hasIndexAnnotation(key)){
+        if(indexed && MapperUtil.hasIndexAnnotation(clazz, key)){
             update(id, set);
         }else{
             updateWithOutIndex(id, set);
@@ -250,7 +221,7 @@ public class BuguDao {
     public void inc(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject inc = new BasicDBObject(Operator.INC, query);
-        if(hasIndexAnnotation(key)){
+        if(indexed && MapperUtil.hasIndexAnnotation(clazz, key)){
             update(id, inc);
         }else{
             updateWithOutIndex(id, inc);
@@ -264,7 +235,7 @@ public class BuguDao {
     public void push(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject push = new BasicDBObject(Operator.PUSH, query);
-        if(hasIndexAnnotation(key)){
+        if(indexed && MapperUtil.hasIndexAnnotation(clazz, key)){
             update(id, push);
         }else{
             updateWithOutIndex(id, push);
@@ -278,7 +249,7 @@ public class BuguDao {
     public void pull(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject pull = new BasicDBObject(Operator.PULL, query);
-        if(hasIndexAnnotation(key)){
+        if(indexed && MapperUtil.hasIndexAnnotation(clazz, key)){
             update(id, pull);
         }else{
             updateWithOutIndex(id, pull);
