@@ -137,6 +137,10 @@ public class BuguDao {
         remove(obj.getId());
     }
 
+    /**
+     * Remove by id.
+     * @param id 
+     */
     public void remove(String id){
         DBObject query = new BasicDBObject();
         query.put(Operator.ID, new ObjectId(id));
@@ -147,7 +151,7 @@ public class BuguDao {
     }
     
     /**
-     * Remove by Ids.
+     * Remove by array of id.
      * @param ids 
      */
     public void remove(String... ids){
@@ -176,6 +180,10 @@ public class BuguDao {
         remove(new BasicDBObject(key, value));
     }
     
+    /**
+     * Remove by condition.
+     * @param query 
+     */
     public void remove(DBObject query){
         List ids = null;
         if(indexed){
@@ -220,10 +228,22 @@ public class BuguDao {
         }
     }
     
+    /**
+     * Update a field's value of an entity.
+     * @param obj the entity needs to update
+     * @param key the field's name
+     * @param value the field's new value
+     */
     public void set(BuguEntity obj, String key, Object value){
         set(obj.getId(), key, value);
     }
     
+    /**
+     * Update a field's value of an entity.
+     * @param id the entity's id
+     * @param key the field's name
+     * @param value the field's new value
+     */
     public void set(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject set = new BasicDBObject(Operator.SET, query);
@@ -234,10 +254,22 @@ public class BuguDao {
         }
     }
     
+    /**
+     * Update a numeric field of an entity.
+     * @param obj the entity needs to update
+     * @param key the field's name
+     * @param value the numeric value to be added. It can be positive or negative integer, long, float, double
+     */
     public void inc(BuguEntity obj, String key, Object value){
         inc(obj.getId(), key, value);
     }
     
+    /**
+     * Update a numeric field of an entity.
+     * @param id the entity's id
+     * @param key the field's name
+     * @param value the numeric value to be added. It can be positive or negative integer, long, float, double
+     */
     public void inc(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject inc = new BasicDBObject(Operator.INC, query);
@@ -248,10 +280,22 @@ public class BuguDao {
         }
     }
     
+    /**
+     * Add an element to an entity's array/list/set field.
+     * @param obj the entity needs to update
+     * @param key the field's name
+     * @param value the element to be added
+     */
     public void push(BuguEntity obj, String key, Object value){
         push(obj.getId(), key, value);
     }
     
+    /**
+     * Add an element to an entity's array/list/set field.
+     * @param id the entity's id
+     * @param key the field's name
+     * @param value the element to be addes
+     */
     public void push(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject push = new BasicDBObject(Operator.PUSH, query);
@@ -262,10 +306,22 @@ public class BuguDao {
         }
     }
     
+    /**
+     * Remove an element of an entity's array/list/set field.
+     * @param obj the entity needs to update
+     * @param key the field's name
+     * @param value the element to be removed
+     */
     public void pull(BuguEntity obj, String key, Object value){
         pull(obj.getId(), key, value);
     }
     
+    /**
+     * Remove an element of an entity's array/list/set field.
+     * @param id the entity's id
+     * @param key the field's name
+     * @param value the element to be removed
+     */
     public void pull(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject pull = new BasicDBObject(Operator.PULL, query);
@@ -391,6 +447,10 @@ public class BuguDao {
         return coll.distinct(key, query);
     }
 
+    /**
+     * Count all entity.
+     * @return 
+     */
     public long count(){
         return coll.count();
     }
@@ -405,6 +465,11 @@ public class BuguDao {
         return count(new BasicDBObject(key, value));
     }
 
+    /**
+     * Count by condition
+     * @param query the condition
+     * @return 
+     */
     public long count(DBObject query){
         return coll.count(query);
     }
@@ -413,6 +478,10 @@ public class BuguDao {
         return coll;
     }
     
+    /**
+     * Create a query.
+     * @return a new Query object
+     */
     public Query query(){
         return new Query(coll, clazz, keys);
     }
