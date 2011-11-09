@@ -103,7 +103,7 @@ public class BuguMapper {
     }
     
     /**
-     * @deprecated  Use fetchRef(list, names) for instead
+     * @deprecated Use fetchRef(list, names) for instead
      */
     @Deprecated
     public static void fetch(List list, String... names){
