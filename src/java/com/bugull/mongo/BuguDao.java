@@ -32,6 +32,7 @@ import java.util.List;
 import org.bson.types.ObjectId;
 
 /**
+ * The basic Dao class.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
