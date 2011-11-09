@@ -88,6 +88,10 @@ public class BuguDao {
         }
     }
     
+    /**
+     * Insert a list of entity to MongoDB. The entity should have no id in it.
+     * @param list 
+     */
     public void insert(List<BuguEntity> list){
         if(indexed){
             for(BuguEntity obj : list){
@@ -332,10 +336,21 @@ public class BuguDao {
         }
     }
     
+    /**
+     * Check if any entity match the condition.
+     * @param key the condition field
+     * @param value the condition value
+     * @return 
+     */
     public boolean exists(String key, Object value){
         return exists(new BasicDBObject(key, value));
     }
     
+    /**
+     * Check if any entity match the condition
+     * @param query the condition
+     * @return 
+     */
     public boolean exists(DBObject query){
         DBObject dbo = coll.findOne(query);
         if(dbo != null){
@@ -343,12 +358,6 @@ public class BuguDao {
         }else{
             return false;
         }
-    }
-    
-    public boolean exists(BuguEntity obj, String key, Object value){
-        DBObject query = new BasicDBObject(Operator.ID, new ObjectId(obj.getId()));
-        query.put(key, value);
-        return exists(query);
     }
     
     public Object findOne(String id){
