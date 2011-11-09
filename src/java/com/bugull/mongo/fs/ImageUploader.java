@@ -194,6 +194,10 @@ public class ImageUploader extends Uploader{
         }
     }
     
+    /**
+     * Get the image's width and height.
+     * @return element 0 for width, element 1 for height
+     */
     public int[] getSize(){
         int[] size = new int[2];
         BufferedImage image = openImage(getOriginalInputStream());
