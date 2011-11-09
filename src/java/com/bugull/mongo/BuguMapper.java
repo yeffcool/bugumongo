@@ -47,7 +47,7 @@ public class BuguMapper {
     private final static Logger logger = Logger.getLogger(BuguMapper.class);
     
     /**
-     * Convert BuguEntity to DBRef. Useful when query on @Ref and @RefList field.
+     * Convert BuguEntity to DBRef. Useful when operate on @Ref and @RefList field.
      * @param obj
      * @return 
      */
@@ -71,10 +71,7 @@ public class BuguMapper {
     }
     
     /**
-     * Use fetchRef(obj, names) for instead
-     * @param obj
-     * @param names
-     * @deprecated
+     * @deprecated Use fetchRef(obj, names) for instead
      */
     @Deprecated
     public static void fetch(BuguEntity obj, String... names){
@@ -106,10 +103,7 @@ public class BuguMapper {
     }
     
     /**
-     * Use fetchRef(list, names) for instead
-     * @param list
-     * @param names
-     * @deprecated
+     * @deprecated  Use fetchRef(list, names) for instead
      */
     @Deprecated
     public static void fetch(List list, String... names){
