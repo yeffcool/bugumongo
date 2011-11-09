@@ -74,6 +74,10 @@ public class BuguDao {
         }
     }
     
+    /**
+     * Insert an entity to MongoDB. The entity should have no id in it.
+     * @param obj 
+     */
     public void insert(BuguEntity obj){
         DBObject dbo = MapperUtil.toDBObject(obj);
         coll.insert(dbo);
@@ -98,6 +102,10 @@ public class BuguDao {
         }
     }
     
+    /**
+     * Save an entity. If no id in it, then insert the entity, else update the entity.
+     * @param obj 
+     */
     public void save(BuguEntity obj){
         if(obj.getId() == null){
             insert(obj);
@@ -109,6 +117,9 @@ public class BuguDao {
         }
     }
     
+    /**
+     * Remove all entity.
+     */
     public void drop(){
         if(!indexed){
             coll.drop();
@@ -135,6 +146,10 @@ public class BuguDao {
         }
     }
     
+    /**
+     * Remove by Ids.
+     * @param ids 
+     */
     public void remove(String... ids){
         if(indexed){
             for(String id : ids){
@@ -152,6 +167,11 @@ public class BuguDao {
         }
     }
     
+    /**
+     * Remove entity by condition.
+     * @param key the condition field
+     * @param value the condition value
+     */
     public void remove(String key, Object value){
         remove(new BasicDBObject(key, value));
     }
@@ -375,6 +395,12 @@ public class BuguDao {
         return coll.count();
     }
     
+    /**
+     * Count by condition.
+     * @param key the condition field
+     * @param value the condition value
+     * @return 
+     */
     public long count(String key, Object value){
         return count(new BasicDBObject(key, value));
     }

@@ -27,7 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
+ * Not frequently used operation, such as mapReduce, group, max, min and sum.
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class AdvancedDao extends BuguDao{

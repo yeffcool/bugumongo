@@ -38,13 +38,19 @@ import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 
 /**
- *
+ * The utility class for ODM(Object Document Mapping).
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class BuguMapper {
     
     private final static Logger logger = Logger.getLogger(BuguMapper.class);
     
+    /**
+     * Convert BuguEntity to DBRef. Useful when query on @Ref and @RefList field.
+     * @param obj
+     * @return 
+     */
     public static DBRef toDBRef(BuguEntity obj){
         DB db = BuguConnection.getInstance().getDB();
         Class<?> clazz = obj.getClass();
@@ -53,6 +59,10 @@ public class BuguMapper {
         return new DBRef(db, name, id);
     }
     
+    /**
+     * Fetch out the lazy @Property, @Embed, @EmbedList field of a list
+     * @param list 
+     */
     public static void fetch(List list){
         for(Object o : list){
             BuguEntity obj = (BuguEntity)o;
@@ -60,11 +70,22 @@ public class BuguMapper {
         }
     }
     
+    /**
+     * Use fetchRef(obj, names) for instead
+     * @param obj
+     * @param names
+     * @deprecated
+     */
     @Deprecated
     public static void fetch(BuguEntity obj, String... names){
         fetchRef(obj, names);
     }
     
+    /**
+     * Fetch out the lazy @Ref or @RefList field of an entity.
+     * @param obj the entity needs to operate on
+     * @param names the fields' names
+     */
     public static void fetchRef(BuguEntity obj, String... names){
         for(String name : names){
             String remainder = null;
@@ -84,11 +105,22 @@ public class BuguMapper {
         }
     }
     
+    /**
+     * Use fetchRef(list, names) for instead
+     * @param list
+     * @param names
+     * @deprecated
+     */
     @Deprecated
     public static void fetch(List list, String... names){
         fetchRef(list, names);
     }
     
+    /**
+     * Fetch out the lazy @Ref or @RefList field of a list.
+     * @param list the list needs to operate on
+     * @param names the fields' names
+     */
     public static void fetchRef(List list, String... names){
         for(Object o : list){
             BuguEntity obj = (BuguEntity)o;
