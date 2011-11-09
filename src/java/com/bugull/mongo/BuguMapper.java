@@ -61,7 +61,7 @@ public class BuguMapper {
     
     /**
      * Fetch out the lazy @Property, @Embed, @EmbedList field of a list
-     * @param list 
+     * @param list the list needs to operate on
      */
     public static void fetch(List list){
         for(Object o : list){
