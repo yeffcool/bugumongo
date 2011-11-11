@@ -26,6 +26,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
 import com.mongodb.DBRef;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -188,64 +189,102 @@ public class BuguMapper {
         if(o == null){
             return;
         }
-        ParameterizedType type = (ParameterizedType)field.getGenericType();
-        Type[] types = type.getActualTypeArguments();
-        int len = types.length;
-        if(len == 1){
-            Class clazz = (Class)types[0];
-            BuguDao dao = DaoCache.getInstance().get(clazz);
-            String typeName = field.getType().getName();
-            RefList refList = field.getAnnotation(RefList.class);
-            if(DataType.isList(typeName)){
-                List<BuguEntity> list = (List<BuguEntity>)o;
-                ObjectId[] arr = new ObjectId[list.size()];
-                int i = 0;
-                for(BuguEntity ent : list){
-                    arr[i++] = new ObjectId(ent.getId());
-                }
-                DBObject in = new BasicDBObject(Operator.IN, arr);
-                DBObject query = new BasicDBObject(Operator.ID, in);
-                String sort = refList.sort();
-                List result = null;
-                if(sort.equals("")){
-                    result = dao.find(query);
-                }else{
-                    result = dao.find(query, MapperUtil.getSort(sort));
-                }
-                field.set(obj, result);
-            }
-            else if(DataType.isSet(typeName)){
-                Set<BuguEntity> set = (Set<BuguEntity>)o;
-                ObjectId[] arr = new ObjectId[set.size()];
-                int i = 0;
-                for(BuguEntity ent : set){
-                    arr[i++] = new ObjectId(ent.getId());
-                }
-                DBObject in = new BasicDBObject(Operator.IN, arr);
-                DBObject query = new BasicDBObject(Operator.ID, in);
-                String sort = refList.sort();
-                List result = null;
-                if(sort.equals("")){
-                    result = dao.find(query);
-                }else{
-                    result = dao.find(query, MapperUtil.getSort(sort));
-                }
-                field.set(obj, new HashSet(result));
+        Class<?> type = field.getType();
+        if(type.isArray()){
+            getArrayType(obj, field, type.getComponentType());
+        }else{
+            ParameterizedType paramType = (ParameterizedType)field.getGenericType();
+            Type[] types = paramType.getActualTypeArguments();
+            int len = types.length;
+            if(len == 1){
+                getListType(obj, field, (Class)types[0]);
+            }else if(len == 2){
+                getMapType(obj, field, (Class)types[1]);
             }
         }
-        else if(len == 2){
-            Class clazz = (Class)types[1];
-            BuguDao dao = DaoCache.getInstance().get(clazz);
-            Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)o;
-            Map result = new HashMap();
-            for(Object key : map.keySet()){
-                BuguEntity refObj = map.get(key);
-                String id = refObj.getId();
-                Object value = dao.findOne(id);
-                result.put(key, value);
+    }
+    
+    private static void getArrayType(BuguEntity obj, Field field, Class clazz) throws Exception{
+        Object o = field.get(obj);
+        int len = Array.getLength(o);
+        ObjectId[] arr = new ObjectId[len];
+        for(int i=0; i<len; i++){
+            DBRef dbRef = (DBRef)Array.get(o, i);
+            arr[i] = (ObjectId)dbRef.getId();
+        }
+        DBObject in = new BasicDBObject(Operator.IN, arr);
+        DBObject query = new BasicDBObject(Operator.ID, in);
+        BuguDao dao = DaoCache.getInstance().get(clazz);
+        RefList refList = field.getAnnotation(RefList.class);
+        String sort = refList.sort();
+        List<BuguEntity> list = null;
+        if(sort.equals("")){
+            list = dao.find(query);
+        }else{
+            list = dao.find(query, MapperUtil.getSort(sort));
+        }
+        if(list != null){
+            BuguEntity[] result = new BuguEntity[list.size()];
+            list.toArray(result);
+            field.set(obj, result);
+        }
+    }
+    
+    private static void getListType(BuguEntity obj, Field field, Class clazz) throws Exception{
+        Object o = field.get(obj);
+        String typeName = field.getType().getName();
+        RefList refList = field.getAnnotation(RefList.class);
+        BuguDao dao = DaoCache.getInstance().get(clazz);
+        if(DataType.isList(typeName)){
+            List<BuguEntity> list = (List<BuguEntity>)o;
+            ObjectId[] arr = new ObjectId[list.size()];
+            int i = 0;
+            for(BuguEntity ent : list){
+                arr[i++] = new ObjectId(ent.getId());
+            }
+            DBObject in = new BasicDBObject(Operator.IN, arr);
+            DBObject query = new BasicDBObject(Operator.ID, in);
+            String sort = refList.sort();
+            List result = null;
+            if(sort.equals("")){
+                result = dao.find(query);
+            }else{
+                result = dao.find(query, MapperUtil.getSort(sort));
             }
             field.set(obj, result);
         }
+        else if(DataType.isSet(typeName)){
+            Set<BuguEntity> set = (Set<BuguEntity>)o;
+            ObjectId[] arr = new ObjectId[set.size()];
+            int i = 0;
+            for(BuguEntity ent : set){
+                arr[i++] = new ObjectId(ent.getId());
+            }
+            DBObject in = new BasicDBObject(Operator.IN, arr);
+            DBObject query = new BasicDBObject(Operator.ID, in);
+            String sort = refList.sort();
+            List result = null;
+            if(sort.equals("")){
+                result = dao.find(query);
+            }else{
+                result = dao.find(query, MapperUtil.getSort(sort));
+            }
+            field.set(obj, new HashSet(result));
+        }
+    }
+    
+    private static void getMapType(BuguEntity obj, Field field, Class clazz) throws Exception{
+        Object o = field.get(obj);
+        Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)o;
+        Map result = new HashMap();
+        BuguDao dao = DaoCache.getInstance().get(clazz);
+        for(Object key : map.keySet()){
+            BuguEntity refObj = map.get(key);
+            String id = refObj.getId();
+            Object value = dao.findOne(id);
+            result.put(key, value);
+        }
+        field.set(obj, result);
     }
     
 }
