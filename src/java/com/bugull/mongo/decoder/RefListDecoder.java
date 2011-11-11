@@ -26,6 +26,7 @@ import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.DBRef;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -60,71 +61,119 @@ public class RefListDecoder extends AbstractDecoder{
     
     @Override
     public void decode(Object obj){
-        ParameterizedType type = (ParameterizedType)field.getGenericType();
-        Type[] types = type.getActualTypeArguments();
-        int len = types.length;
-        if(len == 1){
-            Class clazz = (Class)types[0];
-            List<DBRef> list = (List<DBRef>)value;
-            List<BuguEntity> result = new ArrayList<BuguEntity>();
-            if(refList.lazy()){
-                for(DBRef dbRef : list){
-                    BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
-                    refObj.setId(dbRef.getId().toString());
-                    result.add(refObj);
-                }
-            }else{
-                ObjectId[] arr = new ObjectId[list.size()];
-                int i = 0;
-                for(DBRef dbRef : list){
-                    arr[i++] = (ObjectId)dbRef.getId();
-                }
-                DBObject in = new BasicDBObject(Operator.IN, arr);
-                DBObject query = new BasicDBObject(Operator.ID, in);
-                BuguDao dao = DaoCache.getInstance().get(clazz);
-                String sort = refList.sort();
-                if(sort.equals("")){
-                    result = dao.find(query);
-                }else{
-                    result = dao.find(query, MapperUtil.getSort(sort));
-                }
-            }
-            try{
-                String typeName = field.getType().getName();
-                if(DataType.isList(typeName)){
-                    field.set(obj, result);
-                }
-                else if(DataType.isSet(typeName)){
-                    field.set(obj, new HashSet(result));
-                }
-            }catch(Exception e){
-                logger.error(e.getMessage());
+        Class<?> type = field.getType();
+        if(type.isArray()){
+            decodeArray(obj, type.getComponentType());
+        }else{
+            ParameterizedType paramType = (ParameterizedType)field.getGenericType();
+            Type[] types = paramType.getActualTypeArguments();
+            int len = types.length;
+            if(len == 1){
+                decodeList(obj, (Class)types[0]);
+            }else if(len == 2){
+                decodeMap(obj, (Class)types[1]);
             }
         }
-        else if(len == 2){
-            Class clazz = (Class)types[1];
-            Map<Object, DBRef> map = (Map<Object, DBRef>)value;
-            Map<Object, BuguEntity> result = new HashMap<Object, BuguEntity>();
-            if(refList.lazy()){
-                for(Object key : map.keySet()){
-                    DBRef dbRef = map.get(key);
-                    BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
-                    refObj.setId(dbRef.getId().toString());
-                    result.put(key, refObj);
-                }
+    }
+    
+    private void decodeArray(Object obj, Class clazz){
+        int len = Array.getLength(value);
+        BuguEntity[] result = new BuguEntity[len];
+        if(refList.lazy()){
+            for(int i=0; i<len; i++){
+                DBRef dbRef = (DBRef)Array.get(value, i);
+                BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
+                refObj.setId(dbRef.getId().toString());
+                result[i] = refObj;
+            }
+        }
+        else{
+            ObjectId[] arr = new ObjectId[len];
+            for(int i=0; i<len; i++){
+                DBRef dbRef = (DBRef)Array.get(value, i);
+                arr[i] = (ObjectId)dbRef.getId();
+            }
+            DBObject in = new BasicDBObject(Operator.IN, arr);
+            DBObject query = new BasicDBObject(Operator.ID, in);
+            BuguDao dao = DaoCache.getInstance().get(clazz);
+            String sort = refList.sort();
+            List<BuguEntity> list = null;
+            if(sort.equals("")){
+                list = dao.find(query);
             }else{
-                BuguDao dao = DaoCache.getInstance().get(clazz);
-                for(Object key : map.keySet()){
-                    DBRef dbRef = map.get(key);
-                    BuguEntity refObj = (BuguEntity)dao.findOne(dbRef.getId().toString());
-                    result.put(key, refObj);
-                }
+                list = dao.find(query, MapperUtil.getSort(sort));
             }
-            try{
+            if(list != null){
+                list.toArray(result);
+            }
+        }
+        try{
+            field.set(obj, result);
+        }catch(Exception e){
+            logger.error(e.getMessage());
+        }
+    }
+    
+    private void decodeList(Object obj, Class clazz){
+        List<DBRef> list = (List<DBRef>)value;
+        List<BuguEntity> result = new ArrayList<BuguEntity>();
+        if(refList.lazy()){
+            for(DBRef dbRef : list){
+                BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
+                refObj.setId(dbRef.getId().toString());
+                result.add(refObj);
+            }
+        }else{
+            ObjectId[] arr = new ObjectId[list.size()];
+            int i = 0;
+            for(DBRef dbRef : list){
+                arr[i++] = (ObjectId)dbRef.getId();
+            }
+            DBObject in = new BasicDBObject(Operator.IN, arr);
+            DBObject query = new BasicDBObject(Operator.ID, in);
+            BuguDao dao = DaoCache.getInstance().get(clazz);
+            String sort = refList.sort();
+            if(sort.equals("")){
+                result = dao.find(query);
+            }else{
+                result = dao.find(query, MapperUtil.getSort(sort));
+            }
+        }
+        try{
+            String typeName = field.getType().getName();
+            if(DataType.isList(typeName)){
                 field.set(obj, result);
-            }catch(Exception e){
-                logger.error(e.getMessage());
             }
+            else if(DataType.isSet(typeName)){
+                field.set(obj, new HashSet(result));
+            }
+        }catch(Exception e){
+            logger.error(e.getMessage());
+        }
+    }
+    
+    private void decodeMap(Object obj, Class clazz){
+        Map<Object, DBRef> map = (Map<Object, DBRef>)value;
+        Map<Object, BuguEntity> result = new HashMap<Object, BuguEntity>();
+        if(refList.lazy()){
+            for(Object key : map.keySet()){
+                DBRef dbRef = map.get(key);
+                BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
+                refObj.setId(dbRef.getId().toString());
+                result.put(key, refObj);
+            }
+        }else{
+            BuguDao dao = DaoCache.getInstance().get(clazz);
+            for(Object key : map.keySet()){
+                DBRef dbRef = map.get(key);
+                BuguEntity refObj = (BuguEntity)dao.findOne(dbRef.getId().toString());
+                result.put(key, refObj);
+            }
+        }
+        try{
+            field.set(obj, result);
+        }catch(Exception e){
+            logger.error(e.getMessage());
         }
     }
     

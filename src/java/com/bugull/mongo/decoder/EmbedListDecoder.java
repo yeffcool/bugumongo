@@ -19,6 +19,7 @@ import com.bugull.mongo.annotations.EmbedList;
 import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.mongodb.DBObject;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -50,43 +51,67 @@ public class EmbedListDecoder extends AbstractDecoder{
 
     @Override
     public void decode(Object obj) {
-        ParameterizedType type = (ParameterizedType)field.getGenericType();
-        Type[] types = type.getActualTypeArguments();
-        int len = types.length;
-        if(len == 1){
-            List list = (List)value;
-            List result = new ArrayList();
-            Class clazz = (Class)types[0];
-            for(Object o : list){
-                Object embedObj = MapperUtil.fromDBObject(clazz, (DBObject)o);
-                result.add(embedObj);
-            }
-            String typeName = field.getType().getName();
-            try{
-                if(DataType.isList(typeName)){
-                    field.set(obj, result);
-                }
-                else if(DataType.isSet(typeName)){
-                    field.set(obj, new HashSet(result));
-                }
-            }catch(Exception e){
-                logger.error(e.getMessage());
+        Class<?> type = field.getType();
+        if(type.isArray()){
+            decodeArray(obj, type.getComponentType());
+        }else{
+            ParameterizedType paramType = (ParameterizedType)field.getGenericType();
+            Type[] types = paramType.getActualTypeArguments();
+            int len = types.length;
+            if(len == 1){
+                decodeList(obj, (Class)types[0]);
+            }else{
+                decodeMap(obj, (Class)types[1]);
             }
         }
-        else if(len == 2){
-            Map map = (Map)value;
-            Map result = new HashMap();
-            Class clazz = (Class)types[1];
-            for(Object key : map.keySet()){
-                Object val = map.get(key);
-                Object embedObj = MapperUtil.fromDBObject(clazz, (DBObject)val);
-                result.put(key, embedObj);
-            }
-            try{
+    }
+    
+    private void decodeArray(Object obj, Class clazz){
+        int len = Array.getLength(value);
+        Object[] objs = new Object[len];
+        for(int i=0; i<len; i++){
+            DBObject o = (DBObject)Array.get(value, i);
+            objs[i] = MapperUtil.fromDBObject(clazz, o);
+        }
+        try{
+            field.set(obj, objs);
+        }catch(Exception e){
+            logger.error(e.getMessage());
+        }
+    }
+    
+    private void decodeList(Object obj, Class clazz){
+        List list = (List)value;
+        List result = new ArrayList();
+        for(Object o : list){
+            Object embedObj = MapperUtil.fromDBObject(clazz, (DBObject)o);
+            result.add(embedObj);
+        }
+        String typeName = field.getType().getName();
+        try{
+            if(DataType.isList(typeName)){
                 field.set(obj, result);
-            }catch(Exception e){
-                logger.error(e.getMessage());
             }
+            else if(DataType.isSet(typeName)){
+                field.set(obj, new HashSet(result));
+            }
+        }catch(Exception e){
+            logger.error(e.getMessage());
+        }
+    }
+    
+    private void decodeMap(Object obj, Class clazz){
+        Map map = (Map)value;
+        Map result = new HashMap();
+        for(Object key : map.keySet()){
+            Object val = map.get(key);
+            Object embedObj = MapperUtil.fromDBObject(clazz, (DBObject)val);
+            result.put(key, embedObj);
+        }
+        try{
+            field.set(obj, result);
+        }catch(Exception e){
+            logger.error(e.getMessage());
         }
     }
     
