@@ -18,6 +18,7 @@ package com.bugull.mongo;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.mongodb.MongoOptions;
+import com.mongodb.ReadPreference;
 import com.mongodb.ServerAddress;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -36,6 +37,7 @@ public class BuguConnection {
     private String host;
     private int port;
     private List<ServerAddress> replicaSet;
+    private ReadPreference readPreference;
     private MongoOptions options;
     private String database;
     private String username;
@@ -98,6 +100,9 @@ public class BuguConnection {
                 }else{
                     mongo = new Mongo(replicaSet);
                 }
+                if(readPreference != null){
+                    mongo.setReadPreference(readPreference);
+                }
             }
         }catch(UnknownHostException e){
             logger.error(e.getMessage());
@@ -147,6 +152,11 @@ public class BuguConnection {
 
     public BuguConnection setReplicaSet(List<ServerAddress> replicaSet) {
         this.replicaSet = replicaSet;
+        return this;
+    }
+
+    public BuguConnection setReadPreference(ReadPreference readPreference) {
+        this.readPreference = readPreference;
         return this;
     }
 
