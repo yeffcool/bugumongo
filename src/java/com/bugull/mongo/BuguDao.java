@@ -449,6 +449,16 @@ public class BuguDao {
         return MapperUtil.toList(clazz, cursor);
     }
     
+    /**
+     * This is used for the automatic lucene index maintaining, do not use this method in your application.
+     * @param query
+     * @return 
+     */
+    public List findForLucene(DBObject query){
+        DBCursor cursor = coll.find(query);
+        return MapperUtil.toList(clazz, cursor);
+    }
+    
     public List distinct(String key){
         return coll.distinct(key);
     }
