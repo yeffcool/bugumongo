@@ -23,6 +23,7 @@ import com.bugull.mongo.lucene.annotations.IndexRefBy;
 import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -42,28 +43,44 @@ public class RefListFieldHandler extends AbstractFieldHandler{
 
     @Override
     public void handle(Document doc) throws Exception{
-        ParameterizedType type = (ParameterizedType)field.getGenericType();
-        Type[] types = type.getActualTypeArguments();
-        if(types.length == 1){
-            List<BuguEntity> li = (List<BuguEntity>)field.get(obj);
-            int size = li.size();
-            ObjectId[] ids = new ObjectId[size];
-            for(int i=0; i<size; i++){
-                ids[i] = new ObjectId(li.get(i).getId());
+        Class clazz = null;
+        Object value = field.get(obj);
+        Class<?> type = field.getType();
+        ObjectId[] ids = null;
+        if(type.isArray()){
+            clazz = type.getComponentType();
+            int len = Array.getLength(value);
+            ids = new ObjectId[len];
+            for(int i=0; i<len; i++){
+                BuguEntity entity = (BuguEntity)Array.get(value, i);
+                ids[i] = new ObjectId(entity.getId());
             }
-            Class cls = (Class)types[0];
-            BuguDao dao = DaoCache.getInstance().get(cls);
-            DBObject in = new BasicDBObject(Operator.IN, ids);
-            DBObject query = new BasicDBObject(Operator.ID, in);
-            List list = dao.find(query);
-            if(list!=null && list.size()>0){
-                Field[] fields = FieldsCache.getInstance().get(cls);
-                for(Field f : fields){
-                    IndexRefBy irb = f.getAnnotation(IndexRefBy.class);
-                    if(irb != null){
-                        FieldHandler handler = new RefByFieldHandler(obj.getClass(), list, f, prefix);
-                        handler.handle(doc);
-                    }
+        }else{
+            ParameterizedType paramType = (ParameterizedType)field.getGenericType();
+            Type[] types = paramType.getActualTypeArguments();
+            if(types.length == 1){
+                clazz = (Class)types[0];
+                List<BuguEntity> li = (List<BuguEntity>)value;
+                int size = li.size();
+                ids = new ObjectId[size];
+                for(int i=0; i<size; i++){
+                    ids[i] = new ObjectId(li.get(i).getId());
+                }
+            }else{
+                return;  //do not support Map now
+            }
+        }
+        BuguDao dao = DaoCache.getInstance().get(clazz);
+        DBObject in = new BasicDBObject(Operator.IN, ids);
+        DBObject query = new BasicDBObject(Operator.ID, in);
+        List list = dao.find(query);
+        if(list!=null && list.size()>0){
+            Field[] fields = FieldsCache.getInstance().get(clazz);
+            for(Field f : fields){
+                IndexRefBy irb = f.getAnnotation(IndexRefBy.class);
+                if(irb != null){
+                    FieldHandler handler = new RefByFieldHandler(obj.getClass(), list, f, prefix);
+                    handler.handle(doc);
                 }
             }
         }
