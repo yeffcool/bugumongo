@@ -17,9 +17,11 @@ package com.bugull.mongo.lucene.handler;
 
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.IndexProperty;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.lucene.document.Document;
 
@@ -35,18 +37,33 @@ public class EmbedListFieldHandler extends AbstractFieldHandler{
 
     @Override
     public void handle(Document doc) throws Exception{
-        ParameterizedType type = (ParameterizedType)field.getGenericType();
-        Type[] types = type.getActualTypeArguments();
-        if(types.length == 1){
-            List list = (List)field.get(obj);
-            Class cls = (Class)types[0];
-            Field[] fields = FieldsCache.getInstance().get(cls);
-            for(Field f : fields){
-                IndexProperty ip = f.getAnnotation(IndexProperty.class);
-                if(ip != null){
-                    FieldHandler handler = new ListPropertyFieldHandler(list, f, prefix);
-                    handler.handle(doc);
-                }
+        List list = null;
+        Class clazz = null;
+        Object value = field.get(obj);
+        Class<?> type = field.getType();
+        if(type.isArray()){
+            clazz = type.getComponentType();
+            int len = Array.getLength(value);
+            list = new ArrayList();
+            for(int i=0; i<len; i++){
+                list.add(Array.get(value, i));
+            }
+        }else{
+            ParameterizedType paramType = (ParameterizedType)field.getGenericType();
+            Type[] types = paramType.getActualTypeArguments();
+            if(types.length == 1){
+                list = (List)value;
+                clazz = (Class)types[0];
+            }else{
+                return;  //do not support Map now
+            }
+        }
+        Field[] fields = FieldsCache.getInstance().get(clazz);
+        for(Field f : fields){
+            IndexProperty ip = f.getAnnotation(IndexProperty.class);
+            if(ip != null){
+                FieldHandler handler = new ListPropertyFieldHandler(list, f, prefix);
+                handler.handle(doc);
             }
         }
     }
