@@ -127,6 +127,9 @@ public abstract class AbstractEncoder implements Encoder{
             }
             value = arr;
         }
+        else{
+            value = o;
+        }
     }
     
     private void setValue(String typeName) throws Exception {

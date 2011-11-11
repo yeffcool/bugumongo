@@ -19,6 +19,7 @@ import com.bugull.mongo.annotations.EmbedList;
 import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.mongodb.DBObject;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +51,24 @@ public class EmbedListEncoder extends AbstractEncoder{
 
     @Override
     public Object encode() {
-        String typeName = field.getType().getName();
+        Class<?> type = field.getType();
+        if(type.isArray()){
+            return encodeArray();
+        }else{
+            return encodeList(type.getName());
+        }
+    }
+    
+    private Object encodeArray(){
+        int len = Array.getLength(value);
+        DBObject[] objs = new DBObject[len];
+        for(int i=0; i<len; i++){
+            objs[i] = MapperUtil.toDBObject(Array.get(value, i));
+        }
+        return objs;
+    }
+    
+    private Object encodeList(String typeName){
         if(DataType.isList(typeName)){
             List list = (List)value;
             List<DBObject> result = new ArrayList<DBObject>();
