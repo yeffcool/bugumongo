@@ -459,6 +459,17 @@ public class BuguDao {
         return MapperUtil.toList(clazz, cursor);
     }
     
+    /**
+     * This is used for the automatic lucene index maintaining, do not use this method in your application.
+     * @param pageNum
+     * @param pageSize
+     * @return 
+     */
+    public List findForLucene(int pageNum, int pageSize){
+        DBCursor cursor = coll.find().skip((pageNum-1)*pageSize).limit(pageSize);
+        return MapperUtil.toList(clazz, cursor);
+    }
+    
     public List distinct(String key){
         return coll.distinct(key);
     }

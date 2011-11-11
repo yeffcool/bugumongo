@@ -55,12 +55,12 @@ public class IndexRebuildTask implements Runnable{
         int remainder = (int) (count % batchSize);
         if(pages > 0){
             for(int i=1; i<=pages; i++){
-                List list = dao.findAll(i, batchSize);
+                List list = dao.findForLucene(i, batchSize);
                 process(list);
             }
         }
         if(remainder > 0){
-            List list = dao.findAll(++pages, remainder);
+            List list = dao.findForLucene(++pages, remainder);
             process(list);
         }
     }
