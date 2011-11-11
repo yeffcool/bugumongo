@@ -25,6 +25,8 @@ import com.bugull.mongo.lucene.BuguIndex;
 import com.bugull.mongo.lucene.annotations.IndexRef;
 import com.bugull.mongo.lucene.annotations.IndexRefList;
 import com.bugull.mongo.mapper.MapperUtil;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -63,23 +65,30 @@ public class RefEntityChangedListener {
                 else{
                     RefList refList = f.getAnnotation(RefList.class);
                     if(refList!=null && f.getAnnotation(IndexRefList.class)!=null){
-                        ParameterizedType type = (ParameterizedType)f.getGenericType();
-                        Type[] types = type.getActualTypeArguments();
-                        if(types.length == 1){
-                            Class c = (Class)types[0];
-                            if(c.equals(refClass)){
-                                match = true;
-                                String name = refList.name();
-                                if(!name.equals("")){
-                                    fieldName = name;
-                                }
+                        Class<?> c = null;
+                        Class<?> type = f.getType();
+                        if(type.isArray()){
+                            c = type.getComponentType();
+                        }else{
+                            ParameterizedType paramType = (ParameterizedType)f.getGenericType();
+                            Type[] types = paramType.getActualTypeArguments();
+                            if(types.length == 1){
+                                c = (Class)types[0];
+                            }
+                        }
+                        if(c!=null && c.equals(refClass)){
+                            match = true;
+                            String name = refList.name();
+                            if(!name.equals("")){
+                                fieldName = name;
                             }
                         }
                     }
                 }
                 if(match){
                     BuguDao dao = DaoCache.getInstance().get(cls);
-                    List<BuguEntity> list = dao.find(fieldName, MapperUtil.toDBRef(refClass, id));
+                    DBObject query = new BasicDBObject(fieldName, MapperUtil.toDBRef(refClass, id));
+                    List<BuguEntity> list = dao.findForLucene(query);
                     for(BuguEntity o : list){
                         IndexUpdateTask task = new IndexUpdateTask(o);
                         executor.execute(task);
