@@ -104,6 +104,9 @@ public class RefListDecoder extends AbstractDecoder{
                 list = dao.find(query, MapperUtil.getSort(sort));
             }
             if(list != null){
+                if(len != list.size()){
+                    result = new BuguEntity[list.size()];
+                }
                 list.toArray(result);
             }
         }
