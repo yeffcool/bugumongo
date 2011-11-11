@@ -73,7 +73,7 @@ public class RefListFieldHandler extends AbstractFieldHandler{
         BuguDao dao = DaoCache.getInstance().get(clazz);
         DBObject in = new BasicDBObject(Operator.IN, ids);
         DBObject query = new BasicDBObject(Operator.ID, in);
-        List list = dao.find(query);
+        List list = dao.findForLucene(query);
         if(list!=null && list.size()>0){
             Field[] fields = FieldsCache.getInstance().get(clazz);
             for(Field f : fields){
