@@ -58,12 +58,14 @@ public class EmbedListFieldHandler extends AbstractFieldHandler{
                 return;  //do not support Map now
             }
         }
-        Field[] fields = FieldsCache.getInstance().get(clazz);
-        for(Field f : fields){
-            IndexProperty ip = f.getAnnotation(IndexProperty.class);
-            if(ip != null){
-                FieldHandler handler = new ListPropertyFieldHandler(list, f, prefix);
-                handler.handle(doc);
+        if(list!=null && list.size()>0){
+            Field[] fields = FieldsCache.getInstance().get(clazz);
+            for(Field f : fields){
+                IndexProperty ip = f.getAnnotation(IndexProperty.class);
+                if(ip != null){
+                    FieldHandler handler = new ListPropertyFieldHandler(list, f, prefix);
+                    handler.handle(doc);
+                }
             }
         }
     }
