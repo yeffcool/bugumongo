@@ -23,15 +23,12 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class EntityChangedListener {
-    
-    private ExecutorService executor = BuguIndex.getInstance().getExecutor();
     
     private Class<?> clazz;
     private boolean hasRefBy;
@@ -58,7 +55,7 @@ public class EntityChangedListener {
         IndexFilterChecker checker = new IndexFilterChecker(obj);
         if(checker.needIndex()){
             IndexInsertTask task = new IndexInsertTask(obj);
-            executor.execute(task);
+            BuguIndex.getInstance().getExecutor().execute(task);
         }
     }
     
@@ -66,10 +63,10 @@ public class EntityChangedListener {
         IndexFilterChecker checker = new IndexFilterChecker(obj);
         if(checker.needIndex()){
             IndexUpdateTask task = new IndexUpdateTask(obj);
-            executor.execute(task);
+            BuguIndex.getInstance().getExecutor().execute(task);
         }else{
             IndexRemoveTask task = new IndexRemoveTask(clazz, obj.getId());
-            executor.execute(task);
+            BuguIndex.getInstance().getExecutor().execute(task);
         }
         //for refBy
         if(hasRefBy){
@@ -79,7 +76,7 @@ public class EntityChangedListener {
     
     public void entityRemove(String id){
         IndexRemoveTask task = new IndexRemoveTask(clazz, id);
-        executor.execute(task);
+        BuguIndex.getInstance().getExecutor().execute(task);
         //for refBy
         if(hasRefBy){
             refListener.entityChange(clazz, id);

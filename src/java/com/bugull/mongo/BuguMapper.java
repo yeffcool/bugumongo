@@ -84,10 +84,10 @@ public class BuguMapper {
                 remainder = name.substring(index+1);
                 name = name.substring(0, index);
             }
-            getOneLevel(obj, name);
+            fetchOneLevel(obj, name);
             if(remainder != null){
                 try{
-                    getRemainder(obj, name, remainder);
+                    fetchRemainder(obj, name, remainder);
                 }catch(Exception e){
                     logger.error(e.getMessage());
                 }
@@ -107,24 +107,24 @@ public class BuguMapper {
         }
     }
     
-    private static void getOneLevel(BuguEntity obj, String fieldName){
+    private static void fetchOneLevel(BuguEntity obj, String fieldName){
         Field field = FieldsCache.getInstance().getField(obj.getClass(), fieldName);
         if(field.getAnnotation(Ref.class) != null){
             try {
-                getRef(obj, field);
+                fetchRef(obj, field);
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
         }else if(field.getAnnotation(RefList.class) != null){
             try {
-                getRefList(obj, field);
+                fetchRefList(obj, field);
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
         }
     }
     
-    private static void getRemainder(BuguEntity obj, String fieldName, String remainder) throws Exception {
+    private static void fetchRemainder(BuguEntity obj, String fieldName, String remainder) throws Exception {
         Field field = FieldsCache.getInstance().getField(obj.getClass(), fieldName);
         Object value = field.get(obj);
         if(value == null){
@@ -156,7 +156,7 @@ public class BuguMapper {
         }
     }
     
-    private static void getRef(BuguEntity obj, Field field) throws Exception {
+    private static void fetchRef(BuguEntity obj, Field field) throws Exception {
         Object o = field.get(obj);
         if( o == null){
             return;
@@ -168,27 +168,27 @@ public class BuguMapper {
         field.set(obj, value);
     }
     
-    private static void getRefList(BuguEntity obj, Field field) throws Exception{
+    private static void fetchRefList(BuguEntity obj, Field field) throws Exception{
         Object o = field.get(obj);
         if(o == null){
             return;
         }
         Class<?> type = field.getType();
         if(type.isArray()){
-            getArrayType(obj, field, type.getComponentType());
+            fetchArray(obj, field, type.getComponentType());
         }else{
             ParameterizedType paramType = (ParameterizedType)field.getGenericType();
             Type[] types = paramType.getActualTypeArguments();
             int len = types.length;
             if(len == 1){
-                getListType(obj, field, (Class)types[0]);
+                fetchList(obj, field, (Class)types[0]);
             }else if(len == 2){
-                getMapType(obj, field, (Class)types[1]);
+                fetchMap(obj, field, (Class)types[1]);
             }
         }
     }
     
-    private static void getArrayType(BuguEntity obj, Field field, Class clazz) throws Exception{
+    private static void fetchArray(BuguEntity obj, Field field, Class clazz) throws Exception{
         Object objValue = field.get(obj);
         int len = Array.getLength(objValue);
         Object arr = Array.newInstance(clazz, len);
@@ -218,7 +218,7 @@ public class BuguMapper {
         field.set(obj, arr);
     }
     
-    private static void getListType(BuguEntity obj, Field field, Class clazz) throws Exception{
+    private static void fetchList(BuguEntity obj, Field field, Class clazz) throws Exception{
         Object o = field.get(obj);
         String typeName = field.getType().getName();
         RefList refList = field.getAnnotation(RefList.class);
@@ -261,7 +261,7 @@ public class BuguMapper {
         }
     }
     
-    private static void getMapType(BuguEntity obj, Field field, Class clazz) throws Exception{
+    private static void fetchMap(BuguEntity obj, Field field, Class clazz) throws Exception{
         Object o = field.get(obj);
         Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)o;
         Map result = new HashMap();

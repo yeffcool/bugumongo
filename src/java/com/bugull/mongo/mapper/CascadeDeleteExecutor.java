@@ -15,32 +15,29 @@
 
 package com.bugull.mongo.mapper;
 
-import com.mongodb.DBObject;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
- * fro @EnsureIndex
- * 
+ *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class DBIndex {
+public class CascadeDeleteExecutor {
     
-    private DBObject keys;
-    private DBObject options;
-
-    public DBObject getKeys() {
-        return keys;
+    private static CascadeDeleteExecutor instance = new CascadeDeleteExecutor();
+    
+    private ExecutorService executor;
+    
+    private CascadeDeleteExecutor(){
+        executor = Executors.newFixedThreadPool(2);
     }
-
-    public void setKeys(DBObject keys) {
-        this.keys = keys;
+    
+    public static CascadeDeleteExecutor getInstance(){
+        return instance;
     }
-
-    public DBObject getOptions() {
-        return options;
-    }
-
-    public void setOptions(DBObject options) {
-        this.options = options;
+    
+    public ExecutorService getExecutor(){
+        return executor;
     }
     
 }

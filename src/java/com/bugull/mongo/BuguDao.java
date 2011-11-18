@@ -20,6 +20,7 @@ import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.lucene.annotations.Indexed;
 import com.bugull.mongo.lucene.backend.EntityChangedListener;
 import com.bugull.mongo.mapper.DBIndex;
+import com.bugull.mongo.mapper.EntityRemovedListener;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
@@ -42,7 +43,8 @@ public class BuguDao {
     protected Class<?> clazz;
     protected DBObject keys;
     protected boolean indexed;
-    protected EntityChangedListener listener;
+    protected EntityChangedListener luceneListener;
+    protected EntityRemovedListener cascadeListener;
     
     public BuguDao(Class<?> clazz){
         this.clazz = clazz;
@@ -71,8 +73,10 @@ public class BuguDao {
         //for lucene
         if(clazz.getAnnotation(Indexed.class) != null){
             indexed = true;
-            listener = new EntityChangedListener(clazz);
+            luceneListener = new EntityChangedListener(clazz);
         }
+        //for cascadeDelete
+        cascadeListener = new EntityRemovedListener(clazz);
     }
     
     /**
@@ -85,7 +89,7 @@ public class BuguDao {
         String id = dbo.get(Operator.ID).toString();
         obj.setId(id);
         if(indexed){
-            listener.entityInsert(obj);
+            luceneListener.entityInsert(obj);
         }
     }
     
@@ -117,7 +121,7 @@ public class BuguDao {
         }else{
             coll.save(MapperUtil.toDBObject(obj));
             if(indexed){
-                listener.entityUpdate(obj);
+                luceneListener.entityUpdate(obj);
             }
         }
     }
@@ -126,20 +130,46 @@ public class BuguDao {
      * Remove all entity.
      */
     public void drop(){
-        if(!indexed){
+        if(!indexed && !cascadeListener.hasCascade()){
             coll.drop();
         }else{
             List list = findAll();
             for(Object o : list){
                 BuguEntity entity = (BuguEntity)o;
-                remove(entity);
+                removeRich(entity);
             }
             coll.drop();
         }
     }
     
+    private void removeRich(BuguEntity entity){
+        DBObject query = new BasicDBObject();
+        query.put(Operator.ID, new ObjectId(entity.getId()));
+        coll.remove(query);
+        if(indexed){
+            luceneListener.entityRemove(entity.getId());
+        }
+        if(cascadeListener.hasCascade()){
+            cascadeListener.entityRemove(entity);
+        }
+    }
+    
+    private void removeThin(String id){
+        DBObject query = new BasicDBObject();
+        query.put(Operator.ID, new ObjectId(id));
+        coll.remove(query);
+        if(indexed){
+            luceneListener.entityRemove(id);
+        }
+    }
+    
     public void remove(BuguEntity obj){
-        remove(obj.getId());
+        if(cascadeListener.hasCascade()){
+            BuguEntity entity = (BuguEntity)findOne(obj.getId());
+            removeRich(entity);
+        }else{
+            removeThin(obj.getId());
+        }
     }
 
     /**
@@ -147,11 +177,11 @@ public class BuguDao {
      * @param id 
      */
     public void remove(String id){
-        DBObject query = new BasicDBObject();
-        query.put(Operator.ID, new ObjectId(id));
-        coll.remove(query);
-        if(indexed){
-            listener.entityRemove(id);
+        if(cascadeListener.hasCascade()){
+            BuguEntity entity = (BuguEntity)findOne(id);
+            removeRich(entity);
+        }else{
+            removeThin(id);
         }
     }
     
@@ -160,7 +190,7 @@ public class BuguDao {
      * @param ids 
      */
     public void remove(String... ids){
-        if(indexed){
+        if(indexed || cascadeListener.hasCascade()){
             for(String id : ids){
                 remove(id);
             }
@@ -190,15 +220,13 @@ public class BuguDao {
      * @param query 
      */
     public void remove(DBObject query){
-        List ids = null;
-        if(indexed){
-            ids = coll.distinct(Operator.ID, query);
-        }
-        coll.remove(query);
-        if(indexed){
+        if(indexed || cascadeListener.hasCascade()){
+            List ids = coll.distinct(Operator.ID, query);
             for(Object id : ids){
-                listener.entityRemove(id.toString());
+                remove(id.toString());
             }
+        }else{
+            coll.remove(query);
         }
     }
     
@@ -206,7 +234,7 @@ public class BuguDao {
         updateWithOutIndex(id, dbo);
         if(indexed){
             BuguEntity entity = (BuguEntity)findOne(id);
-            listener.entityUpdate(entity);
+            luceneListener.entityUpdate(entity);
         }
     }
     
@@ -232,7 +260,7 @@ public class BuguDao {
         if(indexed){
             for(Object id : ids){
                 BuguEntity entity = (BuguEntity)findOne(id.toString());
-                listener.entityUpdate(entity);
+                luceneListener.entityUpdate(entity);
             }
         }
     }

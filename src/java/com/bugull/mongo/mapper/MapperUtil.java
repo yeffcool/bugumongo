@@ -49,7 +49,8 @@ import java.util.List;
 import org.bson.types.ObjectId;
 
 /**
- *
+ * utility class for internal useage.
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class MapperUtil {

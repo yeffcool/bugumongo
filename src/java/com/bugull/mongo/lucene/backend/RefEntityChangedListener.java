@@ -32,15 +32,12 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class RefEntityChangedListener {
-    
-    private ExecutorService executor = BuguIndex.getInstance().getExecutor();
     
     private Set<Class<?>> refBySet;
     
@@ -91,7 +88,7 @@ public class RefEntityChangedListener {
                     List<BuguEntity> list = dao.findForLucene(query);
                     for(BuguEntity o : list){
                         IndexUpdateTask task = new IndexUpdateTask(o);
-                        executor.execute(task);
+                        BuguIndex.getInstance().getExecutor().execute(task);
                     }
                 }
             }
