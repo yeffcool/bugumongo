@@ -202,11 +202,7 @@ public class BuguDao {
         }
     }
     
-    public void update(BuguEntity obj, DBObject dbo){
-        update(obj.getId(), dbo);
-    }
-    
-    public void update(String id, DBObject dbo){
+    private void update(String id, DBObject dbo){
         updateWithOutIndex(id, dbo);
         if(indexed){
             BuguEntity entity = (BuguEntity)findOne(id);
@@ -214,17 +210,25 @@ public class BuguDao {
         }
     }
     
+    public void set(BuguEntity obj, DBObject dbo){
+        set(obj.getId(), dbo);
+    }
+    
+    public void set(String id, DBObject dbo){
+        update(id, new BasicDBObject(Operator.SET, dbo));
+    }
+    
     private void updateWithOutIndex(String id, DBObject dbo){
         DBObject query = new BasicDBObject(Operator.ID, new ObjectId(id));
         coll.update(query, dbo);
     }
     
-    public void update(DBObject query, DBObject dbo){
+    public void set(DBObject query, DBObject dbo){
         List ids = null;
         if(indexed){
             ids = coll.distinct(Operator.ID, query);
         }
-        coll.updateMulti(query, dbo);
+        coll.updateMulti(query, new BasicDBObject(Operator.SET,dbo));
         if(indexed){
             for(Object id : ids){
                 BuguEntity entity = (BuguEntity)findOne(id.toString());
