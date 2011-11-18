@@ -30,7 +30,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -190,19 +189,15 @@ public class BuguMapper {
     }
     
     private static void getArrayType(BuguEntity obj, Field field, Class clazz) throws Exception{
-        Object o = field.get(obj);
-        List list = (ArrayList)o;
-        int size = list.size();
-        if(size <= 0){
-            return;
+        Object objValue = field.get(obj);
+        int len = Array.getLength(objValue);
+        Object arr = Array.newInstance(clazz, len);
+        ObjectId[] objs = new ObjectId[len];
+        for(int i=0; i<len; i++){
+            BuguEntity entity = (BuguEntity)Array.get(objValue, i);
+            objs[i] = new ObjectId(entity.getId());
         }
-        Object arr = Array.newInstance(clazz, size);
-        ObjectId[] objs = new ObjectId[size];
-        for(int i=0; i<size; i++){
-            DBRef dbRef = (DBRef)list.get(i);
-            objs[i] = (ObjectId)dbRef.getId();
-        }
-        DBObject in = new BasicDBObject(Operator.IN, arr);
+        DBObject in = new BasicDBObject(Operator.IN, objs);
         DBObject query = new BasicDBObject(Operator.ID, in);
         BuguDao dao = DaoCache.getInstance().get(clazz);
         RefList refList = field.getAnnotation(RefList.class);
@@ -213,11 +208,11 @@ public class BuguMapper {
         }else{
             entityList = dao.find(query, MapperUtil.getSort(sort));
         }
-        if(entityList.size() != size){
-            size = entityList.size();
-            arr = Array.newInstance(clazz, size);
+        if(entityList.size() != len){
+            len = entityList.size();
+            arr = Array.newInstance(clazz, len);
         }
-        for(int i=0; i<size; i++){
+        for(int i=0; i<len; i++){
             Array.set(arr, i, entityList.get(i));
         }
         field.set(obj, arr);
