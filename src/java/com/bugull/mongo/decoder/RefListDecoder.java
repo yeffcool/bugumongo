@@ -77,41 +77,46 @@ public class RefListDecoder extends AbstractDecoder{
     }
     
     private void decodeArray(Object obj, Class clazz){
-        int len = Array.getLength(value);
-        BuguEntity[] result = new BuguEntity[len];
+        List list = (ArrayList)value;
+        int size = list.size();
+        if(size <= 0){
+            return;
+        }
+        Object arr = Array.newInstance(clazz, size);
         if(refList.lazy()){
-            for(int i=0; i<len; i++){
-                DBRef dbRef = (DBRef)Array.get(value, i);
+            for(int i=0; i<size; i++){
+                DBRef dbRef = (DBRef)list.get(i);
                 BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
                 refObj.setId(dbRef.getId().toString());
-                result[i] = refObj;
+                Array.set(arr, i, refObj);
             }
         }
         else{
-            ObjectId[] arr = new ObjectId[len];
-            for(int i=0; i<len; i++){
-                DBRef dbRef = (DBRef)Array.get(value, i);
-                arr[i] = (ObjectId)dbRef.getId();
+            ObjectId[] objs = new ObjectId[size];
+            for(int i=0; i<size; i++){
+                DBRef dbRef = (DBRef)list.get(i);
+                objs[i] = (ObjectId)dbRef.getId();
             }
             DBObject in = new BasicDBObject(Operator.IN, arr);
             DBObject query = new BasicDBObject(Operator.ID, in);
             BuguDao dao = DaoCache.getInstance().get(clazz);
             String sort = refList.sort();
-            List<BuguEntity> list = null;
+            List<BuguEntity> entityList = null;
             if(sort.equals("")){
-                list = dao.find(query);
+                entityList = dao.find(query);
             }else{
-                list = dao.find(query, MapperUtil.getSort(sort));
+                entityList = dao.find(query, MapperUtil.getSort(sort));
             }
-            if(list != null){
-                if(len != list.size()){
-                    result = new BuguEntity[list.size()];
-                }
-                list.toArray(result);
+            if(entityList.size() != size){
+                size = entityList.size();
+                arr = Array.newInstance(clazz, size);
+            }
+            for(int i=0; i<size; i++){
+                Array.set(arr, i, entityList.get(i));
             }
         }
         try{
-            field.set(obj, result);
+            field.set(obj, arr);
         }catch(Exception e){
             logger.error(e.getMessage());
         }

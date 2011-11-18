@@ -67,21 +67,22 @@ public class EmbedListDecoder extends AbstractDecoder{
     }
     
     private void decodeArray(Object obj, Class clazz){
-        int len = Array.getLength(value);
-        Object[] objs = new Object[len];
-        for(int i=0; i<len; i++){
-            DBObject o = (DBObject)Array.get(value, i);
-            objs[i] = MapperUtil.fromDBObject(clazz, o);
+        List list = (ArrayList)value;
+        int size = list.size();
+        Object arr = Array.newInstance(clazz, size);
+        for(int i=0; i<size; i++){
+            DBObject o = (DBObject)list.get(i);
+            Array.set(arr, i, MapperUtil.fromDBObject(clazz, o));
         }
         try{
-            field.set(obj, objs);
+            field.set(obj, arr);
         }catch(Exception e){
             logger.error(e.getMessage());
         }
     }
     
     private void decodeList(Object obj, Class clazz){
-        List list = (List)value;
+        List list = (ArrayList)value;
         List result = new ArrayList();
         for(Object o : list){
             Object embedObj = MapperUtil.fromDBObject(clazz, (DBObject)o);
