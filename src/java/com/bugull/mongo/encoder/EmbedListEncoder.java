@@ -93,7 +93,9 @@ public class EmbedListEncoder extends AbstractEncoder{
             }
             return result;
         }
-        return null;
+        else{
+            return null;
+        }
     }
     
 }

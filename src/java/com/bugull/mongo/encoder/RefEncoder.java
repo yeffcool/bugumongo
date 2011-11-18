@@ -15,9 +15,11 @@
 
 package com.bugull.mongo.encoder;
 
+import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.BuguMapper;
 import com.bugull.mongo.annotations.Ref;
+import com.bugull.mongo.cache.DaoCache;
 import java.lang.reflect.Field;
 
 /**
@@ -26,14 +28,16 @@ import java.lang.reflect.Field;
  */
 public class RefEncoder extends AbstractEncoder{
     
+    private Ref ref;
+    
     public RefEncoder(Object obj, Field field){
         super(obj, field);
+        ref = field.getAnnotation(Ref.class);
     }
     
     @Override
     public String getFieldName(){
         String fieldName = field.getName();
-        Ref ref = field.getAnnotation(Ref.class);
         String name = ref.name();
         if(!name.equals("")){
             fieldName = name;
@@ -44,6 +48,11 @@ public class RefEncoder extends AbstractEncoder{
     @Override
     public Object encode(){
         BuguEntity entity = (BuguEntity)value;
+        if(ref.cascadeCreate() && entity.getId()==null){
+            Class<?> clazz = field.getType();
+            BuguDao dao = DaoCache.getInstance().get(clazz);
+            dao.insert(entity);
+        }
         return BuguMapper.toDBRef(entity);
     }
     
