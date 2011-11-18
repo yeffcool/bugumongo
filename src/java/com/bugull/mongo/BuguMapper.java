@@ -30,6 +30,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -64,7 +65,7 @@ public class BuguMapper {
      * Fetch out the lazy @Property, @Embed, @EmbedList field of a list
      * @param list the list needs to operate on
      */
-    public static void fetch(List list){
+    public static void fetchLazy(List list){
         for(Object o : list){
             BuguEntity obj = (BuguEntity)o;
             obj = (BuguEntity)DaoCache.getInstance().get(obj.getClass()).findOne(obj.getId());
@@ -72,19 +73,11 @@ public class BuguMapper {
     }
     
     /**
-     * @deprecated Use fetchRef(obj, names) for instead
-     */
-    @Deprecated
-    public static void fetch(BuguEntity obj, String... names){
-        fetchRef(obj, names);
-    }
-    
-    /**
      * Fetch out the lazy @Ref or @RefList field of an entity.
      * @param obj the entity needs to operate on
      * @param names the fields' names
      */
-    public static void fetchRef(BuguEntity obj, String... names){
+    public static void fetchCascade(BuguEntity obj, String... names){
         for(String name : names){
             String remainder = null;
             int index = name.indexOf(".");
@@ -104,22 +97,14 @@ public class BuguMapper {
     }
     
     /**
-     * @deprecated Use fetchRef(list, names) for instead
-     */
-    @Deprecated
-    public static void fetch(List list, String... names){
-        fetchRef(list, names);
-    }
-    
-    /**
      * Fetch out the lazy @Ref or @RefList field of a list.
      * @param list the list needs to operate on
      * @param names the fields' names
      */
-    public static void fetchRef(List list, String... names){
+    public static void fetchCascade(List list, String... names){
         for(Object o : list){
             BuguEntity obj = (BuguEntity)o;
-            fetchRef(obj, names);
+            fetchCascade(obj, names);
         }
     }
     
@@ -148,25 +133,25 @@ public class BuguMapper {
         }
         if(field.getAnnotation(Ref.class) != null){
             BuguEntity entity = (BuguEntity)value;
-            fetchRef(entity, remainder);
+            fetchCascade(entity, remainder);
         }else if(field.getAnnotation(RefList.class) != null){
             String typeName = field.getType().getName();
             if(DataType.isList(typeName)){
                 List<BuguEntity> list = (List<BuguEntity>)value;
                 for(BuguEntity entity : list){
-                    fetchRef(entity, remainder);
+                    fetchCascade(entity, remainder);
                 }
             }
             else if(DataType.isSet(typeName)){
                 Set<BuguEntity> set = (Set<BuguEntity>)value;
                 for(BuguEntity entity : set){
-                    fetchRef(entity, remainder);
+                    fetchCascade(entity, remainder);
                 }
             }
             else if(DataType.isMap(typeName)){
                 Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
                 for(Object key : map.keySet()){
-                    fetchRef(map.get(key), remainder);
+                    fetchCascade(map.get(key), remainder);
                 }
             }
         }
@@ -206,28 +191,36 @@ public class BuguMapper {
     
     private static void getArrayType(BuguEntity obj, Field field, Class clazz) throws Exception{
         Object o = field.get(obj);
-        int len = Array.getLength(o);
-        ObjectId[] arr = new ObjectId[len];
-        for(int i=0; i<len; i++){
-            DBRef dbRef = (DBRef)Array.get(o, i);
-            arr[i] = (ObjectId)dbRef.getId();
+        List list = (ArrayList)o;
+        int size = list.size();
+        if(size <= 0){
+            return;
+        }
+        Object arr = Array.newInstance(clazz, size);
+        ObjectId[] objs = new ObjectId[size];
+        for(int i=0; i<size; i++){
+            DBRef dbRef = (DBRef)list.get(i);
+            objs[i] = (ObjectId)dbRef.getId();
         }
         DBObject in = new BasicDBObject(Operator.IN, arr);
         DBObject query = new BasicDBObject(Operator.ID, in);
         BuguDao dao = DaoCache.getInstance().get(clazz);
         RefList refList = field.getAnnotation(RefList.class);
         String sort = refList.sort();
-        List<BuguEntity> list = null;
+        List<BuguEntity> entityList = null;
         if(sort.equals("")){
-            list = dao.find(query);
+            entityList = dao.find(query);
         }else{
-            list = dao.find(query, MapperUtil.getSort(sort));
+            entityList = dao.find(query, MapperUtil.getSort(sort));
         }
-        if(list != null){
-            BuguEntity[] result = new BuguEntity[list.size()];
-            list.toArray(result);
-            field.set(obj, result);
+        if(entityList.size() != size){
+            size = entityList.size();
+            arr = Array.newInstance(clazz, size);
         }
+        for(int i=0; i<size; i++){
+            Array.set(arr, i, entityList.get(i));
+        }
+        field.set(obj, arr);
     }
     
     private static void getListType(BuguEntity obj, Field field, Class clazz) throws Exception{
