@@ -70,7 +70,7 @@ public class EmbedListEncoder extends AbstractEncoder{
     
     private Object encodeList(String typeName){
         if(DataType.isList(typeName)){
-            List list = (List)value;
+            List list = (ArrayList)value;
             List<DBObject> result = new ArrayList<DBObject>();
             for(Object o : list){
                 result.add(MapperUtil.toDBObject(o));
