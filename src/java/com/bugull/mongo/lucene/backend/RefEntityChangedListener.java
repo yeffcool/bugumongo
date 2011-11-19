@@ -71,6 +71,8 @@ public class RefEntityChangedListener {
                             Type[] types = paramType.getActualTypeArguments();
                             if(types.length == 1){
                                 c = (Class)types[0];
+                            }else{
+                                c = (Class)types[1];
                             }
                         }
                         if(c!=null && c.equals(refClass)){
