@@ -72,7 +72,7 @@ public class BuguMapper {
     }
     
     /**
-     * Fetch out the lazy @Ref or @RefList field of an entity.
+     * Fetch out the cascade @Ref or @RefList entity.
      * @param obj the entity needs to operate on
      * @param names the fields' names
      */
@@ -96,7 +96,7 @@ public class BuguMapper {
     }
     
     /**
-     * Fetch out the lazy @Ref or @RefList field of a list.
+     * Fetch out the cascade @Ref or @RefList entity.
      * @param list the list needs to operate on
      * @param names the fields' names
      */
