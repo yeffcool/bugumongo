@@ -20,6 +20,7 @@ import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.IndexRefBy;
+import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -28,6 +29,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.lucene.document.Document;
 import org.bson.types.ObjectId;
 
@@ -60,14 +63,35 @@ public class RefListFieldHandler extends AbstractFieldHandler{
             Type[] types = paramType.getActualTypeArguments();
             if(types.length == 1){
                 clazz = (Class)types[0];
-                List<BuguEntity> li = (List<BuguEntity>)value;
-                int size = li.size();
-                ids = new ObjectId[size];
-                for(int i=0; i<size; i++){
-                    ids[i] = new ObjectId(li.get(i).getId());
+                String typeName = type.getName();
+                if(DataType.isList(typeName)){
+                    List<BuguEntity> li = (List<BuguEntity>)value;
+                    int size = li.size();
+                    ids = new ObjectId[size];
+                    for(int i=0; i<size; i++){
+                        ids[i] = new ObjectId(li.get(i).getId());
+                    }
+                }else if(DataType.isSet(typeName)){
+                    Set<BuguEntity> set = (Set<BuguEntity>)value;
+                    int size = set.size();
+                    ids = new ObjectId[size];
+                    int i = 0;
+                    for(BuguEntity ent : set){
+                        ids[i++] = new ObjectId(ent.getId());
+                    }
                 }
-            }else{
-                return;  //do not support Map now
+            }
+            else if(types.length == 2){
+                Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
+                int size = map.size();
+                ids = new ObjectId[size];
+                int i = 0;
+                for(Object key : map.keySet()){
+                    ids[i++] = new ObjectId(map.get(key).getId());
+                }
+            }
+            else{
+                return;
             }
         }
         BuguDao dao = DaoCache.getInstance().get(clazz);
