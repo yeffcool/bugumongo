@@ -15,6 +15,7 @@
 
 package com.bugull.mongo.decoder;
 
+import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Property;
 import com.bugull.mongo.mapper.DataType;
 import com.mongodb.DBObject;
@@ -41,7 +42,7 @@ public class PropertyDecoder extends AbstractDecoder{
         Property property = field.getAnnotation(Property.class);
         if(property != null){
             String name = property.name();
-            if(!name.equals("")){
+            if(!name.equals(Default.NAME)){
                 fieldName = name;
             }
         }

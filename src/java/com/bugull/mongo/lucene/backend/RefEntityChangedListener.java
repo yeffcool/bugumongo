@@ -17,6 +17,7 @@ package com.bugull.mongo.lucene.backend;
 
 import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.BuguEntity;
+import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.DaoCache;
@@ -55,7 +56,7 @@ public class RefEntityChangedListener {
                 if(ref!=null && f.getType().equals(refClass) && f.getAnnotation(IndexRef.class)!=null){
                     match = true;
                     String name = ref.name();
-                    if(!name.equals("")){
+                    if(!name.equals(Default.NAME)){
                         fieldName = name;
                     }
                 }
@@ -78,7 +79,7 @@ public class RefEntityChangedListener {
                         if(c!=null && c.equals(refClass)){
                             match = true;
                             String name = refList.name();
-                            if(!name.equals("")){
+                            if(!name.equals(Default.NAME)){
                                 fieldName = name;
                             }
                         }

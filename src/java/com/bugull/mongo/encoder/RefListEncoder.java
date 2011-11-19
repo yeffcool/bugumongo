@@ -18,6 +18,7 @@ package com.bugull.mongo.encoder;
 import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.BuguMapper;
+import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.mapper.DataType;
@@ -50,7 +51,7 @@ public class RefListEncoder extends AbstractEncoder{
     public String getFieldName(){
         String fieldName = field.getName();
         String name = refList.name();
-        if(!name.equals("")){
+        if(!name.equals(Default.NAME)){
             fieldName = name;
         }
         return fieldName;

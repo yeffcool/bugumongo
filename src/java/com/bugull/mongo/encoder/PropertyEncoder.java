@@ -15,6 +15,7 @@
 
 package com.bugull.mongo.encoder;
 
+import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Property;
 import java.lang.reflect.Field;
 
@@ -34,7 +35,7 @@ public class PropertyEncoder extends AbstractEncoder{
         Property property = field.getAnnotation(Property.class);
         if(property != null){
             String name = property.name();
-            if(!name.equals("")){
+            if(!name.equals(Default.NAME)){
                 fieldName = name;
             }
         }

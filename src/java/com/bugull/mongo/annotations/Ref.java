@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Ref {
-    public String name() default "";
+    public String name() default Default.NAME;
     public boolean cascadeRead() default false;
     public boolean cascadeCreate() default false;
     public boolean cascadeDelete() default false;

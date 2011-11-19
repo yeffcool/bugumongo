@@ -15,6 +15,7 @@
 
 package com.bugull.mongo;
 
+import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.DaoCache;
@@ -203,7 +204,7 @@ public class BuguMapper {
         RefList refList = field.getAnnotation(RefList.class);
         String sort = refList.sort();
         List<BuguEntity> entityList = null;
-        if(sort.equals("")){
+        if(sort.equals(Default.SORT)){
             entityList = dao.find(query);
         }else{
             entityList = dao.find(query, MapperUtil.getSort(sort));
@@ -234,7 +235,7 @@ public class BuguMapper {
             DBObject query = new BasicDBObject(Operator.ID, in);
             String sort = refList.sort();
             List result = null;
-            if(sort.equals("")){
+            if(sort.equals(Default.SORT)){
                 result = dao.find(query);
             }else{
                 result = dao.find(query, MapperUtil.getSort(sort));
@@ -252,7 +253,7 @@ public class BuguMapper {
             DBObject query = new BasicDBObject(Operator.ID, in);
             String sort = refList.sort();
             List result = null;
-            if(sort.equals("")){
+            if(sort.equals(Default.SORT)){
                 result = dao.find(query);
             }else{
                 result = dao.find(query, MapperUtil.getSort(sort));

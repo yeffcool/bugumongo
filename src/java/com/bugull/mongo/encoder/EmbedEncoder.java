@@ -15,6 +15,7 @@
 
 package com.bugull.mongo.encoder;
 
+import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Embed;
 import com.bugull.mongo.mapper.MapperUtil;
 import java.lang.reflect.Field;
@@ -34,7 +35,7 @@ public class EmbedEncoder extends AbstractEncoder{
         String fieldName = field.getName();
         Embed embed = field.getAnnotation(Embed.class);
         String name = embed.name();
-        if(!name.equals("")){
+        if(!name.equals(Default.NAME)){
             fieldName = name;
         }
         return fieldName;

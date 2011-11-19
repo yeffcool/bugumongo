@@ -17,6 +17,7 @@ package com.bugull.mongo.decoder;
 
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.BuguDao;
+import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.cache.ConstructorCache;
 import com.bugull.mongo.cache.DaoCache;
@@ -40,7 +41,7 @@ public class RefDecoder extends AbstractDecoder{
         ref = field.getAnnotation(Ref.class);
         String fieldName = field.getName();
         String name = ref.name();
-        if(!name.equals("")){
+        if(!name.equals(Default.NAME)){
             fieldName = name;
         }
         value = dbo.get(fieldName);

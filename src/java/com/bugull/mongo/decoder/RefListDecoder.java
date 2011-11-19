@@ -17,6 +17,7 @@ package com.bugull.mongo.decoder;
 
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.BuguDao;
+import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.ConstructorCache;
 import com.bugull.mongo.cache.DaoCache;
@@ -53,7 +54,7 @@ public class RefListDecoder extends AbstractDecoder{
         refList = field.getAnnotation(RefList.class);
         String fieldName = field.getName();
         String name = refList.name();
-        if(!name.equals("")){
+        if(!name.equals(Default.NAME)){
             fieldName = name;
         }
         value = dbo.get(fieldName);
@@ -102,7 +103,7 @@ public class RefListDecoder extends AbstractDecoder{
             BuguDao dao = DaoCache.getInstance().get(clazz);
             String sort = refList.sort();
             List<BuguEntity> entityList = null;
-            if(sort.equals("")){
+            if(sort.equals(Default.SORT)){
                 entityList = dao.find(query);
             }else{
                 entityList = dao.find(query, MapperUtil.getSort(sort));
@@ -141,7 +142,7 @@ public class RefListDecoder extends AbstractDecoder{
             DBObject query = new BasicDBObject(Operator.ID, in);
             BuguDao dao = DaoCache.getInstance().get(clazz);
             String sort = refList.sort();
-            if(sort.equals("")){
+            if(sort.equals(Default.SORT)){
                 result = dao.find(query);
             }else{
                 result = dao.find(query, MapperUtil.getSort(sort));

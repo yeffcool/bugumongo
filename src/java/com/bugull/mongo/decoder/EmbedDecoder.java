@@ -15,6 +15,7 @@
 
 package com.bugull.mongo.decoder;
 
+import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Embed;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.mongodb.DBObject;
@@ -34,7 +35,7 @@ public class EmbedDecoder extends AbstractDecoder{
         String fieldName = field.getName();
         Embed embed = field.getAnnotation(Embed.class);
         String name = embed.name();
-        if(!name.equals("")){
+        if(!name.equals(Default.NAME)){
             fieldName = name;
         }
         value = dbo.get(fieldName);

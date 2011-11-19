@@ -16,6 +16,7 @@
 package com.bugull.mongo.mapper;
 
 import com.bugull.mongo.BuguConnection;
+import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Embed;
 import com.bugull.mongo.annotations.EmbedList;
 import com.bugull.mongo.annotations.Entity;
@@ -146,7 +147,7 @@ public class MapperUtil {
     public static String getEntityName(Class<?> clazz){
         Entity entity = clazz.getAnnotation(Entity.class);
         String name = entity.name();
-        if(name.equals("")){
+        if(name.equals(Default.NAME)){
             name = clazz.getSimpleName().toLowerCase();
         }
         return name;
@@ -166,7 +167,7 @@ public class MapperUtil {
             Embed embed = field.getAnnotation(Embed.class);
             if(embed!=null && !embed.lazy()){
                 String name = embed.name();
-                if(!name.equals("")){
+                if(!name.equals(Default.NAME)){
                     fieldName = name;
                 }
                 keys.put(fieldName, 1);
@@ -175,7 +176,7 @@ public class MapperUtil {
             EmbedList embedList = field.getAnnotation(EmbedList.class);
             if(embedList!=null && !embedList.lazy()){
                 String name = embedList.name();
-                if(!name.equals("")){
+                if(!name.equals(Default.NAME)){
                     fieldName = name;
                 }
                 keys.put(fieldName, 1);
@@ -184,7 +185,7 @@ public class MapperUtil {
             Ref ref = field.getAnnotation(Ref.class);
             if(ref!=null){
                 String name = ref.name();
-                if(!name.equals("")){
+                if(!name.equals(Default.NAME)){
                     fieldName = name;
                 }
                 keys.put(fieldName, 1);
@@ -193,7 +194,7 @@ public class MapperUtil {
             RefList refList = field.getAnnotation(RefList.class);
             if(refList!=null){
                 String name = refList.name();
-                if(!name.equals("")){
+                if(!name.equals(Default.NAME)){
                     fieldName = name;
                 }
                 keys.put(fieldName, 1);
@@ -202,7 +203,7 @@ public class MapperUtil {
             Property property = field.getAnnotation(Property.class);
             if(property!=null){
                 String name = property.name();
-                if(!name.equals("")){
+                if(!name.equals(Default.NAME)){
                     fieldName = name;
                 }
                 if(!property.lazy()){
