@@ -53,7 +53,7 @@ public class RefDecoder extends AbstractDecoder{
         String refId = dbRef.getId().toString();
         Class<?> clazz = field.getType();
         BuguEntity refObj = null;
-        if(! ref.cascadeRead()){
+        if(! ref.cascadeRetrieve()){
             refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
             refObj.setId(refId);
         }else{

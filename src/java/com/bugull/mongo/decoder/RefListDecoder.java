@@ -84,7 +84,7 @@ public class RefListDecoder extends AbstractDecoder{
             return;
         }
         Object arr = Array.newInstance(clazz, size);
-        if(! refList.cascadeRead()){
+        if(! refList.cascadeRetrieve()){
             for(int i=0; i<size; i++){
                 DBRef dbRef = (DBRef)list.get(i);
                 BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
@@ -126,7 +126,7 @@ public class RefListDecoder extends AbstractDecoder{
     private void decodeList(Object obj, Class clazz){
         List<DBRef> list = (List<DBRef>)value;
         List<BuguEntity> result = new ArrayList<BuguEntity>();
-        if(! refList.cascadeRead()){
+        if(! refList.cascadeRetrieve()){
             for(DBRef dbRef : list){
                 BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
                 refObj.setId(dbRef.getId().toString());
@@ -164,7 +164,7 @@ public class RefListDecoder extends AbstractDecoder{
     private void decodeMap(Object obj, Class clazz){
         Map<Object, DBRef> map = (Map<Object, DBRef>)value;
         Map<Object, BuguEntity> result = new HashMap<Object, BuguEntity>();
-        if(! refList.cascadeRead()){
+        if(! refList.cascadeRetrieve()){
             for(Object key : map.keySet()){
                 DBRef dbRef = map.get(key);
                 BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);

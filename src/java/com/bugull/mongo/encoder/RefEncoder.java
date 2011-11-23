@@ -54,6 +54,11 @@ public class RefEncoder extends AbstractEncoder{
             BuguDao dao = DaoCache.getInstance().get(clazz);
             dao.insert(entity);
         }
+        if(ref.cascadeUpdate() && entity.getId()!=null){
+            Class<?> clazz = field.getType();
+            BuguDao dao = DaoCache.getInstance().get(clazz);
+            dao.save(entity);
+        }
         return BuguMapper.toDBRef(entity);
     }
     

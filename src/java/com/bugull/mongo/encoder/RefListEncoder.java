@@ -76,6 +76,9 @@ public class RefListEncoder extends AbstractEncoder{
             if(refList.cascadeCreate() && entity.getId()==null){
                 dao.insert(entity);
             }
+            if(refList.cascadeUpdate() && entity.getId()!=null){
+                dao.save(entity);
+            }
             refs[i] = BuguMapper.toDBRef(entity);
         }
         return refs;
@@ -92,6 +95,9 @@ public class RefListEncoder extends AbstractEncoder{
                 if(refList.cascadeCreate() && entity.getId()==null){
                     dao.insert(entity);
                 }
+                if(refList.cascadeUpdate() && entity.getId()!=null){
+                    dao.save(entity);
+                }
                 result.add(BuguMapper.toDBRef(entity));
             }
             return result;
@@ -103,6 +109,9 @@ public class RefListEncoder extends AbstractEncoder{
             for(BuguEntity entity : set){
                 if(refList.cascadeCreate() && entity.getId()==null){
                     dao.insert(entity);
+                }
+                if(refList.cascadeUpdate() && entity.getId()!=null){
+                    dao.save(entity);
                 }
                 result.add(BuguMapper.toDBRef(entity));
             }
@@ -116,6 +125,9 @@ public class RefListEncoder extends AbstractEncoder{
                 BuguEntity entity = map.get(key);
                 if(refList.cascadeCreate() && entity.getId()==null){
                     dao.insert(entity);
+                }
+                if(refList.cascadeUpdate() && entity.getId()!=null){
+                    dao.save(entity);
                 }
                 result.put(key, BuguMapper.toDBRef(entity));
             }

@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 public @interface RefList {
     public String name() default Default.NAME;
     public boolean cascadeCreate() default false;
-    public boolean cascadeRead() default false;
+    public boolean cascadeRetrieve() default false;
     public boolean cascadeUpdate() default false;
     public boolean cascadeDelete() default false;
     public String sort() default Default.SORT;
