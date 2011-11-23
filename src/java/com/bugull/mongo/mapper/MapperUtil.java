@@ -225,6 +225,11 @@ public class MapperUtil {
     
     public static boolean hasIndexAnnotation(Class<?> clazz, String key){
         boolean result = false;
+        //check if the key has "." in it
+        int index = key.indexOf(".");
+        if(index != -1){
+            key = key.substring(0, index);
+        }
         Field field = FieldsCache.getInstance().getField(clazz, key);
         if(field.getAnnotation(IndexProperty.class)!=null
                 || field.getAnnotation(IndexEmbed.class)!=null
