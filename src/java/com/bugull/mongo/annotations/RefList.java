@@ -28,9 +28,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RefList {
     public String name() default Default.NAME;
-    public boolean cascadeCreate() default false;
-    public boolean cascadeRetrieve() default false;
-    public boolean cascadeUpdate() default false;
-    public boolean cascadeDelete() default false;
+    public String cascade() default Default.CASCADE;
     public String sort() default Default.SORT;
 }

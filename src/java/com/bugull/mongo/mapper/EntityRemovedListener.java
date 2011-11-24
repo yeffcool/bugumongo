@@ -16,6 +16,7 @@
 package com.bugull.mongo.mapper;
 
 import com.bugull.mongo.BuguEntity;
+import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.FieldsCache;
@@ -38,13 +39,13 @@ public class EntityRemovedListener {
         Field[] fields = FieldsCache.getInstance().get(clazz);
         for(Field f : fields){
             Ref ref = f.getAnnotation(Ref.class);
-            if(ref!=null && ref.cascadeDelete()){
+            if(ref!=null && ref.cascade().toUpperCase().indexOf(Default.CASCADE_DELETE)!=-1){
                 hasCascade = true;
                 refFields.add(f);
                 continue;
             }
             RefList refList = f.getAnnotation(RefList.class);
-            if(refList!=null && refList.cascadeDelete()){
+            if(refList!=null && refList.cascade().toUpperCase().indexOf(Default.CASCADE_DELETE)!=-1){
                 hasCascade = true;
                 refListFields.add(f);
                 continue;
