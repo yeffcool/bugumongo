@@ -18,14 +18,13 @@ package com.bugull.mongo.lucene.backend;
 import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.cache.DaoCache;
-import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.cache.IndexWriterCache;
 import com.bugull.mongo.mapper.MapperUtil;
+import java.io.IOException;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.Term;
 
 /**
  *
@@ -49,6 +48,11 @@ public class IndexRebuildTask implements Runnable{
 
     @Override
     public void run() {
+        try{
+            writer.deleteAll();
+        }catch(IOException e){
+            logger.error(e.getMessage());
+        }
         BuguDao dao = DaoCache.getInstance().get(clazz);
         long count = dao.count();
         int pages = (int) (count / batchSize);
@@ -85,9 +89,8 @@ public class IndexRebuildTask implements Runnable{
             IndexCreator creator = new IndexCreator(obj, "");
             creator.create(doc);
             try{
-                Term term = new Term(FieldsCache.getInstance().getIdFieldName(clazz), obj.getId());
-                writer.updateDocument(term, doc);
-            }catch(Exception e){
+                writer.addDocument(doc);
+            }catch(IOException e){
                 logger.error(e.getMessage());
             }
         }
