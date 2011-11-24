@@ -238,10 +238,20 @@ public class BuguDao {
         }
     }
     
+    /**
+     * Update an entity, with new key/value pairs.
+     * @param obj the entity needs to be updated
+     * @param dbo the new key/value pairs.
+     */
     public void set(BuguEntity obj, DBObject dbo){
         set(obj.getId(), dbo);
     }
     
+    /**
+     * Update an entity, with new key/value pairs.
+     * @param id the entity's id
+     * @param dbo the new key/value pairs
+     */
     public void set(String id, DBObject dbo){
         update(id, new BasicDBObject(Operator.SET, dbo));
     }
@@ -251,6 +261,11 @@ public class BuguDao {
         coll.update(query, dbo);
     }
     
+    /**
+     * Update some entities, with new key/value pairs.
+     * @param query the query condition
+     * @param dbo the new key/value pairs
+     */
     public void set(DBObject query, DBObject dbo){
         List ids = null;
         if(indexed){
@@ -292,7 +307,7 @@ public class BuguDao {
     }
     
     /**
-     * Update a numeric field of an entity.
+     * Increase a numeric field of an entity.
      * @param obj the entity needs to update
      * @param key the field's name
      * @param value the numeric value to be added. It can be positive or negative integer, long, float, double
@@ -302,7 +317,7 @@ public class BuguDao {
     }
     
     /**
-     * Update a numeric field of an entity.
+     * Increase a numeric field of an entity.
      * @param id the entity's id
      * @param key the field's name
      * @param value the numeric value to be added. It can be positive or negative integer, long, float, double
@@ -314,6 +329,27 @@ public class BuguDao {
             update(id, inc);
         }else{
             updateWithOutIndex(id, inc);
+        }
+    }
+    
+    /**
+     * Increase a numberic field of some entities.
+     * @param query the query condition
+     * @param key the field's name
+     * @param value the numeric value to be added. It can be positive or negative integer, long, float, double
+     */
+    public void inc(DBObject query, String key, Object value){
+        List ids = null;
+        if(indexed){
+            ids = coll.distinct(Operator.ID, query);
+        }
+        DBObject dbo = new BasicDBObject(key, value);
+        coll.updateMulti(query, new BasicDBObject(Operator.INC, dbo));
+        if(indexed){
+            for(Object id : ids){
+                BuguEntity entity = (BuguEntity)findOne(id.toString());
+                luceneListener.entityUpdate(entity);
+            }
         }
     }
     
