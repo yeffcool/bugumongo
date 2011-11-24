@@ -116,8 +116,11 @@ public class UploadedFileServlet extends HttpServlet {
         if(ext == null){
             type = "application/octet-stream";
         }
-        else if(ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg") || ext.equalsIgnoreCase("png") || ext.equalsIgnoreCase("gif") || ext.equalsIgnoreCase("bmp")){
-            type = "image/" + type;
+        else if(ext.equalsIgnoreCase("jpg")){
+            type = "image/jpeg";
+        }
+        else if(ext.equalsIgnoreCase("jpeg") || ext.equalsIgnoreCase("png") || ext.equalsIgnoreCase("gif") || ext.equalsIgnoreCase("bmp")){
+            type = "image/" + ext.toLowerCase();
         }
         else if(ext.equalsIgnoreCase("html") || ext.equalsIgnoreCase("htm")){
             type = "text/html";
