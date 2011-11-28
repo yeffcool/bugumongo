@@ -75,7 +75,6 @@ public class IndexRebuildTask implements Runnable{
             process(obj);
         }
         try{
-            writer.optimize();
             writer.commit();
         }catch(Exception e){
             logger.error(e.getMessage());
