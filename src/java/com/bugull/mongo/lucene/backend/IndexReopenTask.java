@@ -17,6 +17,7 @@ package com.bugull.mongo.lucene.backend;
 
 import com.bugull.mongo.cache.IndexSearcherCache;
 import com.bugull.mongo.lucene.BuguIndex;
+import java.io.IOException;
 import java.util.Map;
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.IndexReader;
@@ -44,8 +45,8 @@ public class IndexReopenTask implements Runnable {
             IndexReader reader = searcher.getIndexReader();
             IndexReader newReader = null;
             try{
-                newReader = reader.reopen();
-            }catch(Exception e){
+                newReader = IndexReader.openIfChanged(reader);
+            }catch(IOException e){
                 logger.error(e.getMessage());
             }
             if(newReader!=null && newReader!=reader){
