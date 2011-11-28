@@ -30,6 +30,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.bson.types.ObjectId;
 
 /**
@@ -219,6 +220,14 @@ public class BuguDao {
      * Remove by condition.
      * @param query 
      */
+    public void remove(Query query){
+        remove(query.getCondition());
+    }
+    
+    /**
+     * Remove by condition.
+     * @param query 
+     */
     public void remove(DBObject query){
         if(indexed || cascadeListener.hasCascade()){
             List ids = coll.distinct(Operator.ID, query);
@@ -238,13 +247,38 @@ public class BuguDao {
         }
     }
     
+    private void updateWithOutIndex(String id, DBObject dbo){
+        DBObject query = new BasicDBObject(Operator.ID, new ObjectId(id));
+        coll.update(query, dbo);
+    }
+    
+    /**
+     * Update an entity, with new key/value pairs.
+     * @param obj the entity needs to be updated
+     * @param values the new key/value pairs
+     */
+    public void set(BuguEntity obj, Map values){
+        DBObject dbo = new BasicDBObject(values);
+        update(obj.getId(), new BasicDBObject(Operator.SET, dbo));
+    }
+    
     /**
      * Update an entity, with new key/value pairs.
      * @param obj the entity needs to be updated
      * @param dbo the new key/value pairs.
      */
     public void set(BuguEntity obj, DBObject dbo){
-        set(obj.getId(), dbo);
+        update(obj.getId(), new BasicDBObject(Operator.SET, dbo));
+    }
+    
+    /**
+     * Update an entity, with new key/value pairs.
+     * @param id the entity's id
+     * @param values the new key/value pairs
+     */
+    public void set(String id, Map values){
+        DBObject dbo = new BasicDBObject(values);
+        update(id, new BasicDBObject(Operator.SET, dbo));
     }
     
     /**
@@ -256,9 +290,13 @@ public class BuguDao {
         update(id, new BasicDBObject(Operator.SET, dbo));
     }
     
-    private void updateWithOutIndex(String id, DBObject dbo){
-        DBObject query = new BasicDBObject(Operator.ID, new ObjectId(id));
-        coll.update(query, dbo);
+    /**
+     * Update some entities, with new key/value pairs.
+     * @param query the query condition
+     * @param values the new key/value pairs
+     */
+    public void set(Query query, Map values){
+        set(query.getCondition(), new BasicDBObject(values));
     }
     
     /**
@@ -330,6 +368,16 @@ public class BuguDao {
         }else{
             updateWithOutIndex(id, inc);
         }
+    }
+    
+    /**
+     * Increase a numberic field of some entities.
+     * @param query the query condition
+     * @param key the field's name
+     * @param value the numeric value to be added. It can be positive or negative integer, long, float, double
+     */
+    public void inc(Query query, String key, Object value){
+        inc(query.getCondition(), key, value);
     }
     
     /**
@@ -413,6 +461,15 @@ public class BuguDao {
      */
     public boolean exists(String key, Object value){
         return exists(new BasicDBObject(key, value));
+    }
+    
+    /**
+     * Check if any entity match the condition
+     * @param query the condition
+     * @return 
+     */
+    public boolean exists(Query query){
+        return exists(query.getCondition());
     }
     
     /**
@@ -541,6 +598,10 @@ public class BuguDao {
     public List distinct(String key){
         return coll.distinct(key);
     }
+    
+    public List distinct(String key, Query query){
+        return distinct(key, query.getCondition());
+    }
 
     public List distinct(String key, DBObject query){
         return coll.distinct(key, query);
@@ -562,6 +623,15 @@ public class BuguDao {
      */
     public long count(String key, Object value){
         return count(new BasicDBObject(key, value));
+    }
+    
+    /**
+     * Count by condition
+     * @param query the condition
+     * @return 
+     */
+    public long count(Query query){
+        return count(query.getCondition());
     }
 
     /**
