@@ -18,6 +18,8 @@ package com.bugull.mongo.fs;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -47,7 +49,7 @@ public class Uploader {
         fs = BuguFS.getInstance();
         try{
             this.input = new FileInputStream(file);
-        }catch(Exception e){
+        }catch(FileNotFoundException e){
             logger.error(e.getMessage());
         }
         this.originalName = originalName;
@@ -117,7 +119,7 @@ public class Uploader {
         fs.save(input, filename, folder, params);
         try{
             input.close();
-        }catch(Exception e){
+        }catch(IOException e){
             logger.error(e.getMessage());
         }
     }
