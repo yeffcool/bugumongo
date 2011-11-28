@@ -46,7 +46,7 @@ public class BuguIndex {
     private int poolSize = 10;
     
     private ScheduledExecutorService scheduler;
-    private long period = 60L * 1000L;  //one minute
+    private long period = 30L * 1000L;  //30 seconds
     
     private boolean reopening = false;
     
