@@ -15,6 +15,8 @@
 
 package com.bugull.mongo;
 
+import com.bugull.mongo.mapper.MapperUtil;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -38,7 +40,11 @@ public class AdvancedDao extends BuguDao{
     }
     
     public double max(String key){
-        return max(key, null);
+        return max(key, new BasicDBObject());
+    }
+    
+    public double max(String key, Query query){
+        return max(key, query.getCondition());
     }
     
     public double max(String key, DBObject query){
@@ -55,7 +61,11 @@ public class AdvancedDao extends BuguDao{
     }
     
     public double min(String key){
-        return min(key, null);
+        return min(key, new BasicDBObject());
+    }
+    
+    public double min(String key, Query query){
+        return min(key, query.getCondition());
     }
     
     public double min(String key, DBObject query){
@@ -72,7 +82,11 @@ public class AdvancedDao extends BuguDao{
     }
     
     public double sum(String key){
-        return sum(key, null);
+        return sum(key, new BasicDBObject());
+    }
+    
+    public double sum(String key, Query query){
+        return sum(key, query.getCondition());
     }
     
     public double sum(String key, DBObject query){
@@ -93,13 +107,13 @@ public class AdvancedDao extends BuguDao{
         return (ArrayList)dbo;
     }
     
-    public Iterable<DBObject> group(DBObject key, DBObject query, DBObject initial, String reduce){
-        DBObject dbo = coll.group(key, query, initial, reduce);
+    public Iterable<DBObject> group(DBObject keys, DBObject query, DBObject initial, String reduce){
+        DBObject dbo = coll.group(keys, query, initial, reduce);
         return (ArrayList)dbo;
     }
     
-    public Iterable<DBObject> group(DBObject key, DBObject query, DBObject initial, String reduce, String finalize){
-        DBObject dbo = coll.group(key, query, initial, reduce, finalize);
+    public Iterable<DBObject> group(DBObject keys, DBObject query, DBObject initial, String reduce, String finalize){
+        DBObject dbo = coll.group(keys, query, initial, reduce, finalize);
         return (ArrayList)dbo;
     }
     
@@ -111,17 +125,25 @@ public class AdvancedDao extends BuguDao{
         return coll.mapReduce(map, reduce, null, OutputType.INLINE, null).results();
     }
     
+    public Iterable<DBObject> mapReduce(String map, String reduce, Query query) {
+        return mapReduce(map, reduce, query.getCondition());
+    }
+    
     public Iterable<DBObject> mapReduce(String map, String reduce, DBObject query) {
         return coll.mapReduce(map, reduce, null, OutputType.INLINE, query).results();
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, DBObject orderBy, DBObject query) {
+    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, Query query) {
+        return mapReduce(map, reduce, outputTarget, outputType, orderBy, query.getCondition());
+    }
+    
+    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, DBObject query) {
         synchronized(outputTarget){
             MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
             DBCollection c = output.getOutputCollection();
             DBCursor cursor = null;
             if(orderBy != null){
-                cursor = c.find().sort(orderBy);
+                cursor = c.find().sort(MapperUtil.getSort(orderBy));
             }else{
                 cursor = c.find();
             }
@@ -133,13 +155,17 @@ public class AdvancedDao extends BuguDao{
         }
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, DBObject orderBy, int pageNum, int pageSize, DBObject query) {
+    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, int pageNum, int pageSize, Query query) {
+        return mapReduce(map, reduce, outputTarget, outputType, orderBy, pageNum, pageSize, query.getCondition());
+    }
+    
+    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, int pageNum, int pageSize, DBObject query) {
         synchronized(outputTarget){
             MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
             DBCollection c = output.getOutputCollection();
             DBCursor cursor = null;
             if(orderBy != null){
-                cursor = c.find().sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
+                cursor = c.find().sort(MapperUtil.getSort(orderBy)).skip((pageNum-1)*pageSize).limit(pageSize);
             }else{
                 cursor = c.find().skip((pageNum-1)*pageSize).limit(pageSize);
             }
