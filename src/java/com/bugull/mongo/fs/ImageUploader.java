@@ -27,6 +27,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
 import org.apache.log4j.Logger;
@@ -162,7 +163,7 @@ public class ImageUploader extends Uploader{
         BufferedImage bi = null;
         try {
             bi = ImageIO.read(f);
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             logger.error(ex);
         }
         return bi;
@@ -173,7 +174,7 @@ public class ImageUploader extends Uploader{
         try {
             bi = ImageIO.read(is);
             is.close();
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             logger.error(ex);
         }
         return bi;
@@ -183,14 +184,14 @@ public class ImageUploader extends Uploader{
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             ImageIO.write(bi, getExtention(), baos);
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             logger.error(ex);
         }
         fs.save(baos.toByteArray(), filename, folder, params);
         try{
             baos.close();
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        }catch(IOException ex){
+            logger.error(ex.getMessage());
         }
     }
     
