@@ -84,7 +84,7 @@ public class IndexRebuildTask implements Runnable{
             creator.create(doc);
             try{
                 writer.addDocument(doc);
-            }catch(IOException e){
+            }catch(Exception e){
                 logger.error(e.getMessage());
             }
         }
