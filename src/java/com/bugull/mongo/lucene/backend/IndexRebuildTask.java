@@ -74,11 +74,6 @@ public class IndexRebuildTask implements Runnable{
             BuguEntity obj = (BuguEntity)o;
             process(obj);
         }
-        try{
-            writer.commit();
-        }catch(Exception e){
-            logger.error(e.getMessage());
-        }
     }
     
     private void process(BuguEntity obj){
