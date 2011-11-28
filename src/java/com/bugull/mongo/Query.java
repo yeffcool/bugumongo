@@ -206,12 +206,12 @@ public class Query {
         return this;
     }
     
-    public Query exists(String key){
+    public Query existsField(String key){
         append(key, Operator.EXISTS, Boolean.TRUE);
         return this;
     }
     
-    public Query notExists(String key){
+    public Query notExistsField(String key){
         append(key, Operator.EXISTS, Boolean.FALSE);
         return this;
     }
@@ -271,6 +271,19 @@ public class Query {
     
     public long count(){
         return coll.count(condition);
+    }
+    
+    public boolean exists(){
+        DBObject dbo = coll.findOne(condition);
+        if(dbo != null){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    public List distinct(String key){
+        return coll.distinct(key, condition);
     }
 
     public DBObject getCondition() {

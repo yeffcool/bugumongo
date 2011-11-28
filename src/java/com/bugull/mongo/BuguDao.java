@@ -468,15 +468,6 @@ public class BuguDao {
      * @param query the condition
      * @return 
      */
-    public boolean exists(Query query){
-        return exists(query.getCondition());
-    }
-    
-    /**
-     * Check if any entity match the condition
-     * @param query the condition
-     * @return 
-     */
     public boolean exists(DBObject query){
         DBObject dbo = coll.findOne(query);
         if(dbo != null){
@@ -598,10 +589,6 @@ public class BuguDao {
     public List distinct(String key){
         return coll.distinct(key);
     }
-    
-    public List distinct(String key, Query query){
-        return distinct(key, query.getCondition());
-    }
 
     public List distinct(String key, DBObject query){
         return coll.distinct(key, query);
@@ -623,15 +610,6 @@ public class BuguDao {
      */
     public long count(String key, Object value){
         return count(new BasicDBObject(key, value));
-    }
-    
-    /**
-     * Count by condition
-     * @param query the condition
-     * @return 
-     */
-    public long count(Query query){
-        return count(query.getCondition());
     }
 
     /**
