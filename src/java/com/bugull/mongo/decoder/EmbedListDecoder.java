@@ -77,8 +77,10 @@ public class EmbedListDecoder extends AbstractDecoder{
         }
         try{
             field.set(obj, arr);
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        }catch(IllegalArgumentException ex){
+            logger.error(ex.getMessage());
+        }catch(IllegalAccessException ex){
+            logger.error(ex.getMessage());
         }
     }
     
@@ -97,8 +99,10 @@ public class EmbedListDecoder extends AbstractDecoder{
             else if(DataType.isSet(typeName)){
                 field.set(obj, new HashSet(result));
             }
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        }catch(IllegalArgumentException ex){
+            logger.error(ex.getMessage());
+        }catch(IllegalAccessException ex){
+            logger.error(ex.getMessage());
         }
     }
     
@@ -112,8 +116,10 @@ public class EmbedListDecoder extends AbstractDecoder{
         }
         try{
             field.set(obj, result);
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        }catch(IllegalArgumentException ex){
+            logger.error(ex.getMessage());
+        }catch(IllegalAccessException ex){
+            logger.error(ex.getMessage());
         }
     }
     

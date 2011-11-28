@@ -37,8 +37,10 @@ public class IdDecoder extends AbstractDecoder{
     public void decode(Object obj){
         try{
             field.set(obj, value.toString());
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        }catch(IllegalArgumentException ex){
+            logger.error(ex.getMessage());
+        }catch(IllegalAccessException ex){
+            logger.error(ex.getMessage());
         }
     }
     

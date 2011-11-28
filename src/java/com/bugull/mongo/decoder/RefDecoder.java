@@ -62,8 +62,10 @@ public class RefDecoder extends AbstractDecoder{
         }
         try{
             field.set(obj, refObj);
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        }catch(IllegalArgumentException ex){
+            logger.error(ex.getMessage());
+        }catch(IllegalAccessException ex){
+            logger.error(ex.getMessage());
         }
     }
     

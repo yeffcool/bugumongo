@@ -46,8 +46,10 @@ public class EmbedDecoder extends AbstractDecoder{
         Object o = MapperUtil.fromDBObject(field.getType(), (DBObject)value);
         try{
             field.set(obj, o);
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        }catch(IllegalArgumentException ex){
+            logger.error(ex.getMessage());
+        }catch(IllegalAccessException ex){
+            logger.error(ex.getMessage());
         }
     }
     

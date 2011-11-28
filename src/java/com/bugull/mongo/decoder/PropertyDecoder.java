@@ -58,12 +58,14 @@ public class PropertyDecoder extends AbstractDecoder{
             }else{
                 decodePrimitive(obj, type.getName());
             }
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        }catch(IllegalArgumentException ex){
+            logger.error(ex.getMessage());
+        }catch(IllegalAccessException ex){
+            logger.error(ex.getMessage());
         }
     }
     
-    private void decodeArray(Object obj, ArrayList list, String typeName) throws Exception{
+    private void decodeArray(Object obj, ArrayList list, String typeName) throws IllegalArgumentException, IllegalAccessException{
         int size = list.size();
         if(DataType.isString(typeName)){
             String[] arr = new String[size];
@@ -186,7 +188,7 @@ public class PropertyDecoder extends AbstractDecoder{
         }
     }
     
-    private void decodePrimitive(Object obj, String typeName) throws Exception {
+    private void decodePrimitive(Object obj, String typeName) throws IllegalArgumentException, IllegalAccessException{
         if(DataType.isInteger(typeName)){
             field.setInt(obj, Integer.parseInt(value.toString()));
         }
