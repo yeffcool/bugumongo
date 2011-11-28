@@ -79,8 +79,22 @@ public class PropertyDecoder extends AbstractDecoder{
             }
             field.set(obj, arr);
         }
+        else if(DataType.isIntegerObject(typeName)){
+            Integer[] arr = new Integer[size];
+            for(int i=0; i<size; i++){
+                arr[i] = Integer.parseInt(list.get(i).toString());
+            }
+            field.set(obj, arr);
+        }
         else if(DataType.isLong(typeName)){
             long[] arr = new long[size];
+            for(int i=0; i<size; i++){
+                arr[i] = Long.parseLong(list.get(i).toString());
+            }
+            field.set(obj, arr);
+        }
+        else if(DataType.isLongObject(typeName)){
+            Long[] arr = new Long[size];
             for(int i=0; i<size; i++){
                 arr[i] = Long.parseLong(list.get(i).toString());
             }
@@ -93,8 +107,22 @@ public class PropertyDecoder extends AbstractDecoder{
             }
             field.set(obj, arr);
         }
+        else if(DataType.isShortObject(typeName)){
+            Short[] arr = new Short[size];
+            for(int i=0; i<size; i++){
+                arr[i] = Short.parseShort(list.get(i).toString());
+            }
+            field.set(obj, arr);
+        }
         else if(DataType.isFloat(typeName)){
             float[] arr = new float[size];
+            for(int i=0; i<size; i++){
+                arr[i] = Float.parseFloat(list.get(i).toString());
+            }
+            field.set(obj, arr);
+        }
+        else if(DataType.isFloatObject(typeName)){
+            Float[] arr = new Float[size];
             for(int i=0; i<size; i++){
                 arr[i] = Float.parseFloat(list.get(i).toString());
             }
@@ -107,6 +135,13 @@ public class PropertyDecoder extends AbstractDecoder{
             }
             field.set(obj, arr);
         }
+        else if(DataType.isDoubleObject(typeName)){
+            Double[] arr = new Double[size];
+            for(int i=0; i<size; i++){
+                arr[i] = Double.parseDouble(list.get(i).toString());
+            }
+            field.set(obj, arr);
+        }
         else if(DataType.isBoolean(typeName)){
             boolean[] arr = new boolean[size];
             for(int i=0; i<size; i++){
@@ -114,8 +149,22 @@ public class PropertyDecoder extends AbstractDecoder{
             }
             field.set(obj, arr);
         }
+        else if(DataType.isBooleanObject(typeName)){
+            Boolean[] arr = new Boolean[size];
+            for(int i=0; i<size; i++){
+                arr[i] = Boolean.parseBoolean(list.get(i).toString());
+            }
+            field.set(obj, arr);
+        }
         else if(DataType.isChar(typeName)){
             char[] arr = new char[size];
+            for(int i=0; i<size; i++){
+                arr[i] = list.get(i).toString().charAt(0);
+            }
+            field.set(obj, arr);
+        }
+        else if(DataType.isCharObject(typeName)){
+            Character[] arr = new Character[size];
             for(int i=0; i<size; i++){
                 arr[i] = list.get(i).toString().charAt(0);
             }
@@ -170,7 +219,7 @@ public class PropertyDecoder extends AbstractDecoder{
             field.set(obj, ts);
         }
         else{
-            field.set(obj, value);
+            field.set(obj, value);  //Date, List, Integer, Long, Float, Double and so on
         }
     }
     

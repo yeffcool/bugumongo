@@ -63,48 +63,51 @@ public class PropertyFieldHandler extends AbstractFieldHandler{
     
     private void processPrimitive(Document doc, boolean analyze, boolean store, float boost) throws Exception{
         Class<?> type = field.getType();
+        Object objValue = field.get(obj);
         String fieldName = prefix + field.getName();
         String typeName = type.getName();
         Fieldable f = null;
         if(DataType.isString(typeName)){
-            String fieldValue = field.get(obj).toString();
-            f = new Field(fieldName, fieldValue,
+            f = new Field(fieldName, objValue.toString(),
                     store ? Field.Store.YES : Field.Store.NO,
                     analyze ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
         }
-        else if(DataType.isBoolean(typeName)){
-            String fieldValue = field.getBoolean(obj) ? "true" : "false";
-            f = new Field(fieldName, fieldValue, Field.Store.NO, Field.Index.NOT_ANALYZED);
+        else if(DataType.isBoolean(typeName) || DataType.isBooleanObject(typeName)){
+            f = new Field(fieldName, objValue.toString(), Field.Store.NO, Field.Index.NOT_ANALYZED);
         }
-        else if(DataType.isChar(typeName)){
-            String fieldValue = String.valueOf(field.getChar(obj));
-            f = new Field(fieldName, fieldValue, Field.Store.NO, Field.Index.NOT_ANALYZED);
+        else if(DataType.isChar(typeName) || DataType.isCharObject(typeName)){
+            f = new Field(fieldName, objValue.toString(), Field.Store.NO, Field.Index.NOT_ANALYZED);
         }
-        else if(DataType.isInteger(typeName)){
-            f = new NumericField(fieldName).setIntValue(field.getInt(obj));
+        else if(DataType.isInteger(typeName) || DataType.isIntegerObject(typeName)){
+            int v = Integer.parseInt(objValue.toString());
+            f = new NumericField(fieldName).setIntValue(v);
         }
-        else if(DataType.isLong(typeName)){
-            f = new NumericField(fieldName).setLongValue(field.getLong(obj));
+        else if(DataType.isLong(typeName) || DataType.isLongObject(typeName)){
+            long v = Long.parseLong(objValue.toString());
+            f = new NumericField(fieldName).setLongValue(v);
         }
-        else if(DataType.isShort(typeName)){
-            f = new NumericField(fieldName).setIntValue(field.getShort(obj));
+        else if(DataType.isShort(typeName) || DataType.isShortObject(typeName)){
+            short v = Short.parseShort(objValue.toString());
+            f = new NumericField(fieldName).setIntValue(v);
         }
-        else if(DataType.isFloat(typeName)){
-            f = new NumericField(fieldName).setFloatValue(field.getFloat(obj));
+        else if(DataType.isFloat(typeName) || DataType.isFloatObject(typeName)){
+            float v = Float.parseFloat(objValue.toString());
+            f = new NumericField(fieldName).setFloatValue(v);
         }
-        else if(DataType.isDouble(typeName)){
-            f = new NumericField(fieldName).setDoubleValue(field.getDouble(obj));
+        else if(DataType.isDouble(typeName) || DataType.isDoubleObject(typeName)){
+            double v = Double.parseDouble(objValue.toString());
+            f = new NumericField(fieldName).setDoubleValue(v);
         }
         else if(DataType.isDate(typeName)){
-            Date date = (Date)field.get(obj);
+            Date date = (Date)objValue;
             f = new NumericField(fieldName).setLongValue(date.getTime());
         }
         else if(DataType.isTimestamp(typeName)){
-            Timestamp ts = (Timestamp)field.get(obj);
+            Timestamp ts = (Timestamp)objValue;
             f = new NumericField(fieldName).setLongValue(ts.getTime());
         }
         else if(DataType.isSet(typeName) || DataType.isList(typeName)){
-            Collection coll = (Collection)field.get(obj);
+            Collection coll = (Collection)objValue;
             StringBuilder sb = new StringBuilder();
             for(Object o : coll){
                 sb.append(o).append(JOIN);

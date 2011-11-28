@@ -73,33 +73,30 @@ public class CompareChecker {
     
     private boolean isEquals(Field f, String value) throws Exception {
         String typeName = f.getType().getName();
+        String objStr = f.get(obj).toString();
         if(DataType.isString(typeName)){
-            String fieldValue = f.get(obj).toString();
-            return value.equals(fieldValue);
+            return value.equals(objStr);
         }
-        else if(DataType.isBoolean(typeName)){
-            boolean fieldValue = f.getBoolean(obj);
-            return  fieldValue == Boolean.parseBoolean(value);
+        else if(DataType.isBoolean(typeName) || DataType.isBooleanObject(typeName)){
+            return  Boolean.parseBoolean(objStr) == Boolean.parseBoolean(value);
         }
-        else if(DataType.isChar(typeName)){
-            char fieldValue = f.getChar(obj);
-            return fieldValue == value.charAt(0);
+        else if(DataType.isChar(typeName) || DataType.isCharObject(typeName)){
+            return objStr.charAt(0) == value.charAt(0);
         }
-        else if(DataType.isInteger(typeName)){
-            int fieldValue = f.getInt(obj);
-            return fieldValue == Integer.parseInt(value);
+        else if(DataType.isInteger(typeName) || DataType.isIntegerObject(typeName)){
+            return Integer.parseInt(objStr) == Integer.parseInt(value);
         }
-        else if(DataType.isLong(typeName)){
-            long fieldValue = f.getLong(obj);
-            return fieldValue == Long.parseLong(value);
+        else if(DataType.isLong(typeName) || DataType.isLongObject(typeName)){
+            return Long.parseLong(objStr) == Long.parseLong(value);
         }
-        else if(DataType.isFloat(typeName)){
-            float fieldValue = f.getFloat(obj);
-            return fieldValue == Float.parseFloat(value);
+        else if(DataType.isShort(typeName) || DataType.isShortObject(typeName)){
+            return Short.parseShort(objStr) == Short.parseShort(value);
         }
-        else if(DataType.isDouble(typeName)){
-            double fieldValue = f.getDouble(obj);
-            return fieldValue == Double.parseDouble(value);
+        else if(DataType.isFloat(typeName) || DataType.isFloatObject(typeName)){
+            return Float.parseFloat(objStr) == Float.parseFloat(value);
+        }
+        else if(DataType.isDouble(typeName) || DataType.isDoubleObject(typeName)){
+            return Double.parseDouble(objStr) == Double.parseDouble(value);
         }
         else{
             return false;
@@ -112,21 +109,21 @@ public class CompareChecker {
     
     private boolean greaterThan(Field f, String value) throws Exception{
         String typeName = f.getType().getName();
-        if(DataType.isInteger(typeName)){
-            int fieldValue = f.getInt(obj);
-            return fieldValue > Integer.parseInt(value);
+        String objStr = f.get(obj).toString();
+        if(DataType.isInteger(typeName) || DataType.isIntegerObject(typeName)){
+            return Integer.parseInt(objStr) > Integer.parseInt(value);
         }
-        else if(DataType.isLong(typeName)){
-            long fieldValue = f.getLong(obj);
-            return fieldValue > Long.parseLong(value);
+        else if(DataType.isLong(typeName) || DataType.isLongObject(typeName)){
+            return Long.parseLong(objStr) > Long.parseLong(value);
         }
-        else if(DataType.isFloat(typeName)){
-            float fieldValue = f.getFloat(obj);
-            return fieldValue > Float.parseFloat(value);
+        else if(DataType.isShort(typeName) || DataType.isShortObject(typeName)){
+            return Short.parseShort(objStr) > Short.parseShort(value);
         }
-        else if(DataType.isDouble(typeName)){
-            double fieldValue = f.getDouble(obj);
-            return fieldValue > Double.parseDouble(value);
+        else if(DataType.isFloat(typeName) || DataType.isFloatObject(typeName)){
+            return Float.parseFloat(objStr) > Float.parseFloat(value);
+        }
+        else if(DataType.isDouble(typeName) || DataType.isDoubleObject(typeName)){
+            return Double.parseDouble(objStr) > Double.parseDouble(value);
         }
         else{
             return false;
@@ -135,21 +132,21 @@ public class CompareChecker {
     
     private boolean greaterThanEquals(Field f, String value) throws Exception{
         String typeName = f.getType().getName();
-        if(DataType.isInteger(typeName)){
-            int fieldValue = f.getInt(obj);
-            return fieldValue >= Integer.parseInt(value);
+        String objStr = f.get(obj).toString();
+        if(DataType.isInteger(typeName) || DataType.isIntegerObject(typeName)){
+            return Integer.parseInt(objStr) >= Integer.parseInt(value);
         }
-        else if(DataType.isLong(typeName)){
-            long fieldValue = f.getLong(obj);
-            return fieldValue >= Long.parseLong(value);
+        else if(DataType.isLong(typeName) || DataType.isLongObject(typeName)){
+            return Long.parseLong(objStr) >= Long.parseLong(value);
         }
-        else if(DataType.isFloat(typeName)){
-            float fieldValue = f.getFloat(obj);
-            return fieldValue >= Float.parseFloat(value);
+        else if(DataType.isShort(typeName) || DataType.isShortObject(typeName)){
+            return Short.parseShort(objStr) >= Short.parseShort(value);
         }
-        else if(DataType.isDouble(typeName)){
-            double fieldValue = f.getDouble(obj);
-            return fieldValue >= Double.parseDouble(value);
+        else if(DataType.isFloat(typeName) || DataType.isFloatObject(typeName)){
+            return Float.parseFloat(objStr) >= Float.parseFloat(value);
+        }
+        else if(DataType.isDouble(typeName) || DataType.isDoubleObject(typeName)){
+            return Double.parseDouble(objStr) >= Double.parseDouble(value);
         }
         else{
             return false;
