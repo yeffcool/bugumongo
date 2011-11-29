@@ -21,6 +21,7 @@ import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.IndexRefBy;
 import com.bugull.mongo.mapper.DataType;
+import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -45,9 +46,9 @@ public class RefListFieldHandler extends AbstractFieldHandler{
     }
 
     @Override
-    public void handle(Document doc) throws Exception{
+    public void handle(Document doc){
         Class clazz = null;
-        Object value = field.get(obj);
+        Object value = FieldUtil.get(obj, field);
         Class<?> type = field.getType();
         ObjectId[] ids = null;
         if(type.isArray()){

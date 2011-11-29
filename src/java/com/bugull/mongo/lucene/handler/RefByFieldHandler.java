@@ -34,7 +34,7 @@ public class RefByFieldHandler extends ListPropertyFieldHandler{
     }
 
     @Override
-    public void handle(Document doc) throws Exception {
+    public void handle(Document doc){
         IndexRefBy irb = field.getAnnotation(IndexRefBy.class);
         Class<?>[] cls = irb.value();
         int len = cls.length;

@@ -17,19 +17,17 @@ package com.bugull.mongo.decoder;
 
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Embed;
+import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
-import org.apache.log4j.Logger;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class EmbedDecoder extends AbstractDecoder{
-    
-    private final static Logger logger = Logger.getLogger(EmbedDecoder.class);
-    
+        
     public EmbedDecoder(Field field, DBObject dbo){
         super(field, dbo);
         String fieldName = field.getName();
@@ -44,13 +42,7 @@ public class EmbedDecoder extends AbstractDecoder{
     @Override
     public void decode(Object obj){
         Object o = MapperUtil.fromDBObject(field.getType(), (DBObject)value);
-        try{
-            field.set(obj, o);
-        }catch(IllegalArgumentException ex){
-            logger.error(ex.getMessage());
-        }catch(IllegalAccessException ex){
-            logger.error(ex.getMessage());
-        }
+        FieldUtil.set(obj, field, o);
     }
     
 }

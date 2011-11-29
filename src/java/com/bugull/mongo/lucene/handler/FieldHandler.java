@@ -22,6 +22,6 @@ import org.apache.lucene.document.Document;
  */
 public interface FieldHandler {
     
-    public void handle(Document doc) throws Exception;
+    public void handle(Document doc);
     
 }

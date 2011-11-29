@@ -17,6 +17,7 @@ package com.bugull.mongo.lucene.handler;
 
 import com.bugull.mongo.lucene.annotations.IndexProperty;
 import com.bugull.mongo.mapper.DataType;
+import com.bugull.mongo.mapper.FieldUtil;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
@@ -30,18 +31,18 @@ import org.apache.lucene.document.NumericField;
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class PropertyFieldHandler extends AbstractFieldHandler{
-    
+        
     public PropertyFieldHandler(Object obj, java.lang.reflect.Field field, String prefix){
         super(obj, field, prefix);
     }
 
     @Override
-    public void handle(Document doc) throws Exception{
+    public void handle(Document doc){
         IndexProperty ip = field.getAnnotation(IndexProperty.class);
         process(doc, ip.analyze(), ip.store(), ip.boost());
     }
     
-    protected void process(Document doc, boolean analyze, boolean store, float boost) throws Exception {
+    protected void process(Document doc, boolean analyze, boolean store, float boost) {
         Class<?> type = field.getType();
         if(type.isArray()){
             processArray(doc, analyze, store, boost);
@@ -50,20 +51,21 @@ public class PropertyFieldHandler extends AbstractFieldHandler{
         }
     }
     
-    private void processArray(Document doc, boolean analyze, boolean store, float boost) throws Exception{
+    private void processArray(Document doc, boolean analyze, boolean store, float boost) {
         Class<?> type = field.getType();
         String typeName = type.getComponentType().getName();
         String fieldName = prefix + field.getName();
-        Field f = new Field(fieldName, getArrayString(field.get(obj), typeName),
+        Object objValue = FieldUtil.get(obj, field);
+        Field f = new Field(fieldName, getArrayString(objValue, typeName),
                     store ? Field.Store.YES : Field.Store.NO,
                     analyze ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
         f.setBoost(boost);
         doc.add(f);
     }
     
-    private void processPrimitive(Document doc, boolean analyze, boolean store, float boost) throws Exception{
+    private void processPrimitive(Document doc, boolean analyze, boolean store, float boost) {
         Class<?> type = field.getType();
-        Object objValue = field.get(obj);
+        Object objValue = FieldUtil.get(obj, field);
         String fieldName = prefix + field.getName();
         String typeName = type.getName();
         Fieldable f = null;

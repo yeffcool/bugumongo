@@ -19,6 +19,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
+import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.queryParser.QueryParser.Operator;
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -59,8 +60,8 @@ public class BuguParser {
         Query query = null;
         try{
             query = MultiFieldQueryParser.parse(index.getVersion(), value, fields, occurs, index.getAnalyzer());
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        }catch(ParseException ex){
+            logger.error(ex.getMessage());
         }
         return query;
     }
@@ -69,8 +70,8 @@ public class BuguParser {
         Query query = null;
         try{
             query = parser.parse(value);
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        }catch(ParseException ex){
+            logger.error(ex.getMessage());
         }
         return query;
     }

@@ -16,6 +16,7 @@
 package com.bugull.mongo.lucene.handler;
 
 import com.bugull.mongo.lucene.annotations.IndexProperty;
+import com.bugull.mongo.mapper.FieldUtil;
 import java.util.List;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -25,24 +26,24 @@ import org.apache.lucene.document.Field;
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class ListPropertyFieldHandler extends PropertyFieldHandler{
-    
+        
     protected ListPropertyFieldHandler(Object obj, java.lang.reflect.Field field, String prefix){
         super(obj, field, prefix);
     }
     
     @Override
-    public void handle(Document doc) throws Exception{
+    public void handle(Document doc){
         IndexProperty ip = field.getAnnotation(IndexProperty.class);
         processList((List)obj, doc, ip.analyze(), ip.store(), ip.boost());
     }
     
-    protected void processList(List objList, Document doc, boolean analyze, boolean store, float boost) throws Exception{
+    protected void processList(List objList, Document doc, boolean analyze, boolean store, float boost){
         StringBuilder sb = new StringBuilder();
         Class<?> type = field.getType();
         if(type.isArray()){
             String typeName = type.getComponentType().getName();
             for(Object o : objList){
-                Object value = field.get(o);
+                Object value = FieldUtil.get(o, field);
                 if(value == null){
                     continue;
                 }
@@ -50,7 +51,7 @@ public class ListPropertyFieldHandler extends PropertyFieldHandler{
             }
         }else{
             for(Object o : objList){
-                String value = field.get(o).toString();
+                String value = FieldUtil.get(o, field).toString();
                 sb.append(value).append(JOIN);
             }
         }

@@ -49,9 +49,7 @@ public abstract class AbstractEncoder implements Encoder{
                     setValue(type.getName(), objValue);
                 }
             }
-        }catch(IllegalArgumentException ex){
-            logger.error(ex.getMessage());
-        }catch(IllegalAccessException ex){
+        }catch(Exception ex){
             logger.error(ex.getMessage());
         }
     }
@@ -61,7 +59,7 @@ public abstract class AbstractEncoder implements Encoder{
         return value == null;
     }
     
-    private void setArrayValue(String typeName, Object objValue) throws IllegalArgumentException, IllegalAccessException {
+    private void setArrayValue(String typeName, Object objValue) throws IllegalArgumentException, ArrayIndexOutOfBoundsException {
         int len = Array.getLength(objValue);
         if(DataType.isString(typeName)){
             String[] arr = new String[len];

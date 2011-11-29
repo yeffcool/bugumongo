@@ -18,6 +18,7 @@ package com.bugull.mongo.decoder;
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.EmbedList;
 import com.bugull.mongo.mapper.DataType;
+import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.mongodb.DBObject;
 import java.lang.reflect.Array;
@@ -29,15 +30,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class EmbedListDecoder extends AbstractDecoder{
-    
-    private final static Logger logger = Logger.getLogger(EmbedListDecoder.class);
     
     public EmbedListDecoder(Field field, DBObject dbo){
         super(field, dbo);
@@ -75,13 +73,7 @@ public class EmbedListDecoder extends AbstractDecoder{
             DBObject o = (DBObject)list.get(i);
             Array.set(arr, i, MapperUtil.fromDBObject(clazz, o));
         }
-        try{
-            field.set(obj, arr);
-        }catch(IllegalArgumentException ex){
-            logger.error(ex.getMessage());
-        }catch(IllegalAccessException ex){
-            logger.error(ex.getMessage());
-        }
+        FieldUtil.set(obj, field, arr);
     }
     
     private void decodeList(Object obj, Class clazz){
@@ -92,17 +84,11 @@ public class EmbedListDecoder extends AbstractDecoder{
             result.add(embedObj);
         }
         String typeName = field.getType().getName();
-        try{
-            if(DataType.isList(typeName)){
-                field.set(obj, result);
-            }
-            else if(DataType.isSet(typeName)){
-                field.set(obj, new HashSet(result));
-            }
-        }catch(IllegalArgumentException ex){
-            logger.error(ex.getMessage());
-        }catch(IllegalAccessException ex){
-            logger.error(ex.getMessage());
+        if(DataType.isList(typeName)){
+            FieldUtil.set(obj, field, result);
+        }
+        else if(DataType.isSet(typeName)){
+            FieldUtil.set(obj, field, new HashSet(result));
         }
     }
     
@@ -114,13 +100,7 @@ public class EmbedListDecoder extends AbstractDecoder{
             Object embedObj = MapperUtil.fromDBObject(clazz, (DBObject)val);
             result.put(key, embedObj);
         }
-        try{
-            field.set(obj, result);
-        }catch(IllegalArgumentException ex){
-            logger.error(ex.getMessage());
-        }catch(IllegalAccessException ex){
-            logger.error(ex.getMessage());
-        }
+        FieldUtil.set(obj, field, result);
     }
     
 }

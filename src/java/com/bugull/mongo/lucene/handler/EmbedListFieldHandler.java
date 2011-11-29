@@ -18,6 +18,7 @@ package com.bugull.mongo.lucene.handler;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.IndexProperty;
 import com.bugull.mongo.mapper.DataType;
+import com.bugull.mongo.mapper.FieldUtil;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -33,16 +34,16 @@ import org.apache.lucene.document.Document;
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class EmbedListFieldHandler extends AbstractFieldHandler{
-    
+     
     public EmbedListFieldHandler(Object obj, Field field, String prefix){
         super(obj, field, prefix);
     }
 
     @Override
-    public void handle(Document doc) throws Exception{
+    public void handle(Document doc) {
         List list = null;
         Class clazz = null;
-        Object value = field.get(obj);
+        Object value = FieldUtil.get(obj, field);
         Class<?> type = field.getType();
         if(type.isArray()){
             clazz = type.getComponentType();

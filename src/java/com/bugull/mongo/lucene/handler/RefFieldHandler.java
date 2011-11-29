@@ -20,6 +20,7 @@ import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.IndexRefBy;
+import com.bugull.mongo.mapper.FieldUtil;
 import java.lang.reflect.Field;
 import org.apache.lucene.document.Document;
 
@@ -34,8 +35,8 @@ public class RefFieldHandler extends AbstractFieldHandler{
     }
 
     @Override
-    public void handle(Document doc) throws Exception{
-        BuguEntity entity = (BuguEntity)field.get(obj);
+    public void handle(Document doc){
+        BuguEntity entity = (BuguEntity)FieldUtil.get(obj, field);
         String refId = entity.getId();
         Class<?> clazz = field.getType();
         BuguDao dao = DaoCache.getInstance().get(field.getType());

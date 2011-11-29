@@ -19,8 +19,8 @@ import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.BoostSwitch;
 import com.bugull.mongo.lucene.handler.FieldHandler;
 import com.bugull.mongo.lucene.handler.FieldHandlerFactory;
+import com.bugull.mongo.mapper.FieldUtil;
 import java.lang.reflect.Field;
-import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
 
 /**
@@ -28,8 +28,6 @@ import org.apache.lucene.document.Document;
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class IndexCreator{
-    
-    private final static Logger logger = Logger.getLogger(IndexCreator.class);
     
     protected Object obj;
     protected String prefix;
@@ -52,15 +50,12 @@ public class IndexCreator{
                     doc.setBoost(bs.unfit());
                 }
             }
-            try{
-                if(f.get(obj) != null){
-                    FieldHandler handler = FieldHandlerFactory.create(obj, f, prefix);
-                    if(handler != null){
-                        handler.handle(doc);
-                    }
+            Object objValue = FieldUtil.get(obj, f);
+            if(objValue != null){
+                FieldHandler handler = FieldHandlerFactory.create(obj, f, prefix);
+                if(handler != null){
+                    handler.handle(doc);
                 }
-            }catch(Exception e){
-                logger.error(e.getMessage());
             }
         }
     }

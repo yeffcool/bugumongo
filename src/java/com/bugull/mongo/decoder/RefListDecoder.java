@@ -22,6 +22,7 @@ import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.ConstructorCache;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.mapper.DataType;
+import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
@@ -36,7 +37,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 
 /**
@@ -44,8 +44,6 @@ import org.bson.types.ObjectId;
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class RefListDecoder extends AbstractDecoder{
-    
-    private final static Logger logger = Logger.getLogger(RefListDecoder.class);
     
     private RefList refList;
     
@@ -116,13 +114,7 @@ public class RefListDecoder extends AbstractDecoder{
                 Array.set(arr, i, entityList.get(i));
             }
         }
-        try{
-            field.set(obj, arr);
-        }catch(IllegalArgumentException ex){
-            logger.error(ex.getMessage());
-        }catch(IllegalAccessException ex){
-            logger.error(ex.getMessage());
-        }
+        FieldUtil.set(obj, field, arr);
     }
     
     private void decodeList(Object obj, Class clazz){
@@ -150,18 +142,12 @@ public class RefListDecoder extends AbstractDecoder{
                 result = dao.find(query, MapperUtil.getSort(sort));
             }
         }
-        try{
-            String typeName = field.getType().getName();
-            if(DataType.isList(typeName)){
-                field.set(obj, result);
-            }
-            else if(DataType.isSet(typeName)){
-                field.set(obj, new HashSet(result));
-            }
-        }catch(IllegalArgumentException ex){
-            logger.error(ex.getMessage());
-        }catch(IllegalAccessException ex){
-            logger.error(ex.getMessage());
+        String typeName = field.getType().getName();
+        if(DataType.isList(typeName)){
+            FieldUtil.set(obj, field, result);
+        }
+        else if(DataType.isSet(typeName)){
+            FieldUtil.set(obj, field, new HashSet(result));
         }
     }
     
@@ -183,13 +169,7 @@ public class RefListDecoder extends AbstractDecoder{
                 result.put(key, refObj);
             }
         }
-        try{
-            field.set(obj, result);
-        }catch(IllegalArgumentException ex){
-            logger.error(ex.getMessage());
-        }catch(IllegalAccessException ex){
-            logger.error(ex.getMessage());
-        }
+        FieldUtil.set(obj, field, result);
     }
     
 }

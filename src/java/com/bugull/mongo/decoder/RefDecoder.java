@@ -21,18 +21,16 @@ import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.cache.ConstructorCache;
 import com.bugull.mongo.cache.DaoCache;
+import com.bugull.mongo.mapper.FieldUtil;
 import com.mongodb.DBObject;
 import com.mongodb.DBRef;
 import java.lang.reflect.Field;
-import org.apache.log4j.Logger;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class RefDecoder extends AbstractDecoder{
-    
-    private final static Logger logger = Logger.getLogger(RefDecoder.class);
     
     private Ref ref;
     
@@ -60,13 +58,7 @@ public class RefDecoder extends AbstractDecoder{
             BuguDao dao = DaoCache.getInstance().get(clazz);
             refObj = (BuguEntity)dao.findOne(refId);
         }
-        try{
-            field.set(obj, refObj);
-        }catch(IllegalArgumentException ex){
-            logger.error(ex.getMessage());
-        }catch(IllegalAccessException ex){
-            logger.error(ex.getMessage());
-        }
+        FieldUtil.set(obj, field, refObj);
     }
     
 }

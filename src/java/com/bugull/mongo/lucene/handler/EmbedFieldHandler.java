@@ -16,6 +16,7 @@
 package com.bugull.mongo.lucene.handler;
 
 import com.bugull.mongo.lucene.backend.IndexCreator;
+import com.bugull.mongo.mapper.FieldUtil;
 import java.lang.reflect.Field;
 import org.apache.lucene.document.Document;
 
@@ -30,8 +31,8 @@ public class EmbedFieldHandler extends AbstractFieldHandler{
     }
 
     @Override
-    public void handle(Document doc) throws Exception{
-        Object embedObj = field.get(obj);
+    public void handle(Document doc){
+        Object embedObj = FieldUtil.get(obj, field);
         IndexCreator creator = new IndexCreator(embedObj, prefix);
         creator.create(doc);
     }
