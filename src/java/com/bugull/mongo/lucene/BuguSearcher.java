@@ -19,7 +19,9 @@ import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.cache.IndexSearcherCache;
+import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.MapperUtil;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -134,8 +136,8 @@ public class BuguSearcher {
             }else{
                 topDocs = searcher.search(query, filter, maxPage*pageSize, sort);
             }
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        }catch(IOException ex){
+            logger.error(ex.getMessage());
         }
         if(topDocs == null){
             return Collections.emptyList();
@@ -153,8 +155,8 @@ public class BuguSearcher {
             Document doc = null;
             try{
                 doc = searcher.doc(docs[i].doc);
-            }catch(Exception e){
-                logger.error(e.getMessage());
+            }catch(IOException ex){
+                logger.error(ex.getMessage());
             }
             String id = doc.get(FieldsCache.getInstance().getIdFieldName(clazz));
             list.add(dao.findOne(id));
@@ -164,13 +166,15 @@ public class BuguSearcher {
             for(Object obj : list){
                 String[] fields = highlighter.getFields();
                 for(String fieldName : fields){
+                    Field field = FieldsCache.getInstance().getField(clazz, fieldName);
+                    String fieldValue = FieldUtil.get(obj, field).toString();
+                    String result = null;
                     try{
-                        Field field = FieldsCache.getInstance().getField(clazz, fieldName);
-                        String fieldValue = field.get(obj).toString();
-                        field.set(obj, highlighter.getResult(fieldName, fieldValue));
+                        result = highlighter.getResult(fieldName, fieldValue);
                     }catch(Exception e){
                         logger.error(e.getMessage());
                     }
+                    FieldUtil.set(obj, field, result);
                 }
             }
         }
@@ -180,8 +184,8 @@ public class BuguSearcher {
     public void close(){
         try{
             reader.decRef();
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        }catch(IOException ex){
+            logger.error(ex.getMessage());
         }
     }
     
