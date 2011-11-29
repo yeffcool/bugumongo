@@ -16,6 +16,7 @@
 package com.bugull.mongo.encoder;
 
 import com.bugull.mongo.mapper.DataType;
+import com.bugull.mongo.mapper.FieldUtil;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
@@ -37,20 +38,21 @@ public abstract class AbstractEncoder implements Encoder{
     protected AbstractEncoder(Object obj, Field field){
         this.obj = obj;
         this.field = field;
-        try{
-            Object objValue = field.get(obj);
-            if(objValue == null){
-                value = null;
-            }else{
-                Class<?> type = field.getType();
+        Object objValue = FieldUtil.get(obj, field);
+        if(objValue == null){
+            value = null;
+        }
+        else{
+            Class<?> type = field.getType();
+            try{
                 if(type.isArray()){
                     setArrayValue(type.getComponentType(), objValue);
                 }else{
                     setValue(type, objValue);
                 }
+            }catch(Exception ex){
+                logger.error(ex.getMessage());
             }
-        }catch(Exception ex){
-            logger.error(ex.getMessage());
         }
     }
     
