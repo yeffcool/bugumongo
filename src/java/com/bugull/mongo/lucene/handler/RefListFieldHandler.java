@@ -64,15 +64,14 @@ public class RefListFieldHandler extends AbstractFieldHandler{
             Type[] types = paramType.getActualTypeArguments();
             if(types.length == 1){
                 clazz = (Class)types[0];
-                String typeName = type.getName();
-                if(DataType.isList(typeName)){
+                if(DataType.isList(type)){
                     List<BuguEntity> li = (List<BuguEntity>)value;
                     int size = li.size();
                     ids = new ObjectId[size];
                     for(int i=0; i<size; i++){
                         ids[i] = new ObjectId(li.get(i).getId());
                     }
-                }else if(DataType.isSet(typeName)){
+                }else if(DataType.isSet(type)){
                     Set<BuguEntity> set = (Set<BuguEntity>)value;
                     int size = set.size();
                     ids = new ObjectId[size];

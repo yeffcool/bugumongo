@@ -57,10 +57,9 @@ public class EmbedListFieldHandler extends AbstractFieldHandler{
             Type[] types = paramType.getActualTypeArguments();
             if(types.length == 1){
                 clazz = (Class)types[0];
-                String typeName = type.getName();
-                if(DataType.isList(typeName)){
+                if(DataType.isList(type)){
                     list = (List)value;
-                }else if(DataType.isSet(typeName)){
+                }else if(DataType.isSet(type)){
                     Set set = (Set)value;
                     list = new ArrayList();
                     list.addAll(set);

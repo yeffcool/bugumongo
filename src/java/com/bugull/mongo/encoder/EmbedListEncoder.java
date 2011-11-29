@@ -56,7 +56,7 @@ public class EmbedListEncoder extends AbstractEncoder{
         if(type.isArray()){
             return encodeArray();
         }else{
-            return encodeList(type.getName());
+            return encodeList(type);
         }
     }
     
@@ -69,8 +69,8 @@ public class EmbedListEncoder extends AbstractEncoder{
         return objs;
     }
     
-    private Object encodeList(String typeName){
-        if(DataType.isList(typeName)){
+    private Object encodeList(Class type){
+        if(DataType.isList(type)){
             List list = (ArrayList)value;
             List<DBObject> result = new ArrayList<DBObject>();
             for(Object o : list){
@@ -78,7 +78,7 @@ public class EmbedListEncoder extends AbstractEncoder{
             }
             return result;
         }
-        else if(DataType.isSet(typeName)){
+        else if(DataType.isSet(type)){
             Set set = (Set)value;
             Set<DBObject> result = new HashSet<DBObject>();
             for(Object o : set){
@@ -86,7 +86,7 @@ public class EmbedListEncoder extends AbstractEncoder{
             }
             return result;
         }
-        else if(DataType.isMap(typeName)){
+        else if(DataType.isMap(type)){
             Map map = (Map)value;
             Map result = new HashMap();
             for(Object key : map.keySet()){

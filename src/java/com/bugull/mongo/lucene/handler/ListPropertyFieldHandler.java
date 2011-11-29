@@ -41,13 +41,12 @@ public class ListPropertyFieldHandler extends PropertyFieldHandler{
         StringBuilder sb = new StringBuilder();
         Class<?> type = field.getType();
         if(type.isArray()){
-            String typeName = type.getComponentType().getName();
             for(Object o : objList){
                 Object value = FieldUtil.get(o, field);
                 if(value == null){
                     continue;
                 }
-                sb.append(getArrayString(value, typeName)).append(JOIN);
+                sb.append(getArrayString(value, type.getComponentType())).append(JOIN);
             }
         }else{
             for(Object o : objList){

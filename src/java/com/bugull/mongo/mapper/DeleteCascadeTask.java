@@ -95,7 +95,7 @@ public class DeleteCascadeTask implements Runnable{
             int len = types.length;
             if(len == 1){
                 clazz = (Class)types[0];
-                objs = getListIds(value, type.getName());
+                objs = getListIds(value, type);
             }else if(len == 2){
                 clazz = (Class)types[1];
                 objs = getMapIds(value);
@@ -117,9 +117,9 @@ public class DeleteCascadeTask implements Runnable{
         return objs;
     }
     
-    private ObjectId[] getListIds(Object value, String typeName){
+    private ObjectId[] getListIds(Object value, Class type){
         ObjectId[] objs = null;
-        if(DataType.isList(typeName)){
+        if(DataType.isList(type)){
             List<BuguEntity> list = (List<BuguEntity>)value;
             int len = list.size();
             objs = new ObjectId[len];
@@ -128,7 +128,7 @@ public class DeleteCascadeTask implements Runnable{
                 objs[i++] = new ObjectId(obj.getId());
             }
         }
-        else if(DataType.isSet(typeName)){
+        else if(DataType.isSet(type)){
             Set<BuguEntity> set = (Set<BuguEntity>)value;
             int len = set.size();
             objs = new ObjectId[len];

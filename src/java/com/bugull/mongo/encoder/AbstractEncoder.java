@@ -44,9 +44,9 @@ public abstract class AbstractEncoder implements Encoder{
             }else{
                 Class<?> type = field.getType();
                 if(type.isArray()){
-                    setArrayValue(type.getComponentType().getName(), objValue);
+                    setArrayValue(type.getComponentType(), objValue);
                 }else{
-                    setValue(type.getName(), objValue);
+                    setValue(type, objValue);
                 }
             }
         }catch(Exception ex){
@@ -59,16 +59,16 @@ public abstract class AbstractEncoder implements Encoder{
         return value == null;
     }
     
-    private void setArrayValue(String typeName, Object objValue) throws IllegalArgumentException, ArrayIndexOutOfBoundsException {
+    private void setArrayValue(Class type, Object objValue) throws IllegalArgumentException, ArrayIndexOutOfBoundsException {
         int len = Array.getLength(objValue);
-        if(DataType.isString(typeName)){
+        if(DataType.isString(type)){
             String[] arr = new String[len];
             for(int i=0; i<len; i++){
                 arr[i] = Array.get(objValue, i).toString();
             }
             value = arr;
         }
-        else if(DataType.isInteger(typeName) || DataType.isIntegerObject(typeName)){
+        else if(DataType.isInteger(type) || DataType.isIntegerObject(type)){
             int[] arr = new int[len];
             for(int i=0; i<len; i++){
                 String s = Array.get(objValue, i).toString();
@@ -76,7 +76,7 @@ public abstract class AbstractEncoder implements Encoder{
             }
             value = arr;
         }
-        else if(DataType.isLong(typeName) || DataType.isLongObject(typeName)){
+        else if(DataType.isLong(type) || DataType.isLongObject(type)){
             long[] arr = new long[len];
             for(int i=0; i<len; i++){
                 String s = Array.get(objValue, i).toString();
@@ -84,7 +84,7 @@ public abstract class AbstractEncoder implements Encoder{
             }
             value = arr;
         }
-        else if(DataType.isShort(typeName) || DataType.isShortObject(typeName)){
+        else if(DataType.isShort(type) || DataType.isShortObject(type)){
             short[] arr = new short[len];
             for(int i=0; i<len; i++){
                 String s = Array.get(objValue, i).toString();
@@ -92,7 +92,7 @@ public abstract class AbstractEncoder implements Encoder{
             }
             value = arr;
         }
-        else if(DataType.isFloat(typeName) || DataType.isFloatObject(typeName)){
+        else if(DataType.isFloat(type) || DataType.isFloatObject(type)){
             float[] arr = new float[len];
             for(int i=0; i<len; i++){
                 String s = Array.get(objValue, i).toString();
@@ -100,7 +100,7 @@ public abstract class AbstractEncoder implements Encoder{
             }
             value = arr;
         }
-        else if(DataType.isDouble(typeName) || DataType.isDoubleObject(typeName)){
+        else if(DataType.isDouble(type) || DataType.isDoubleObject(type)){
             double[] arr = new double[len];
             for(int i=0; i<len; i++){
                 String s = Array.get(objValue, i).toString();
@@ -108,7 +108,7 @@ public abstract class AbstractEncoder implements Encoder{
             }
             value = arr;
         }
-        else if(DataType.isBoolean(typeName) || DataType.isBooleanObject(typeName)){
+        else if(DataType.isBoolean(type) || DataType.isBooleanObject(type)){
             boolean[] arr = new boolean[len];
             for(int i=0; i<len; i++){
                 String s = Array.get(objValue, i).toString();
@@ -116,21 +116,21 @@ public abstract class AbstractEncoder implements Encoder{
             }
             value = arr;
         }
-        else if(DataType.isChar(typeName) || DataType.isCharObject(typeName)){
+        else if(DataType.isChar(type) || DataType.isCharObject(type)){
             String[] arr = new String[len];
             for(int i=0; i<len; i++){
                 arr[i] = Array.get(objValue, i).toString();
             }
             value = arr;
         }
-        else if(DataType.isDate(typeName)){
+        else if(DataType.isDate(type)){
             Date[] arr = new Date[len];
             for(int i=0; i<len; i++){
                 arr[i] = (Date)(Array.get(objValue, i));
             }
             value = arr;
         }
-        else if(DataType.isTimestamp(typeName)){
+        else if(DataType.isTimestamp(type)){
             Timestamp[] arr = new Timestamp[len];
             for(int i=0; i<len; i++){
                 arr[i] = (Timestamp)(Array.get(objValue, i));
@@ -142,26 +142,26 @@ public abstract class AbstractEncoder implements Encoder{
         }
     }
     
-    private void setValue(String typeName, Object objValue) throws IllegalArgumentException, IllegalAccessException{
-        if(DataType.isInteger(typeName)){
+    private void setValue(Class type, Object objValue) throws IllegalArgumentException, IllegalAccessException{
+        if(DataType.isInteger(type)){
             value = field.getInt(obj);
         }
-        else if(DataType.isLong(typeName)){
+        else if(DataType.isLong(type)){
             value = field.getLong(obj);
         }
-        else if(DataType.isShort(typeName)){
+        else if(DataType.isShort(type)){
             value = field.getShort(obj);
         }
-        else if(DataType.isFloat(typeName)){
+        else if(DataType.isFloat(type)){
             value = field.getFloat(obj);
         }
-        else if(DataType.isDouble(typeName)){
+        else if(DataType.isDouble(type)){
             value = field.getDouble(obj);
         }
-        else if(DataType.isBoolean(typeName)){
+        else if(DataType.isBoolean(type)){
             value = field.getBoolean(obj);
         }
-        else if(DataType.isChar(typeName)){
+        else if(DataType.isChar(type)){
             value = String.valueOf(field.getChar(obj));
         }
         else{

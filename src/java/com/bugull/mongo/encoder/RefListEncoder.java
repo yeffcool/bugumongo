@@ -63,7 +63,7 @@ public class RefListEncoder extends AbstractEncoder{
         if(type.isArray()){
             return encodeArray(type.getComponentType());
         }else{
-            return encodeList(type.getName());
+            return encodeList(type);
         }
     }
     
@@ -79,10 +79,10 @@ public class RefListEncoder extends AbstractEncoder{
         return refs;
     }
     
-    private Object encodeList(String typeName){
+    private Object encodeList(Class type){
         ParameterizedType paramType = (ParameterizedType)field.getGenericType();
         Type[] types = paramType.getActualTypeArguments();
-        if(DataType.isList(typeName)){
+        if(DataType.isList(type)){
             List<BuguEntity> list = (List<BuguEntity>)value;
             List<DBRef> result = new ArrayList<DBRef>();
             BuguDao dao = DaoCache.getInstance().get((Class)types[0]);
@@ -92,7 +92,7 @@ public class RefListEncoder extends AbstractEncoder{
             }
             return result;
         }
-        else if(DataType.isSet(typeName)){
+        else if(DataType.isSet(type)){
             Set<BuguEntity> set = (Set<BuguEntity>)value;
             Set<DBRef> result = new HashSet<DBRef>();
             BuguDao dao = DaoCache.getInstance().get((Class)types[0]);
@@ -102,7 +102,7 @@ public class RefListEncoder extends AbstractEncoder{
             }
             return result;
         }
-        else if(DataType.isMap(typeName)){
+        else if(DataType.isMap(type)){
             Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
             Map<Object, DBRef> result = new HashMap<Object, DBRef>();
             BuguDao dao = DaoCache.getInstance().get((Class)types[1]);

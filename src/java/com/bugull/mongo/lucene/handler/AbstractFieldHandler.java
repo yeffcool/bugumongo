@@ -39,15 +39,15 @@ public abstract class AbstractFieldHandler implements FieldHandler{
         this.prefix = prefix;
     }
     
-    protected String getArrayString(Object value, String typeName){
+    protected String getArrayString(Object value, Class type){
         StringBuilder sb = new StringBuilder();
-        if(DataType.isDate(typeName)){
+        if(DataType.isDate(type)){
             Date[] arr = (Date[])value;
             for(Date e : arr){
                 sb.append(e.getTime()).append(JOIN);
             }
         }
-        else if(DataType.isTimestamp(typeName)){
+        else if(DataType.isTimestamp(type)){
             Timestamp[] arr = (Timestamp[])value;
             for(Timestamp e : arr){
                 sb.append(e.getTime()).append(JOIN);

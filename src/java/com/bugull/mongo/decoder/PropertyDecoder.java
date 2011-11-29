@@ -54,9 +54,9 @@ public class PropertyDecoder extends AbstractDecoder{
         Class<?> type = field.getType();
         try{
             if(type.isArray()){
-                decodeArray(obj, (ArrayList)value, type.getComponentType().getName());
+                decodeArray(obj, (ArrayList)value, type.getComponentType());
             }else{
-                decodePrimitive(obj, type.getName());
+                decodePrimitive(obj, type);
             }
         }catch(IllegalArgumentException ex){
             logger.error(ex.getMessage());
@@ -65,121 +65,121 @@ public class PropertyDecoder extends AbstractDecoder{
         }
     }
     
-    private void decodeArray(Object obj, ArrayList list, String typeName) throws IllegalArgumentException, IllegalAccessException{
+    private void decodeArray(Object obj, ArrayList list, Class type) throws IllegalArgumentException, IllegalAccessException{
         int size = list.size();
-        if(DataType.isString(typeName)){
+        if(DataType.isString(type)){
             String[] arr = new String[size];
             for(int i=0; i<size; i++){
                 arr[i] = list.get(i).toString();
             }
             field.set(obj, arr);
         }
-        else if(DataType.isInteger(typeName)){
+        else if(DataType.isInteger(type)){
             int[] arr = new int[size];
             for(int i=0; i<size; i++){
                 arr[i] = Integer.parseInt(list.get(i).toString());
             }
             field.set(obj, arr);
         }
-        else if(DataType.isIntegerObject(typeName)){
+        else if(DataType.isIntegerObject(type)){
             Integer[] arr = new Integer[size];
             for(int i=0; i<size; i++){
                 arr[i] = Integer.parseInt(list.get(i).toString());
             }
             field.set(obj, arr);
         }
-        else if(DataType.isLong(typeName)){
+        else if(DataType.isLong(type)){
             long[] arr = new long[size];
             for(int i=0; i<size; i++){
                 arr[i] = Long.parseLong(list.get(i).toString());
             }
             field.set(obj, arr);
         }
-        else if(DataType.isLongObject(typeName)){
+        else if(DataType.isLongObject(type)){
             Long[] arr = new Long[size];
             for(int i=0; i<size; i++){
                 arr[i] = Long.parseLong(list.get(i).toString());
             }
             field.set(obj, arr);
         }
-        else if(DataType.isShort(typeName)){
+        else if(DataType.isShort(type)){
             short[] arr = new short[size];
             for(int i=0; i<size; i++){
                 arr[i] = Short.parseShort(list.get(i).toString());
             }
             field.set(obj, arr);
         }
-        else if(DataType.isShortObject(typeName)){
+        else if(DataType.isShortObject(type)){
             Short[] arr = new Short[size];
             for(int i=0; i<size; i++){
                 arr[i] = Short.parseShort(list.get(i).toString());
             }
             field.set(obj, arr);
         }
-        else if(DataType.isFloat(typeName)){
+        else if(DataType.isFloat(type)){
             float[] arr = new float[size];
             for(int i=0; i<size; i++){
                 arr[i] = Float.parseFloat(list.get(i).toString());
             }
             field.set(obj, arr);
         }
-        else if(DataType.isFloatObject(typeName)){
+        else if(DataType.isFloatObject(type)){
             Float[] arr = new Float[size];
             for(int i=0; i<size; i++){
                 arr[i] = Float.parseFloat(list.get(i).toString());
             }
             field.set(obj, arr);
         }
-        else if(DataType.isDouble(typeName)){
+        else if(DataType.isDouble(type)){
             double[] arr = new double[size];
             for(int i=0; i<size; i++){
                 arr[i] = Double.parseDouble(list.get(i).toString());
             }
             field.set(obj, arr);
         }
-        else if(DataType.isDoubleObject(typeName)){
+        else if(DataType.isDoubleObject(type)){
             Double[] arr = new Double[size];
             for(int i=0; i<size; i++){
                 arr[i] = Double.parseDouble(list.get(i).toString());
             }
             field.set(obj, arr);
         }
-        else if(DataType.isBoolean(typeName)){
+        else if(DataType.isBoolean(type)){
             boolean[] arr = new boolean[size];
             for(int i=0; i<size; i++){
                 arr[i] = Boolean.parseBoolean(list.get(i).toString());
             }
             field.set(obj, arr);
         }
-        else if(DataType.isBooleanObject(typeName)){
+        else if(DataType.isBooleanObject(type)){
             Boolean[] arr = new Boolean[size];
             for(int i=0; i<size; i++){
                 arr[i] = Boolean.parseBoolean(list.get(i).toString());
             }
             field.set(obj, arr);
         }
-        else if(DataType.isChar(typeName)){
+        else if(DataType.isChar(type)){
             char[] arr = new char[size];
             for(int i=0; i<size; i++){
                 arr[i] = list.get(i).toString().charAt(0);
             }
             field.set(obj, arr);
         }
-        else if(DataType.isCharObject(typeName)){
+        else if(DataType.isCharObject(type)){
             Character[] arr = new Character[size];
             for(int i=0; i<size; i++){
                 arr[i] = list.get(i).toString().charAt(0);
             }
             field.set(obj, arr);
         }
-        else if(DataType.isDate(typeName)){
+        else if(DataType.isDate(type)){
             Date[] arr = new Date[size];
             for(int i=0; i<size; i++){
                 arr[i] = (Date)list.get(i);
             }
             field.set(obj, arr);
         }
-        else if(DataType.isTimestamp(typeName)){
+        else if(DataType.isTimestamp(type)){
             Timestamp[] arr = new Timestamp[size];
             for(int i=0; i<size; i++){
                 arr[i] = (Timestamp)list.get(i);
@@ -188,34 +188,34 @@ public class PropertyDecoder extends AbstractDecoder{
         }
     }
     
-    private void decodePrimitive(Object obj, String typeName) throws IllegalArgumentException, IllegalAccessException{
-        if(DataType.isInteger(typeName)){
+    private void decodePrimitive(Object obj, Class type) throws IllegalArgumentException, IllegalAccessException{
+        if(DataType.isInteger(type)){
             field.setInt(obj, Integer.parseInt(value.toString()));
         }
-        else if(DataType.isLong(typeName)){
+        else if(DataType.isLong(type)){
             field.setLong(obj, Long.parseLong(value.toString()));
         }
-        else if(DataType.isShort(typeName)){
+        else if(DataType.isShort(type)){
             field.setShort(obj, Short.parseShort(value.toString()));
         }
-        else if(DataType.isFloat(typeName)){
+        else if(DataType.isFloat(type)){
             field.setFloat(obj, Float.parseFloat(value.toString()));
         }
-        else if(DataType.isDouble(typeName)){
+        else if(DataType.isDouble(type)){
             field.setDouble(obj, Double.parseDouble(value.toString()));
         }
-        else if(DataType.isBoolean(typeName)){
+        else if(DataType.isBoolean(type)){
             field.setBoolean(obj, Boolean.parseBoolean(value.toString()));
         }        
-        else if(DataType.isChar(typeName)){
+        else if(DataType.isChar(type)){
             field.setChar(obj, value.toString().charAt(0));
         }
-        else if(DataType.isSet(typeName)){
+        else if(DataType.isSet(type)){
             List list = (ArrayList)value;
             Set set = new HashSet(list);
             field.set(obj, set);
         }
-        else if(DataType.isTimestamp(typeName)){
+        else if(DataType.isTimestamp(type)){
             Date date = (Date)value;
             Timestamp ts = new Timestamp(date.getTime());
             field.set(obj, ts);

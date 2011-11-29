@@ -83,11 +83,11 @@ public class EmbedListDecoder extends AbstractDecoder{
             Object embedObj = MapperUtil.fromDBObject(clazz, (DBObject)o);
             result.add(embedObj);
         }
-        String typeName = field.getType().getName();
-        if(DataType.isList(typeName)){
+        Class type = field.getType();
+        if(DataType.isList(type)){
             FieldUtil.set(obj, field, result);
         }
-        else if(DataType.isSet(typeName)){
+        else if(DataType.isSet(type)){
             FieldUtil.set(obj, field, new HashSet(result));
         }
     }
