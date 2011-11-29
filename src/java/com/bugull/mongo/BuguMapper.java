@@ -87,11 +87,7 @@ public class BuguMapper {
             }
             fetchOneLevel(obj, name);
             if(remainder != null){
-                try{
-                    fetchRemainder(obj, name, remainder);
-                }catch(Exception e){
-                    logger.error(e.getMessage());
-                }
+                fetchRemainder(obj, name, remainder);
             }
         }
     }
@@ -111,23 +107,22 @@ public class BuguMapper {
     private static void fetchOneLevel(BuguEntity obj, String fieldName){
         Field field = FieldsCache.getInstance().getField(obj.getClass(), fieldName);
         if(field.getAnnotation(Ref.class) != null){
-            try {
-                fetchRef(obj, field);
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-            }
+            fetchRef(obj, field);
         }else if(field.getAnnotation(RefList.class) != null){
-            try {
-                fetchRefList(obj, field);
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-            }
+            fetchRefList(obj, field);
         }
     }
     
-    private static void fetchRemainder(BuguEntity obj, String fieldName, String remainder) throws Exception {
+    private static void fetchRemainder(BuguEntity obj, String fieldName, String remainder){
         Field field = FieldsCache.getInstance().getField(obj.getClass(), fieldName);
-        Object value = field.get(obj);
+        Object value = null;
+        try {
+            value = field.get(obj);
+        } catch (IllegalArgumentException ex) {
+            logger.error(ex.getMessage());
+        } catch (IllegalAccessException ex) {
+            logger.error(ex.getMessage());
+        }
         if(value == null){
             return;
         }
@@ -157,8 +152,15 @@ public class BuguMapper {
         }
     }
     
-    private static void fetchRef(BuguEntity obj, Field field) throws Exception {
-        Object o = field.get(obj);
+    private static void fetchRef(BuguEntity obj, Field field){
+        Object o = null;
+        try {
+            o = field.get(obj);
+        } catch (IllegalArgumentException ex) {
+            logger.error(ex.getMessage());
+        } catch (IllegalAccessException ex) {
+            logger.error(ex.getMessage());
+        }
         if( o == null){
             return;
         }
@@ -166,14 +168,16 @@ public class BuguMapper {
         String id = refObj.getId();
         BuguDao dao = DaoCache.getInstance().get(field.getType());
         Object value = dao.findOne(id);
-        field.set(obj, value);
+        try {
+            field.set(obj, value);
+        } catch (IllegalArgumentException ex) {
+            logger.error(ex.getMessage());
+        } catch (IllegalAccessException ex) {
+            logger.error(ex.getMessage());
+        }
     }
     
-    private static void fetchRefList(BuguEntity obj, Field field) throws Exception{
-        Object o = field.get(obj);
-        if(o == null){
-            return;
-        }
+    private static void fetchRefList(BuguEntity obj, Field field){
         Class<?> type = field.getType();
         if(type.isArray()){
             fetchArray(obj, field, type.getComponentType());
@@ -189,13 +193,23 @@ public class BuguMapper {
         }
     }
     
-    private static void fetchArray(BuguEntity obj, Field field, Class clazz) throws Exception{
-        Object objValue = field.get(obj);
-        int len = Array.getLength(objValue);
+    private static void fetchArray(BuguEntity obj, Field field, Class clazz) {
+        Object o = null;
+        try {
+            o = field.get(obj);
+        } catch (IllegalArgumentException ex) {
+            logger.error(ex.getMessage());
+        } catch (IllegalAccessException ex) {
+            logger.error(ex.getMessage());
+        }
+        if(o == null){
+            return;
+        }
+        int len = Array.getLength(o);
         Object arr = Array.newInstance(clazz, len);
         ObjectId[] objs = new ObjectId[len];
         for(int i=0; i<len; i++){
-            BuguEntity entity = (BuguEntity)Array.get(objValue, i);
+            BuguEntity entity = (BuguEntity)Array.get(o, i);
             objs[i] = new ObjectId(entity.getId());
         }
         DBObject in = new BasicDBObject(Operator.IN, objs);
@@ -216,11 +230,27 @@ public class BuguMapper {
         for(int i=0; i<len; i++){
             Array.set(arr, i, entityList.get(i));
         }
-        field.set(obj, arr);
+        try {
+            field.set(obj, arr);
+        } catch (IllegalArgumentException ex) {
+            logger.error(ex.getMessage());
+        } catch (IllegalAccessException ex) {
+            logger.error(ex.getMessage());
+        }
     }
     
-    private static void fetchList(BuguEntity obj, Field field, Class clazz) throws Exception{
-        Object o = field.get(obj);
+    private static void fetchList(BuguEntity obj, Field field, Class clazz){
+        Object o = null;
+        try {
+            o = field.get(obj);
+        } catch (IllegalArgumentException ex) {
+            logger.error(ex.getMessage());
+        } catch (IllegalAccessException ex) {
+            logger.error(ex.getMessage());
+        }
+        if(o == null){
+            return;
+        }
         String typeName = field.getType().getName();
         RefList refList = field.getAnnotation(RefList.class);
         BuguDao dao = DaoCache.getInstance().get(clazz);
@@ -240,7 +270,13 @@ public class BuguMapper {
             }else{
                 result = dao.find(query, MapperUtil.getSort(sort));
             }
-            field.set(obj, result);
+            try {
+                field.set(obj, result);
+            } catch (IllegalArgumentException ex) {
+                logger.error(ex.getMessage());
+            } catch (IllegalAccessException ex) {
+                logger.error(ex.getMessage());
+            }
         }
         else if(DataType.isSet(typeName)){
             Set<BuguEntity> set = (Set<BuguEntity>)o;
@@ -258,12 +294,28 @@ public class BuguMapper {
             }else{
                 result = dao.find(query, MapperUtil.getSort(sort));
             }
-            field.set(obj, new HashSet(result));
+            try {
+                field.set(obj, new HashSet(result));
+            } catch (IllegalArgumentException ex) {
+                logger.error(ex.getMessage());
+            } catch (IllegalAccessException ex) {
+                logger.error(ex.getMessage());
+            }
         }
     }
     
-    private static void fetchMap(BuguEntity obj, Field field, Class clazz) throws Exception{
-        Object o = field.get(obj);
+    private static void fetchMap(BuguEntity obj, Field field, Class clazz) {
+        Object o = null;
+        try{
+            o = field.get(obj);
+        }catch(IllegalArgumentException ex){
+            logger.error(ex.getMessage());
+        }catch(IllegalAccessException ex){
+            logger.error(ex.getMessage());
+        }
+        if(o == null){
+            return;
+        }
         Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)o;
         Map result = new HashMap();
         BuguDao dao = DaoCache.getInstance().get(clazz);
@@ -273,7 +325,13 @@ public class BuguMapper {
             Object value = dao.findOne(id);
             result.put(key, value);
         }
-        field.set(obj, result);
+        try {
+            field.set(obj, result);
+        } catch (IllegalArgumentException ex) {
+            logger.error(ex.getMessage());
+        } catch (IllegalAccessException ex) {
+            logger.error(ex.getMessage());
+        }
     }
     
 }
