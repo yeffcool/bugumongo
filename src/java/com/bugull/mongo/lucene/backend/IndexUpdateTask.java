@@ -19,8 +19,10 @@ import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.cache.IndexWriterCache;
 import com.bugull.mongo.mapper.MapperUtil;
+import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 
@@ -47,11 +49,13 @@ public class IndexUpdateTask implements Runnable{
         Document doc = new Document();
         IndexCreator creator = new IndexCreator(obj, "");
         creator.create(doc);
-        try{
-            Term term = new Term(FieldsCache.getInstance().getIdFieldName(clazz), obj.getId());
+        Term term = new Term(FieldsCache.getInstance().getIdFieldName(clazz), obj.getId());
+        try {
             writer.updateDocument(term, doc);
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        } catch (CorruptIndexException ex) {
+            logger.error(ex.getMessage());
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
         }
     }
     

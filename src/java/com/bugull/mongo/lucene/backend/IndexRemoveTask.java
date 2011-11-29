@@ -18,7 +18,9 @@ package com.bugull.mongo.lucene.backend;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.cache.IndexWriterCache;
 import com.bugull.mongo.mapper.MapperUtil;
+import java.io.IOException;
 import org.apache.log4j.Logger;
+import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 
@@ -43,11 +45,13 @@ public class IndexRemoveTask implements Runnable{
         String name = MapperUtil.getEntityName(clazz);
         IndexWriterCache cache = IndexWriterCache.getInstance();
         IndexWriter writer = cache.get(name);
-        try{
-            Term term = new Term(FieldsCache.getInstance().getIdFieldName(clazz), id);
+        Term term = new Term(FieldsCache.getInstance().getIdFieldName(clazz), id);
+        try {
             writer.deleteDocuments(term);
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        } catch (CorruptIndexException ex) {
+            logger.error(ex.getMessage());
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
         }
     }
     

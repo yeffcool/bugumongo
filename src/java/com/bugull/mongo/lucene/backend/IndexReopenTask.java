@@ -46,14 +46,14 @@ public class IndexReopenTask implements Runnable {
             IndexReader newReader = null;
             try{
                 newReader = IndexReader.openIfChanged(reader, true);
-            }catch(IOException e){
-                logger.error(e.getMessage());
+            }catch(IOException ex){
+                logger.error(ex.getMessage());
             }
             if(newReader!=null && newReader!=reader){
                 try{
                     reader.decRef();
-                }catch(Exception e){
-                    logger.error(e.getMessage());
+                }catch(IOException ex){
+                    logger.error(ex.getMessage());
                 }
                 IndexSearcher newSearcher = new IndexSearcher(newReader);
                 searcherCache.put(name, newSearcher);

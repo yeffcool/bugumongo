@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
 
 /**
@@ -82,10 +83,12 @@ public class IndexRebuildTask implements Runnable{
             Document doc = new Document();
             IndexCreator creator = new IndexCreator(obj, "");
             creator.create(doc);
-            try{
+            try {
                 writer.addDocument(doc);
-            }catch(Exception e){
-                logger.error(e.getMessage());
+            } catch (CorruptIndexException ex) {
+                logger.error(ex.getMessage());
+            } catch (IOException ex) {
+                logger.error(ex.getMessage());
             }
         }
     }
