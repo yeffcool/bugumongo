@@ -16,6 +16,7 @@
 package com.bugull.mongo.cache;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
@@ -47,10 +48,12 @@ public class ConstructorCache {
             cons = cache.get(name);
         }else{
             Class[] types = null;
-            try{
-               cons = clazz.getConstructor(types); 
-            }catch(Exception e){
-                logger.error(e.getMessage());
+            try {
+                cons = clazz.getConstructor(types);
+            } catch (NoSuchMethodException ex) {
+                logger.error(ex.getMessage());
+            } catch (SecurityException ex) {
+                logger.error(ex.getMessage());
             }
             cache.put(name, cons);
         }
@@ -63,8 +66,14 @@ public class ConstructorCache {
         Object[] args = null;
         try {
             obj = cons.newInstance(args);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
+        } catch (InstantiationException ex) {
+            logger.error(ex.getMessage());
+        } catch (IllegalAccessException ex) {
+            logger.error(ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            logger.error(ex.getMessage());
+        } catch (InvocationTargetException ex) {
+            logger.error(ex.getMessage());
         }
         return obj;
     }

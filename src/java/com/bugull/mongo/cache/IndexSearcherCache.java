@@ -15,9 +15,11 @@
 
 package com.bugull.mongo.cache;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
+import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
@@ -53,10 +55,12 @@ public class IndexSearcherCache {
                 }else{
                     IndexWriter writer = IndexWriterCache.getInstance().get(name);
                     IndexReader reader = null;
-                    try{
+                    try {
                         reader = IndexReader.open(writer, true);
-                    }catch(Exception e){
-                        logger.error(e.getMessage());
+                    } catch (CorruptIndexException ex) {
+                        logger.error(ex.getMessage());
+                    } catch (IOException ex) {
+                        logger.error(ex.getMessage());
                     }
                     searcher = new IndexSearcher(reader);
                     cache.put(name, searcher);
