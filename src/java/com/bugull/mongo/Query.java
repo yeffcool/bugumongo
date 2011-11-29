@@ -56,6 +56,9 @@ public class Query {
         if(key.equals(Operator.ID)){
             append(key, op, new ObjectId((String)value));
         }
+        else if(key.indexOf(".")!=-1){
+            append(key, op, value);
+        }
         else{
             Field f = FieldsCache.getInstance().getField(clazz, key);
             if(f.getAnnotation(Id.class) != null){
@@ -91,6 +94,9 @@ public class Query {
     private void appendIn(String key, String op, Object... values){
         if(key.equals(Operator.ID)){
             append(key, op, toIds(values));
+        }
+        else if(key.indexOf(".")!=-1){
+            append(key, op, values);
         }
         else{
             Field f = FieldsCache.getInstance().getField(clazz, key);
