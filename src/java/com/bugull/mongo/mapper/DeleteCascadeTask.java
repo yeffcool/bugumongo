@@ -27,7 +27,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 
 /**
@@ -35,9 +34,7 @@ import org.bson.types.ObjectId;
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class DeleteCascadeTask implements Runnable{
-    
-    private final static Logger logger = Logger.getLogger(DeleteCascadeTask.class);
-    
+        
     private List<Field> refFields;
     private List<Field> refListFields;
     private BuguEntity entity;
@@ -59,12 +56,7 @@ public class DeleteCascadeTask implements Runnable{
     }
     
     private void processRef(Field f){
-        Object value = null;
-        try{
-            value = f.get(entity);
-        }catch(Exception e){
-            logger.error(e.getMessage());
-        }
+        Object value = FieldUtil.get(entity, f);
         if(value != null){
             Class<?> type = f.getType();
             BuguDao dao = DaoCache.getInstance().get(type);
@@ -74,12 +66,7 @@ public class DeleteCascadeTask implements Runnable{
     }
     
     private void processRefList(Field f){
-        Object value = null;
-        try{
-            value = f.get(entity);
-        }catch(Exception e){
-            logger.error(e.getMessage());
-        }
+        Object value = FieldUtil.get(entity, f);
         if(value == null){
             return;
         }
