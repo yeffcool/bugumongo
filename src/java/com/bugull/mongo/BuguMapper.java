@@ -32,6 +32,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -178,12 +179,15 @@ public class BuguMapper {
         }
         int len = Array.getLength(o);
         Object arr = Array.newInstance(clazz, len);
-        ObjectId[] objs = new ObjectId[len];
+        List<ObjectId> idList = new ArrayList<ObjectId>();
         for(int i=0; i<len; i++){
-            BuguEntity entity = (BuguEntity)Array.get(o, i);
-            objs[i] = new ObjectId(entity.getId());
+            Object item = Array.get(o, i);
+            if(item != null){
+                BuguEntity entity = (BuguEntity)item;
+                idList.add(new ObjectId(entity.getId()));
+            }
         }
-        DBObject in = new BasicDBObject(Operator.IN, objs);
+        DBObject in = new BasicDBObject(Operator.IN, idList);
         DBObject query = new BasicDBObject(Operator.ID, in);
         BuguDao dao = DaoCache.getInstance().get(clazz);
         RefList refList = field.getAnnotation(RefList.class);
@@ -214,12 +218,13 @@ public class BuguMapper {
         BuguDao dao = DaoCache.getInstance().get(clazz);
         if(DataType.isList(type)){
             List<BuguEntity> list = (List<BuguEntity>)o;
-            ObjectId[] arr = new ObjectId[list.size()];
-            int i = 0;
+            List<ObjectId> idList = new ArrayList<ObjectId>();
             for(BuguEntity ent : list){
-                arr[i++] = new ObjectId(ent.getId());
+                if(ent != null){
+                    idList.add(new ObjectId(ent.getId()));
+                }
             }
-            DBObject in = new BasicDBObject(Operator.IN, arr);
+            DBObject in = new BasicDBObject(Operator.IN, idList);
             DBObject query = new BasicDBObject(Operator.ID, in);
             String sort = refList.sort();
             List result = null;
@@ -232,12 +237,13 @@ public class BuguMapper {
         }
         else if(DataType.isSet(type)){
             Set<BuguEntity> set = (Set<BuguEntity>)o;
-            ObjectId[] arr = new ObjectId[set.size()];
-            int i = 0;
+            List<ObjectId> idList = new ArrayList<ObjectId>();
             for(BuguEntity ent : set){
-                arr[i++] = new ObjectId(ent.getId());
+                if(ent != null){
+                    idList.add(new ObjectId(ent.getId()));
+                }
             }
-            DBObject in = new BasicDBObject(Operator.IN, arr);
+            DBObject in = new BasicDBObject(Operator.IN, idList);
             DBObject query = new BasicDBObject(Operator.ID, in);
             String sort = refList.sort();
             List result = null;
@@ -260,9 +266,13 @@ public class BuguMapper {
         BuguDao dao = DaoCache.getInstance().get(clazz);
         for(Object key : map.keySet()){
             BuguEntity refObj = map.get(key);
-            String id = refObj.getId();
-            Object value = dao.findOne(id);
-            result.put(key, value);
+            if(refObj != null){
+                String id = refObj.getId();
+                Object value = dao.findOne(id);
+                result.put(key, value);
+            }else{
+                result.put(key, null);
+            }
         }
         FieldUtil.set(obj, field, result);
     }
