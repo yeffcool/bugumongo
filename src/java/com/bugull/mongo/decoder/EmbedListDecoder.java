@@ -88,8 +88,6 @@ public class EmbedListDecoder extends AbstractDecoder{
             if(o != null){
                 Object embedObj = MapperUtil.fromDBObject(clazz, (DBObject)o);
                 result.add(embedObj);
-            }else{
-                result.add(null);
             }
         }
         Class type = field.getType();

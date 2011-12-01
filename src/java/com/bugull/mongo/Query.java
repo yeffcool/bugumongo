@@ -73,22 +73,26 @@ public class Query {
         }
     }
     
-    private ObjectId[] toIds(Object... values){
+    private List<ObjectId> toIds(Object... values){
+        List<ObjectId> idList = new ArrayList<ObjectId>();
         int len = values.length;
-        ObjectId[] ids = new ObjectId[len];
         for(int i=0; i<len; i++){
-            ids[i] = new ObjectId((String)values[i]);
+            if(values[i] != null){
+                idList.add(new ObjectId((String)values[i]));
+            }
         }
-        return ids;
+        return idList;
     }
     
-    private DBRef[] toDBRefs(Object... values){
+    private List<DBRef> toDBRefs(Object... values){
+        List<DBRef> refList = new ArrayList<DBRef>();
         int len = values.length;
-        DBRef[] refs = new DBRef[len];
         for(int i=0; i<len; i++){
-            refs[i] = BuguMapper.toDBRef((BuguEntity)values[i]);
+            if(values[i] != null){
+                refList.add(BuguMapper.toDBRef((BuguEntity)values[i]));
+            }
         }
-        return refs;
+        return refList;
     }
     
     private void appendIn(String key, String op, Object... values){

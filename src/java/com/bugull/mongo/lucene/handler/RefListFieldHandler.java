@@ -29,6 +29,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,14 +51,16 @@ public class RefListFieldHandler extends AbstractFieldHandler{
         Class clazz = null;
         Object value = FieldUtil.get(obj, field);
         Class<?> type = field.getType();
-        ObjectId[] ids = null;
+        List<ObjectId> idList = new ArrayList<ObjectId>();
         if(type.isArray()){
             clazz = type.getComponentType();
             int len = Array.getLength(value);
-            ids = new ObjectId[len];
             for(int i=0; i<len; i++){
-                BuguEntity entity = (BuguEntity)Array.get(value, i);
-                ids[i] = new ObjectId(entity.getId());
+                Object item = Array.get(value, i);
+                if(item != null){
+                    BuguEntity entity = (BuguEntity)item;
+                    idList.add(new ObjectId(entity.getId()));
+                }
             }
         }else{
             ParameterizedType paramType = (ParameterizedType)field.getGenericType();
@@ -66,28 +69,27 @@ public class RefListFieldHandler extends AbstractFieldHandler{
                 clazz = (Class)types[0];
                 if(DataType.isList(type)){
                     List<BuguEntity> li = (List<BuguEntity>)value;
-                    int size = li.size();
-                    ids = new ObjectId[size];
-                    for(int i=0; i<size; i++){
-                        ids[i] = new ObjectId(li.get(i).getId());
+                    for(BuguEntity ent : li){
+                        if(ent != null){
+                            idList.add(new ObjectId(ent.getId()));
+                        }
                     }
                 }else if(DataType.isSet(type)){
                     Set<BuguEntity> set = (Set<BuguEntity>)value;
-                    int size = set.size();
-                    ids = new ObjectId[size];
-                    int i = 0;
                     for(BuguEntity ent : set){
-                        ids[i++] = new ObjectId(ent.getId());
+                        if(ent != null){
+                            idList.add(new ObjectId(ent.getId()));
+                        }
                     }
                 }
             }
             else if(types.length == 2){
                 Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
-                int size = map.size();
-                ids = new ObjectId[size];
-                int i = 0;
                 for(Object key : map.keySet()){
-                    ids[i++] = new ObjectId(map.get(key).getId());
+                    BuguEntity ent = map.get(key);
+                    if(ent != null){
+                        idList.add(new ObjectId(ent.getId()));
+                    }
                 }
             }
             else{
@@ -95,7 +97,7 @@ public class RefListFieldHandler extends AbstractFieldHandler{
             }
         }
         BuguDao dao = DaoCache.getInstance().get(clazz);
-        DBObject in = new BasicDBObject(Operator.IN, ids);
+        DBObject in = new BasicDBObject(Operator.IN, idList);
         DBObject query = new BasicDBObject(Operator.ID, in);
         List list = dao.findForLucene(query);
         if(list!=null && list.size()>0){

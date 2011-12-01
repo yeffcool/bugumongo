@@ -24,6 +24,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -70,74 +71,75 @@ public class DeleteCascadeTask implements Runnable{
         if(value == null){
             return;
         }
-        ObjectId[] objs = null;
+        List<ObjectId> idList = null;
         Class<?> clazz = null;
         Class<?> type = f.getType();
         if(type.isArray()){
             clazz = type.getComponentType();
-            objs = getArrayIds(value);
+            idList = getArrayIds(value);
         }else{
             ParameterizedType paramType = (ParameterizedType)f.getGenericType();
             Type[] types = paramType.getActualTypeArguments();
             int len = types.length;
             if(len == 1){
                 clazz = (Class)types[0];
-                objs = getListIds(value, type);
+                idList = getListIds(value, type);
             }else if(len == 2){
                 clazz = (Class)types[1];
-                objs = getMapIds(value);
+                idList = getMapIds(value);
             }
         }
         BuguDao dao = DaoCache.getInstance().get(clazz);
-        DBObject in = new BasicDBObject(Operator.IN, objs);
+        DBObject in = new BasicDBObject(Operator.IN, idList);
         DBObject query = new BasicDBObject(Operator.ID, in);
         dao.remove(query);
     }
     
-    private ObjectId[] getArrayIds(Object value){
+    private List<ObjectId> getArrayIds(Object value){
         int len = Array.getLength(value);
-        ObjectId[] objs = new ObjectId[len];
+        List<ObjectId> idList = new ArrayList<ObjectId>();
         for(int i=0; i<len; i++){
-            BuguEntity obj = (BuguEntity)Array.get(value, i);
-            objs[i] = new ObjectId(obj.getId());
+            Object item = Array.get(value, i);
+            if(item != null){
+                BuguEntity obj = (BuguEntity)item;
+                idList.add(new ObjectId(obj.getId()));
+            }
         }
-        return objs;
+        return idList;
     }
     
-    private ObjectId[] getListIds(Object value, Class type){
-        ObjectId[] objs = null;
+    private List<ObjectId> getListIds(Object value, Class type){
+        List<ObjectId> idList = new ArrayList<ObjectId>();
         if(DataType.isList(type)){
             List<BuguEntity> list = (List<BuguEntity>)value;
-            int len = list.size();
-            objs = new ObjectId[len];
-            int i = 0;
             for(BuguEntity obj : list){
-                objs[i++] = new ObjectId(obj.getId());
+                if(obj != null){
+                    idList.add(new ObjectId(obj.getId()));
+                }
             }
         }
         else if(DataType.isSet(type)){
             Set<BuguEntity> set = (Set<BuguEntity>)value;
-            int len = set.size();
-            objs = new ObjectId[len];
-            int i = 0;
             for(BuguEntity obj : set){
-                objs[i++] = new ObjectId(obj.getId());
+                if(obj != null){
+                    idList.add(new ObjectId(obj.getId()));
+                }
             }
         }
-        return objs;
+        return idList;
     }
     
-    private ObjectId[] getMapIds(Object value){
+    private List<ObjectId> getMapIds(Object value){
         Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
         Set<Object> keys = map.keySet();
-        int len = keys.size();
-        ObjectId[] objs = new ObjectId[len];
-        int i = 0;
+        List<ObjectId> idList = new ArrayList<ObjectId>();
         for(Object key : keys){
             BuguEntity obj = map.get(key);
-            objs[i++] = new ObjectId(obj.getId());
+            if(obj != null){
+                idList.add(new ObjectId(obj.getId()));
+            }
         }
-        return objs;
+        return idList;
     }
     
 }

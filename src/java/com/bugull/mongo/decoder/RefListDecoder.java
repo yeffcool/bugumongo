@@ -134,9 +134,7 @@ public class RefListDecoder extends AbstractDecoder{
                     BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
                     refObj.setId(dbRef.getId().toString());
                     result.add(refObj);
-                }else{
-                    result.add(null);
-                } 
+                }
             }
         }else{
             List<ObjectId> idList = new ArrayList<ObjectId>();
