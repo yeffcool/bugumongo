@@ -96,17 +96,15 @@ public class RefListDecoder extends AbstractDecoder{
             }
         }
         else{
-            ObjectId[] objs = new ObjectId[size];
+            List<ObjectId> idList = new ArrayList<ObjectId>();
             for(int i=0; i<size; i++){
                 Object item = list.get(i);
                 if(item != null){
                     DBRef dbRef = (DBRef)item;
-                    objs[i] = (ObjectId)dbRef.getId();
-                }else{
-                    objs[i] = null;
+                    idList.add((ObjectId)dbRef.getId());
                 }
             }
-            DBObject in = new BasicDBObject(Operator.IN, objs);
+            DBObject in = new BasicDBObject(Operator.IN, idList);
             DBObject query = new BasicDBObject(Operator.ID, in);
             BuguDao dao = DaoCache.getInstance().get(clazz);
             String sort = refList.sort();
@@ -141,16 +139,13 @@ public class RefListDecoder extends AbstractDecoder{
                 } 
             }
         }else{
-            ObjectId[] arr = new ObjectId[list.size()];
-            int i = 0;
+            List<ObjectId> idList = new ArrayList<ObjectId>();
             for(DBRef dbRef : list){
                 if(dbRef != null){
-                    arr[i++] = (ObjectId)dbRef.getId();
-                }else{
-                    arr[i++] = null;
+                    idList.add((ObjectId)dbRef.getId());
                 }
             }
-            DBObject in = new BasicDBObject(Operator.IN, arr);
+            DBObject in = new BasicDBObject(Operator.IN, idList);
             DBObject query = new BasicDBObject(Operator.ID, in);
             BuguDao dao = DaoCache.getInstance().get(clazz);
             String sort = refList.sort();
