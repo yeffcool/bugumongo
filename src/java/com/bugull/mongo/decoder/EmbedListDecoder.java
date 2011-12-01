@@ -70,8 +70,13 @@ public class EmbedListDecoder extends AbstractDecoder{
         int size = list.size();
         Object arr = Array.newInstance(clazz, size);
         for(int i=0; i<size; i++){
-            DBObject o = (DBObject)list.get(i);
-            Array.set(arr, i, MapperUtil.fromDBObject(clazz, o));
+            Object item = list.get(i);
+            if(item != null){
+                DBObject o = (DBObject)item;
+                Array.set(arr, i, MapperUtil.fromDBObject(clazz, o));
+            }else{
+                Array.set(arr, i, null);
+            }
         }
         FieldUtil.set(obj, field, arr);
     }
@@ -80,8 +85,12 @@ public class EmbedListDecoder extends AbstractDecoder{
         List list = (ArrayList)value;
         List result = new ArrayList();
         for(Object o : list){
-            Object embedObj = MapperUtil.fromDBObject(clazz, (DBObject)o);
-            result.add(embedObj);
+            if(o != null){
+                Object embedObj = MapperUtil.fromDBObject(clazz, (DBObject)o);
+                result.add(embedObj);
+            }else{
+                result.add(null);
+            }
         }
         Class type = field.getType();
         if(DataType.isList(type)){
@@ -97,8 +106,12 @@ public class EmbedListDecoder extends AbstractDecoder{
         Map result = new HashMap();
         for(Object key : map.keySet()){
             Object val = map.get(key);
-            Object embedObj = MapperUtil.fromDBObject(clazz, (DBObject)val);
-            result.put(key, embedObj);
+            if(val != null){
+                Object embedObj = MapperUtil.fromDBObject(clazz, (DBObject)val);
+                result.put(key, embedObj);
+            }else{
+                result.put(key, null);
+            }
         }
         FieldUtil.set(obj, field, result);
     }

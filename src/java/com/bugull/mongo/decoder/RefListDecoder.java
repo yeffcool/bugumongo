@@ -84,17 +84,27 @@ public class RefListDecoder extends AbstractDecoder{
         Object arr = Array.newInstance(clazz, size);
         if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_RETRIEVE)==-1){
             for(int i=0; i<size; i++){
-                DBRef dbRef = (DBRef)list.get(i);
-                BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
-                refObj.setId(dbRef.getId().toString());
-                Array.set(arr, i, refObj);
+                Object item = list.get(i);
+                if(item != null){
+                    DBRef dbRef = (DBRef)item;
+                    BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
+                    refObj.setId(dbRef.getId().toString());
+                    Array.set(arr, i, refObj);
+                }else{
+                    Array.set(arr, i, null);
+                }
             }
         }
         else{
             ObjectId[] objs = new ObjectId[size];
             for(int i=0; i<size; i++){
-                DBRef dbRef = (DBRef)list.get(i);
-                objs[i] = (ObjectId)dbRef.getId();
+                Object item = list.get(i);
+                if(item != null){
+                    DBRef dbRef = (DBRef)item;
+                    objs[i] = (ObjectId)dbRef.getId();
+                }else{
+                    objs[i] = null;
+                }
             }
             DBObject in = new BasicDBObject(Operator.IN, objs);
             DBObject query = new BasicDBObject(Operator.ID, in);
@@ -122,15 +132,23 @@ public class RefListDecoder extends AbstractDecoder{
         List<BuguEntity> result = new ArrayList<BuguEntity>();
         if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_RETRIEVE)==-1){
             for(DBRef dbRef : list){
-                BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
-                refObj.setId(dbRef.getId().toString());
-                result.add(refObj);
+                if(dbRef != null){
+                    BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
+                    refObj.setId(dbRef.getId().toString());
+                    result.add(refObj);
+                }else{
+                    result.add(null);
+                } 
             }
         }else{
             ObjectId[] arr = new ObjectId[list.size()];
             int i = 0;
             for(DBRef dbRef : list){
-                arr[i++] = (ObjectId)dbRef.getId();
+                if(dbRef != null){
+                    arr[i++] = (ObjectId)dbRef.getId();
+                }else{
+                    arr[i++] = null;
+                }
             }
             DBObject in = new BasicDBObject(Operator.IN, arr);
             DBObject query = new BasicDBObject(Operator.ID, in);
@@ -157,16 +175,24 @@ public class RefListDecoder extends AbstractDecoder{
         if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_RETRIEVE)==-1){
             for(Object key : map.keySet()){
                 DBRef dbRef = map.get(key);
-                BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
-                refObj.setId(dbRef.getId().toString());
-                result.put(key, refObj);
+                if(dbRef != null){
+                    BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
+                    refObj.setId(dbRef.getId().toString());
+                    result.put(key, refObj);
+                }else{
+                    result.put(key, null);
+                }
             }
         }else{
             BuguDao dao = DaoCache.getInstance().get(clazz);
             for(Object key : map.keySet()){
                 DBRef dbRef = map.get(key);
-                BuguEntity refObj = (BuguEntity)dao.findOne(dbRef.getId().toString());
-                result.put(key, refObj);
+                if(dbRef != null){
+                    BuguEntity refObj = (BuguEntity)dao.findOne(dbRef.getId().toString());
+                    result.put(key, refObj);
+                }else{
+                    result.put(key, null);
+                }
             }
         }
         FieldUtil.set(obj, field, result);

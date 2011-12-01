@@ -69,14 +69,16 @@ public class RefListEncoder extends AbstractEncoder{
     
     private Object encodeArray(Class<?> clazz){
         int len = Array.getLength(value);
-        DBRef[] refs = new DBRef[len];
+        List<DBRef> result = new ArrayList<DBRef>();
         BuguDao dao = DaoCache.getInstance().get(clazz);
         for(int i=0; i<len; i++){
             BuguEntity entity = (BuguEntity)Array.get(value, i);
-            doCascade(dao, entity);
-            refs[i] = BuguMapper.toDBRef(entity);
+            if(entity != null){
+                doCascade(dao, entity);
+                result.add(BuguMapper.toDBRef(entity));
+            }
         }
-        return refs;
+        return result;
     }
     
     private Object encodeList(Class type){
@@ -87,8 +89,10 @@ public class RefListEncoder extends AbstractEncoder{
             List<DBRef> result = new ArrayList<DBRef>();
             BuguDao dao = DaoCache.getInstance().get((Class)types[0]);
             for(BuguEntity entity : list){
-                doCascade(dao, entity);
-                result.add(BuguMapper.toDBRef(entity));
+                if(entity != null){
+                    doCascade(dao, entity);
+                    result.add(BuguMapper.toDBRef(entity));
+                }
             }
             return result;
         }
@@ -97,8 +101,10 @@ public class RefListEncoder extends AbstractEncoder{
             Set<DBRef> result = new HashSet<DBRef>();
             BuguDao dao = DaoCache.getInstance().get((Class)types[0]);
             for(BuguEntity entity : set){
-                doCascade(dao, entity);
-                result.add(BuguMapper.toDBRef(entity));
+                if(entity != null){
+                    doCascade(dao, entity);
+                    result.add(BuguMapper.toDBRef(entity));
+                }
             }
             return result;
         }
@@ -108,8 +114,12 @@ public class RefListEncoder extends AbstractEncoder{
             BuguDao dao = DaoCache.getInstance().get((Class)types[1]);
             for(Object key : map.keySet()){
                 BuguEntity entity = map.get(key);
-                doCascade(dao, entity);
-                result.put(key, BuguMapper.toDBRef(entity));
+                if(entity != null){
+                    doCascade(dao, entity);
+                    result.put(key, BuguMapper.toDBRef(entity));
+                }else{
+                    result.put(key, null);
+                }
             }
             return result;
         }

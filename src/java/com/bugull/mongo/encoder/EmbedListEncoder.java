@@ -62,11 +62,14 @@ public class EmbedListEncoder extends AbstractEncoder{
     
     private Object encodeArray(){
         int len = Array.getLength(value);
-        DBObject[] objs = new DBObject[len];
+        List<DBObject> result = new ArrayList<DBObject>();
         for(int i=0; i<len; i++){
-            objs[i] = MapperUtil.toDBObject(Array.get(value, i));
+            Object o = Array.get(value, i);
+            if(o != null){
+                result.add(MapperUtil.toDBObject(o));
+            }
         }
-        return objs;
+        return result;
     }
     
     private Object encodeList(Class type){
@@ -74,7 +77,9 @@ public class EmbedListEncoder extends AbstractEncoder{
             List list = (ArrayList)value;
             List<DBObject> result = new ArrayList<DBObject>();
             for(Object o : list){
-                result.add(MapperUtil.toDBObject(o));
+                if(o != null){
+                    result.add(MapperUtil.toDBObject(o));
+                }
             }
             return result;
         }
@@ -82,7 +87,9 @@ public class EmbedListEncoder extends AbstractEncoder{
             Set set = (Set)value;
             Set<DBObject> result = new HashSet<DBObject>();
             for(Object o : set){
-                result.add(MapperUtil.toDBObject(o));
+                if(o != null){
+                    result.add(MapperUtil.toDBObject(o));
+                }
             }
             return result;
         }
@@ -90,7 +97,12 @@ public class EmbedListEncoder extends AbstractEncoder{
             Map map = (Map)value;
             Map result = new HashMap();
             for(Object key : map.keySet()){
-                result.put(key, MapperUtil.toDBObject(map.get(key)));
+                Object o = map.get(key);
+                if(o != null){
+                    result.put(key, MapperUtil.toDBObject(o));
+                }else{
+                    result.put(key, null);
+                }
             }
             return result;
         }
