@@ -43,15 +43,16 @@ public class ListPropertyFieldHandler extends PropertyFieldHandler{
         if(type.isArray()){
             for(Object o : objList){
                 Object value = FieldUtil.get(o, field);
-                if(value == null){
-                    continue;
+                if(value != null){
+                    sb.append(getArrayString(value, type.getComponentType())).append(JOIN);
                 }
-                sb.append(getArrayString(value, type.getComponentType())).append(JOIN);
             }
         }else{
             for(Object o : objList){
-                String value = FieldUtil.get(o, field).toString();
-                sb.append(value).append(JOIN);
+                Object value = FieldUtil.get(o, field);
+                if(value != null){
+                    sb.append(value.toString()).append(JOIN);
+                }
             }
         }
         Field f = new Field(prefix + field.getName(), sb.toString(), 
