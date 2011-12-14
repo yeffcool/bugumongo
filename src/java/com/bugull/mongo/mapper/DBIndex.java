@@ -18,7 +18,7 @@ package com.bugull.mongo.mapper;
 import com.mongodb.DBObject;
 
 /**
- * fro @EnsureIndex
+ * for @EnsureIndex
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
