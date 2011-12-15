@@ -48,16 +48,20 @@ public class AdvancedDao extends BuguDao{
     }
     
     public double max(String key, DBObject query){
-        StringBuilder map = new StringBuilder("function(){emit('");
-        map.append(key);
-        map.append("', {'value':this.");
-        map.append(key);
-        map.append("});}");
-        String reduce = "function(key, values){var max=values[0].value; for(var i=1;i<values.length; i++){if(values[i].value>max){max=values[i].value;}} return {'value':max}}";
-        Iterable<DBObject> results = mapReduce(map.toString(), reduce, query);
-        DBObject result = results.iterator().next();
-        DBObject dbo = (DBObject)result.get("value");
-        return Double.parseDouble(dbo.get("value").toString());
+        double max = 0.0;
+        if(this.exists(query)){
+            StringBuilder map = new StringBuilder("function(){emit('");
+            map.append(key);
+            map.append("', {'value':this.");
+            map.append(key);
+            map.append("});}");
+            String reduce = "function(key, values){var max=values[0].value; for(var i=1;i<values.length; i++){if(values[i].value>max){max=values[i].value;}} return {'value':max}}";
+            Iterable<DBObject> results = mapReduce(map.toString(), reduce, query);
+            DBObject result = results.iterator().next();
+            DBObject dbo = (DBObject)result.get("value");
+            max = Double.parseDouble(dbo.get("value").toString());
+        }
+        return max;
     }
     
     public double min(String key){
@@ -69,16 +73,20 @@ public class AdvancedDao extends BuguDao{
     }
     
     public double min(String key, DBObject query){
-        StringBuilder map = new StringBuilder("function(){emit('");
-        map.append(key);
-        map.append("', {'value':this.");
-        map.append(key);
-        map.append("});}");
-        String reduce = "function(key, values){var min=values[0].value; for(var i=1;i<values.length; i++){if(values[i].value<min){min=values[i].value;}} return {'value':min}}";
-        Iterable<DBObject> results = mapReduce(map.toString(), reduce, query);
-        DBObject result = results.iterator().next();
-        DBObject dbo = (DBObject)result.get("value");
-        return Double.parseDouble(dbo.get("value").toString());
+        double min = 0.0;
+        if(this.exists(query)){
+            StringBuilder map = new StringBuilder("function(){emit('");
+            map.append(key);
+            map.append("', {'value':this.");
+            map.append(key);
+            map.append("});}");
+            String reduce = "function(key, values){var min=values[0].value; for(var i=1;i<values.length; i++){if(values[i].value<min){min=values[i].value;}} return {'value':min}}";
+            Iterable<DBObject> results = mapReduce(map.toString(), reduce, query);
+            DBObject result = results.iterator().next();
+            DBObject dbo = (DBObject)result.get("value");
+            min = Double.parseDouble(dbo.get("value").toString());
+        }
+        return min;
     }
     
     public double sum(String key){
