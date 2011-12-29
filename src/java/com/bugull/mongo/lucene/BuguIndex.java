@@ -43,7 +43,7 @@ public class BuguIndex {
     private String directoryPath;
     
     private ExecutorService executor;
-    private int poolSize = 10;
+    private int poolSize = 5;
     
     private ScheduledExecutorService scheduler;
     private long period = 30L * 1000L;  //30 seconds
