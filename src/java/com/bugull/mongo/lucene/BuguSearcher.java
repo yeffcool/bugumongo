@@ -166,15 +166,19 @@ public class BuguSearcher {
             for(Object obj : list){
                 String[] fields = highlighter.getFields();
                 for(String fieldName : fields){
-                    Field field = FieldsCache.getInstance().getField(clazz, fieldName);
-                    String fieldValue = FieldUtil.get(obj, field).toString();
-                    String result = null;
-                    try{
-                        result = highlighter.getResult(fieldName, fieldValue);
-                    }catch(Exception e){
-                        logger.error(e.getMessage());
+                    if(! fieldName.contains(".")){
+                        Field field = FieldsCache.getInstance().getField(clazz, fieldName);
+                        String fieldValue = FieldUtil.get(obj, field).toString();
+                        String result = null;
+                        try{
+                            result = highlighter.getResult(fieldName, fieldValue);
+                        }catch(Exception e){
+                            logger.error(e.getMessage());
+                        }
+                        if(result!=null && !result.equals("")){
+                            FieldUtil.set(obj, field, result);
+                        }
                     }
-                    FieldUtil.set(obj, field, result);
                 }
             }
         }
