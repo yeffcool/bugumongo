@@ -158,8 +158,10 @@ public class BuguSearcher {
             }catch(IOException ex){
                 logger.error(ex.getMessage());
             }
-            String id = doc.get(FieldsCache.getInstance().getIdFieldName(clazz));
-            list.add(dao.findOne(id));
+            if(doc != null){
+                String id = doc.get(FieldsCache.getInstance().getIdFieldName(clazz));
+                list.add(dao.findOne(id));
+            }
         }
         //process highlighter
         if(highlighter != null){
