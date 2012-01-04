@@ -39,18 +39,20 @@ public class UploadedFileServlet extends HttpServlet {
     
     private final static Logger logger = Logger.getLogger(UploadedFileServlet.class);
     
+    private final static String SLASH = "/";
+    
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String url = request.getRequestURI();
-        int second = url.indexOf("/", 1);
+        int second = url.indexOf(SLASH, 1);
         url = url.substring(second);
-        int last = url.lastIndexOf("/");
+        int last = url.lastIndexOf(SLASH);
         String filename = url.substring(last+1);
         DBObject query = new BasicDBObject(BuguFS.FILENAME, filename);
         query.put(ImageUploader.DIMENSION, null);
-        int first = url.indexOf("/");
+        int first = url.indexOf(SLASH);
         if(first != last){
             String sub = url.substring(first+1, last);
-            String[] arr = sub.split("/");
+            String[] arr = sub.split(SLASH);
             for(int i=0; i<arr.length; i+=2){
                 query.put(arr[i], arr[i+1]);
             }
@@ -60,7 +62,7 @@ public class UploadedFileServlet extends HttpServlet {
             String ext = null;
             int index = filename.lastIndexOf(".");
             if(index > 0){
-                ext = filename.substring(index+1);
+                ext = filename.substring(index+1).toLowerCase();
             }
             response.setContentType(getContentType(ext));
             if(needCache(ext)){
@@ -116,25 +118,25 @@ public class UploadedFileServlet extends HttpServlet {
         if(ext == null){
             type = "application/octet-stream";
         }
-        else if(ext.equalsIgnoreCase("jpg")){
+        else if(ext.equals("jpg")){
             type = "image/jpeg";
         }
-        else if(ext.equalsIgnoreCase("jpeg") || ext.equalsIgnoreCase("png") || ext.equalsIgnoreCase("gif") || ext.equalsIgnoreCase("bmp")){
-            type = "image/" + ext.toLowerCase();
+        else if(ext.equals("jpeg") || ext.equals("png") || ext.equals("gif") || ext.equals("bmp")){
+            type = "image/" + ext;
         }
-        else if(ext.equalsIgnoreCase("html") || ext.equalsIgnoreCase("htm")){
+        else if(ext.equals("html") || ext.equals("htm")){
             type = "text/html";
         }
-        else if(ext.equalsIgnoreCase("swf")){
+        else if(ext.equals("swf")){
             type = "application/x-shockwave-flash";
         }
-        else if(ext.equalsIgnoreCase("mp3")){
+        else if(ext.equals("mp3")){
             type = "audio/x-mpeg";
         }
-        else if(ext.equalsIgnoreCase("mp4")){
+        else if(ext.equals("mp4")){
             type = "video/mp4";
         }
-        else if(ext.equalsIgnoreCase("pdf")){
+        else if(ext.equals("pdf")){
             type = "application/pdf";
         }
         else{
