@@ -42,6 +42,7 @@ public class BuguConnection {
     private String database;
     private String username;
     private String password;
+    private Mongo mongo;
     private DB db;
     
     private BuguConnection(){
@@ -84,7 +85,6 @@ public class BuguConnection {
     }
 
     private void doConnect(){
-        Mongo mongo = null;
         try{
             if(host != null && port != 0){
                 ServerAddress sa = new ServerAddress(host, port);
@@ -107,7 +107,17 @@ public class BuguConnection {
         }catch(UnknownHostException e){
             logger.error(e.getMessage());
         }
+        if(mongo == null){
+            logger.error("Can not connect to mongoDB.");
+            return;
+        }
         db = mongo.getDB(database);
+    }
+    
+    public void close(){
+        if(mongo != null){
+            mongo.close();
+        }
     }
     
     private void auth(){
