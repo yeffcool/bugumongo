@@ -60,6 +60,13 @@ public class BuguMapper {
         return new DBRef(db, name, id);
     }
     
+    public static DBRef toDBRef(Class<?> clazz, String idStr){
+        DB db = BuguConnection.getInstance().getDB();
+        String name = MapperUtil.getEntityName(clazz);
+        ObjectId id = new ObjectId(idStr);
+        return new DBRef(db, name, id);
+    }
+    
     /**
      * Fetch out the lazy @Property, @Embed, @EmbedList field of a list
      * @param list the list needs to operate on
