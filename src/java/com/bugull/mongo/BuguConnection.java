@@ -15,6 +15,7 @@
 
 package com.bugull.mongo;
 
+import com.bugull.mongo.mapper.CascadeDeleteExecutor;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.mongodb.MongoOptions;
@@ -22,6 +23,7 @@ import com.mongodb.ReadPreference;
 import com.mongodb.ServerAddress;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import org.apache.log4j.Logger;
 
 /**
@@ -115,6 +117,10 @@ public class BuguConnection {
     }
     
     public void close(){
+        ExecutorService executor = CascadeDeleteExecutor.getInstance().getExecutor();
+        if(executor != null){
+            executor.shutdown();
+        }
         if(mongo != null){
             mongo.close();
         }
