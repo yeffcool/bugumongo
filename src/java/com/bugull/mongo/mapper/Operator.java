@@ -44,6 +44,7 @@ public class Operator {
     public static final String BOX = "$box";
     
     public static final String SET = "$set";
+    public static final String UNSET = "$unset";
     public static final String INC = "$inc";
     public static final String PUSH = "$push";
     public static final String PULL = "$pull";

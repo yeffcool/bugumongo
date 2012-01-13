@@ -344,6 +344,40 @@ public class BuguDao {
         }
     }
     
+    public void unset(BuguEntity entity, String key){
+        unset(entity.getId(), key);
+    }
+    
+    public void unset(String id, String key){
+        DBObject query = new BasicDBObject(key, 1);
+        DBObject unset = new BasicDBObject(Operator.UNSET, query);
+        if(indexed && MapperUtil.hasIndexAnnotation(clazz, key)){
+            update(id, unset);
+        }else{
+            updateWithOutIndex(id, unset);
+        }
+    }
+    
+    public void unset(Query query, String key){
+        unset(query.getCondition(), key);
+    }
+    
+    public void unset(DBObject query, String key){
+        boolean indexField = indexed && MapperUtil.hasIndexAnnotation(clazz, key); 
+        List ids = null;
+        if(indexField){
+            ids = coll.distinct(Operator.ID, query);
+        }
+        DBObject dbo = new BasicDBObject(key, 1);
+        coll.updateMulti(query, new BasicDBObject(Operator.UNSET, dbo));
+        if(indexField){
+            for(Object id : ids){
+                BuguEntity entity = (BuguEntity)findOne(id.toString());
+                luceneListener.entityUpdate(entity);
+            }
+        }
+    }
+    
     /**
      * Increase a numeric field of an entity.
      * @param obj the entity needs to update
