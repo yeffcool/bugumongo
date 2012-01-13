@@ -18,6 +18,7 @@ package com.bugull.mongo.lucene;
 import java.sql.Timestamp;
 import java.util.Date;
 import org.apache.log4j.Logger;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
@@ -25,6 +26,7 @@ import org.apache.lucene.queryParser.QueryParser.Operator;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
 
 /**
  *
@@ -35,6 +37,11 @@ public class BuguParser {
     private final static Logger logger = Logger.getLogger(BuguParser.class);
     
     private static BuguIndex index = BuguIndex.getInstance();
+    
+    public static Query parseTerm(String field, String value){
+        Term t = new Term(field, value);
+        return new TermQuery(t);
+    }
     
     public static Query parse(String field, String value){
         return parse(field, value, Operator.OR);
