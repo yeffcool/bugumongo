@@ -22,12 +22,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class FieldsCache {
+    
+    private final static Logger logger = Logger.getLogger(FieldsCache.class);
     
     private static FieldsCache instance = new FieldsCache();
     
@@ -105,6 +108,9 @@ public class FieldsCache {
                 field = f;
                 break;
             }
+        }
+        if(field == null){
+            logger.error(clazz.getName() + " does not contains field " + fieldName);
         }
         return field;
     }
