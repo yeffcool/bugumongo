@@ -97,6 +97,9 @@ public class FieldsCache {
                 break;
             }
         }
+        if(name == null){
+            logger.error(clazz.getName() + " does not contain Id field.");
+        }
         return name;
     }
     
@@ -110,7 +113,7 @@ public class FieldsCache {
             }
         }
         if(field == null){
-            logger.error(clazz.getName() + " does not contains field " + fieldName);
+            logger.error(clazz.getName() + " does not contain field " + fieldName);
         }
         return field;
     }
