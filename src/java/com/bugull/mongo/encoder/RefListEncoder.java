@@ -22,6 +22,7 @@ import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.mapper.DataType;
+import com.bugull.mongo.mapper.StringUtil;
 import com.mongodb.DBRef;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -129,10 +130,11 @@ public class RefListEncoder extends AbstractEncoder{
     }
     
     private void doCascade(BuguDao dao, BuguEntity entity){
-        if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_CREATE)!=-1 && entity.getId()==null){
+        String idStr = entity.getId();
+        if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_CREATE)!=-1 && StringUtil.isEmpty(idStr)){
             dao.insert(entity);
         }
-        if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_UPDATE)!=-1 && entity.getId()!=null){
+        if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_UPDATE)!=-1 && !StringUtil.isEmpty(idStr)){
             dao.save(entity);
         }
     }

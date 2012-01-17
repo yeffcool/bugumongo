@@ -24,6 +24,7 @@ import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
+import com.bugull.mongo.mapper.StringUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
@@ -53,14 +54,21 @@ public class BuguMapper {
      * @return 
      */
     public static DBRef toDBRef(BuguEntity obj){
+        String idStr = obj.getId();
+        if(StringUtil.isEmpty(idStr)){
+            return null;
+        }
         DB db = BuguConnection.getInstance().getDB();
         Class<?> clazz = obj.getClass();
         String name = MapperUtil.getEntityName(clazz);
-        ObjectId id = new ObjectId(obj.getId());
+        ObjectId id = new ObjectId(idStr);
         return new DBRef(db, name, id);
     }
     
     public static DBRef toDBRef(Class<?> clazz, String idStr){
+        if(StringUtil.isEmpty(idStr)){
+            return null;
+        }
         DB db = BuguConnection.getInstance().getDB();
         String name = MapperUtil.getEntityName(clazz);
         ObjectId id = new ObjectId(idStr);
