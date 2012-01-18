@@ -39,7 +39,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 
 /**
@@ -48,9 +47,7 @@ import org.bson.types.ObjectId;
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class BuguMapper {
-    
-    private final static Logger logger = Logger.getLogger(BuguMapper.class);
-    
+        
     /**
      * Convert BuguEntity to DBRef. Useful when operate on @Ref and @RefList field.
      * @param obj
@@ -64,14 +61,8 @@ public class BuguMapper {
         DB db = BuguConnection.getInstance().getDB();
         Class<?> clazz = obj.getClass();
         String name = MapperUtil.getEntityName(clazz);
-        DBRef dbref = null;
-        try{
-            ObjectId id = new ObjectId(idStr);
-            dbref = new DBRef(db, name, id);
-        }catch(Exception e){
-            logger.error(e.getMessage());
-        }
-        return dbref;
+        ObjectId id = new ObjectId(idStr);
+        return new DBRef(db, name, id);
     }
     
     public static DBRef toDBRef(Class<?> clazz, String idStr){
@@ -80,14 +71,8 @@ public class BuguMapper {
         }
         DB db = BuguConnection.getInstance().getDB();
         String name = MapperUtil.getEntityName(clazz);
-        DBRef dbref = null;
-        try{
-            ObjectId id = new ObjectId(idStr);
-            dbref = new DBRef(db, name, id);
-        }catch(Exception e){
-            logger.error(e.getMessage());
-        }
-        return dbref;
+        ObjectId id = new ObjectId(idStr);
+        return new DBRef(db, name, id);
     }
     
     /**
