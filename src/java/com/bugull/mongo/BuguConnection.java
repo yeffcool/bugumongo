@@ -132,7 +132,7 @@ public class BuguConnection {
             logger.info("Connected to mongodb successfully!");
         }else{
             db = null;
-            logger.error("Connect to mongodb failed! Failed to authenticate!");
+            logger.error("Can not connect to mongodb. Failed to authenticate!");
         }
     }
     
