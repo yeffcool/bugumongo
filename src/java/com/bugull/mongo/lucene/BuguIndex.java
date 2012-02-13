@@ -29,7 +29,9 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.util.Version;
 
 /**
- *
+ * Set the lucene index parameter.
+ * Singleton Pattern is used here. An application should use only one BuguIndex.
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class BuguIndex {

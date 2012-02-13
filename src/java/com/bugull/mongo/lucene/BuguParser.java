@@ -29,7 +29,8 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
 /**
- *
+ * The utility class for creating lucene query.
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class BuguParser {

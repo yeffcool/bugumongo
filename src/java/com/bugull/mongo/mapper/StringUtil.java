@@ -22,14 +22,7 @@ package com.bugull.mongo.mapper;
 public class StringUtil {
     
     public static boolean isEmpty(String s){
-        if(s == null){
-            return true;
-        }
-        s = s.trim();
-        if(s.equals("")){
-            return true;
-        }
-        return false;
+        return s == null || s.trim().length() == 0;
     }
     
 }

@@ -28,7 +28,6 @@ import org.apache.log4j.Logger;
 
 /**
  * The connection to MongoDB.
- * 
  * Singleton Pattern is used here. An application should use only one BuguConnection.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
