@@ -38,6 +38,7 @@ public class BuguIndex {
     
     private static BuguIndex instance = new BuguIndex();
     
+    private double bufferSizeMB = 0.0;
     private Version version = Version.LUCENE_35;
     private Analyzer analyzer = new StandardAnalyzer(version);
     private String directoryPath;
@@ -88,6 +89,14 @@ public class BuguIndex {
     
     public void setThreadPoolSize(int poolSize){
         this.poolSize = poolSize;
+    }
+
+    public double getBufferSizeMB() {
+        return bufferSizeMB;
+    }
+
+    public void setBufferSizeMB(double bufferSizeMB) {
+        this.bufferSizeMB = bufferSizeMB;
     }
     
     public void setIndexReopenPeriod(long period){
