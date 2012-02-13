@@ -47,13 +47,13 @@ public class IndexReopenTask implements Runnable {
             try{
                 newReader = IndexReader.openIfChanged(reader, true);
             }catch(IOException ex){
-                logger.error(ex.getMessage());
+                logger.error("Something is wrong when reopen the Lucene IndexReader", ex);
             }
             if(newReader!=null && newReader!=reader){
                 try{
                     reader.decRef();
                 }catch(IOException ex){
-                    logger.error(ex.getMessage());
+                    logger.error("Something is wrong when decrease the reference of the lucene IndexReader", ex);
                 }
                 IndexSearcher newSearcher = new IndexSearcher(newReader);
                 searcherCache.put(name, newSearcher);

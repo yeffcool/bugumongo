@@ -49,8 +49,8 @@ public class Uploader {
         fs = BuguFS.getInstance();
         try{
             this.input = new FileInputStream(file);
-        }catch(FileNotFoundException e){
-            logger.error(e.getMessage());
+        }catch(FileNotFoundException ex){
+            logger.error("Can not create the FileInputStream", ex);
         }
         this.originalName = originalName;
     }
@@ -119,8 +119,8 @@ public class Uploader {
         fs.save(input, filename, folder, params);
         try{
             input.close();
-        }catch(IOException e){
-            logger.error(e.getMessage());
+        }catch(IOException ex){
+            logger.error("Can not close the InputStream", ex);
         }
     }
     

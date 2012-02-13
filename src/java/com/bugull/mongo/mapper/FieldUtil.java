@@ -31,9 +31,9 @@ public class FieldUtil {
         try {
             value = f.get(obj);
         } catch (IllegalArgumentException ex) {
-            logger.error(ex.getMessage());
+            logger.error("Can not get the field's value", ex);
         } catch (IllegalAccessException ex) {
-            logger.error(ex.getMessage());
+            logger.error("Can not get the field's value", ex);
         }
         return value;
     }
@@ -42,9 +42,9 @@ public class FieldUtil {
         try{
             f.set(obj, value);
         }catch(IllegalArgumentException ex){
-            logger.error(ex.getMessage());
+            logger.error("Can not set the field's value", ex);
         }catch(IllegalAccessException ex){
-            logger.error(ex.getMessage());
+            logger.error("Can not set the field's value", ex);
         }
     }
     

@@ -60,8 +60,8 @@ public class IndexWriterCache {
                         Directory dir = FSDirectory.open(new File(path + "/" + name));
                         IndexWriterConfig conf = new IndexWriterConfig(index.getVersion(), index.getAnalyzer());
                         writer = new IndexWriter(dir, conf);
-                    }catch(Exception e){
-                        logger.error(e.getMessage());
+                    }catch(Exception ex){
+                        logger.error("Something is wrong when create the IndexWriter", ex);
                     }
                     cache.put(name, writer);
                 }

@@ -85,8 +85,8 @@ public class BuguFS {
         GridFSInputFile f = null;
         try{
             f = fs.createFile(file);
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        }catch(Exception ex){
+            logger.error("Can not create GridFSInputFile", ex);
         }
         f.setFilename(filename);
         setParams(f, folderName, params);

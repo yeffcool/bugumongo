@@ -53,9 +53,9 @@ public class IndexUpdateTask implements Runnable{
         try {
             writer.updateDocument(term, doc);
         } catch (CorruptIndexException ex) {
-            logger.error(ex.getMessage());
+            logger.error("IndexWriter can not update the document", ex);
         } catch (IOException ex) {
-            logger.error(ex.getMessage());
+            logger.error("IndexWriter can not update the document", ex);
         }
     }
     

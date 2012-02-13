@@ -68,7 +68,7 @@ public class BuguParser {
         try{
             query = MultiFieldQueryParser.parse(index.getVersion(), value, fields, occurs, index.getAnalyzer());
         }catch(ParseException ex){
-            logger.error(ex.getMessage());
+            logger.error("MultiFieldQueryParser can not parse the value " + value , ex);
         }
         return query;
     }
@@ -78,7 +78,7 @@ public class BuguParser {
         try{
             query = parser.parse(value);
         }catch(ParseException ex){
-            logger.error(ex.getMessage());
+            logger.error("Can not parse the value " + value , ex);
         }
         return query;
     }

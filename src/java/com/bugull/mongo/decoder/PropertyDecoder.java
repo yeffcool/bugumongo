@@ -59,9 +59,9 @@ public class PropertyDecoder extends AbstractDecoder{
                 decodePrimitive(obj, type);
             }
         }catch(IllegalArgumentException ex){
-            logger.error(ex.getMessage());
+            logger.error("Something is wrong when parse the field's value", ex);
         }catch(IllegalAccessException ex){
-            logger.error(ex.getMessage());
+            logger.error("Something is wrong when parse the field's value", ex);
         }
     }
     

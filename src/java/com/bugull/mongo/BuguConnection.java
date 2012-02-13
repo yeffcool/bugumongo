@@ -106,8 +106,8 @@ public class BuguConnection {
                     mongo.setReadPreference(readPreference);
                 }
             }
-        }catch(UnknownHostException e){
-            logger.error(e.getMessage());
+        }catch(UnknownHostException ex){
+            logger.error("Can not connect to the MongoDB host" ,ex);
         }
         if(mongo == null){
             logger.error("Can not connect to mongoDB.");

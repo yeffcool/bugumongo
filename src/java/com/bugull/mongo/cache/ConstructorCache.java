@@ -51,9 +51,9 @@ public class ConstructorCache {
             try {
                 cons = clazz.getConstructor(types);
             } catch (NoSuchMethodException ex) {
-                logger.error(ex.getMessage());
+                logger.error("Something is wrong when getting the constructor", ex);
             } catch (SecurityException ex) {
-                logger.error(ex.getMessage());
+                logger.error("Something is wrong when getting the constructor", ex);
             }
             cache.put(name, cons);
         }
@@ -67,13 +67,13 @@ public class ConstructorCache {
         try {
             obj = cons.newInstance(args);
         } catch (InstantiationException ex) {
-            logger.error(ex.getMessage());
+            logger.error("Something is wrong when create the new instance", ex);
         } catch (IllegalAccessException ex) {
-            logger.error(ex.getMessage());
+            logger.error("Something is wrong when create the new instance", ex);
         } catch (IllegalArgumentException ex) {
-            logger.error(ex.getMessage());
+            logger.error("Something is wrong when create the new instance", ex);
         } catch (InvocationTargetException ex) {
-            logger.error(ex.getMessage());
+            logger.error("Something is wrong when create the new instance", ex);
         }
         return obj;
     }

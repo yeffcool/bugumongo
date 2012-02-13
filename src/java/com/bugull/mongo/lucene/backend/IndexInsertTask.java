@@ -50,9 +50,9 @@ public class IndexInsertTask implements Runnable {
         try {
             writer.addDocument(doc);
         } catch (CorruptIndexException ex) {
-            logger.error(ex.getMessage());
+            logger.error("IndexWriter can not add a document to the lucene index", ex);
         } catch (IOException ex) {
-            logger.error(ex.getMessage());
+            logger.error("IndexWriter can not add a document to the lucene index", ex);
         }
     }
     

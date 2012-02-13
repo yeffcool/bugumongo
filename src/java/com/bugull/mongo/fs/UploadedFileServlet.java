@@ -77,8 +77,8 @@ public class UploadedFileServlet extends HttpServlet {
                     try{
                         modifiedDate = df.parse(lastModified);
                         sinceDate = df.parse(modifiedSince);
-                    }catch(ParseException e){
-                        logger.error(e.getMessage());
+                    }catch(ParseException ex){
+                        logger.error("Can not parse the Date", ex);
                     }
                     if(modifiedDate.compareTo(sinceDate) <= 0){
                         response.setStatus(304);    //Not Modified

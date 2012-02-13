@@ -164,7 +164,7 @@ public class ImageUploader extends Uploader{
         try {
             bi = ImageIO.read(f);
         } catch (IOException ex) {
-            logger.error(ex);
+            logger.error("Can not read the image file", ex);
         }
         return bi;
     }
@@ -175,7 +175,7 @@ public class ImageUploader extends Uploader{
             bi = ImageIO.read(is);
             is.close();
         } catch (IOException ex) {
-            logger.error(ex);
+            logger.error("Can not read the InputStream", ex);
         }
         return bi;
     }
@@ -185,13 +185,13 @@ public class ImageUploader extends Uploader{
         try {
             ImageIO.write(bi, getExtention(), baos);
         } catch (IOException ex) {
-            logger.error(ex);
+            logger.error("Can not write the BufferedImage", ex);
         }
         fs.save(baos.toByteArray(), filename, folder, params);
         try{
             baos.close();
         }catch(IOException ex){
-            logger.error(ex.getMessage());
+            logger.error("Can not close the ByteArrayOutputStream", ex);
         }
     }
     

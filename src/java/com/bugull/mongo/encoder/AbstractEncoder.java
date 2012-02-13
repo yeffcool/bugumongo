@@ -51,7 +51,7 @@ public abstract class AbstractEncoder implements Encoder{
                     setValue(type, objValue);
                 }
             }catch(Exception ex){
-                logger.error(ex.getMessage());
+                logger.error("Can not set field value to object", ex);
             }
         }
     }

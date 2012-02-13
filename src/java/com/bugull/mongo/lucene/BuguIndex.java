@@ -76,8 +76,8 @@ public class BuguIndex {
             try{
                 writer.commit();
                 writer.close(true);
-            }catch(Exception e){
-                logger.error(e.getMessage());
+            }catch(Exception ex){
+                logger.error("Can not commit and close the lucene index", ex);
             }
         }
     }

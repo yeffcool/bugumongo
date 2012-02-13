@@ -137,7 +137,7 @@ public class BuguSearcher {
                 topDocs = searcher.search(query, filter, maxPage*pageSize, sort);
             }
         }catch(IOException ex){
-            logger.error(ex.getMessage());
+            logger.error("Something is wrong when doing lucene search", ex);
         }
         if(topDocs == null){
             return Collections.emptyList();
@@ -156,7 +156,7 @@ public class BuguSearcher {
             try{
                 doc = searcher.doc(docs[i].doc);
             }catch(IOException ex){
-                logger.error(ex.getMessage());
+                logger.error("Lucene IndexSearcher can not get the document", ex);
             }
             if(doc != null){
                 String id = doc.get(FieldsCache.getInstance().getIdFieldName(clazz));
@@ -174,8 +174,8 @@ public class BuguSearcher {
                         String result = null;
                         try{
                             result = highlighter.getResult(fieldName, fieldValue);
-                        }catch(Exception e){
-                            logger.error(e.getMessage());
+                        }catch(Exception ex){
+                            logger.error("Something is wrong when getting the highlighter result", ex);
                         }
                         if(result!=null && !result.equals("")){
                             FieldUtil.set(obj, field, result);
@@ -191,7 +191,7 @@ public class BuguSearcher {
         try{
             reader.decRef();
         }catch(IOException ex){
-            logger.error(ex.getMessage());
+            logger.error("Something is wrong when decrease the reference of IndexReader", ex);
         }
     }
     

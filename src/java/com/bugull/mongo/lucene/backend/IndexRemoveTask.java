@@ -49,9 +49,9 @@ public class IndexRemoveTask implements Runnable{
         try {
             writer.deleteDocuments(term);
         } catch (CorruptIndexException ex) {
-            logger.error(ex.getMessage());
+            logger.error("IndexWriter can not delete a document from the lucene index", ex);
         } catch (IOException ex) {
-            logger.error(ex.getMessage());
+            logger.error("IndexWriter can not delete a document from the lucene index", ex);
         }
     }
     

@@ -51,8 +51,8 @@ public class IndexRebuildTask implements Runnable{
     public void run() {
         try{
             writer.deleteAll();
-        }catch(IOException e){
-            logger.error(e.getMessage());
+        }catch(IOException ex){
+            logger.error("Something is wrong when lucene IndexWriter doing deleteAll()", ex);
         }
         BuguDao dao = DaoCache.getInstance().get(clazz);
         long count = dao.count();
@@ -86,9 +86,9 @@ public class IndexRebuildTask implements Runnable{
             try {
                 writer.addDocument(doc);
             } catch (CorruptIndexException ex) {
-                logger.error(ex.getMessage());
+                logger.error("IndexWriter can not add a document to the lucene index", ex);
             } catch (IOException ex) {
-                logger.error(ex.getMessage());
+                logger.error("IndexWriter can not add a document to the lucene index", ex);
             }
         }
     }

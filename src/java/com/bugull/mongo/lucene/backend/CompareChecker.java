@@ -65,8 +65,8 @@ public class CompareChecker {
                 default:
                     break;
             }
-        }catch(Exception e){
-            logger.error(e.getMessage());
+        }catch(Exception ex){
+            logger.error("Something is wrong when checking it's fit or not", ex);
         }
         return fit;
     }

@@ -58,9 +58,9 @@ public class IndexSearcherCache {
                     try {
                         reader = IndexReader.open(writer, true);
                     } catch (CorruptIndexException ex) {
-                        logger.error(ex.getMessage());
+                        logger.error("Something is wrong when open the lucene IndexWriter", ex);
                     } catch (IOException ex) {
-                        logger.error(ex.getMessage());
+                        logger.error("Something is wrong when open the lucene IndexWriter", ex);
                     }
                     searcher = new IndexSearcher(reader);
                     cache.put(name, searcher);
