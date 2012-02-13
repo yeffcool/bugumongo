@@ -58,6 +58,9 @@ public class IndexWriterCache {
                     String path = index.getDirectoryPath();
                     try{
                         Directory dir = FSDirectory.open(new File(path + "/" + name));
+                        if(IndexWriter.isLocked(dir)){
+                            IndexWriter.unlock(dir);
+                        }
                         IndexWriterConfig conf = new IndexWriterConfig(index.getVersion(), index.getAnalyzer());
                         writer = new IndexWriter(dir, conf);
                     }catch(Exception ex){
