@@ -27,7 +27,7 @@ import java.util.Date;
  */
 public abstract class AbstractFieldHandler implements FieldHandler{
     
-    public final static String JOIN = ";";
+    protected final static String JOIN = ";";
     
     protected Object obj;
     protected Field field;

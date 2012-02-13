@@ -29,6 +29,8 @@ import java.lang.reflect.Field;
  */
 public class FieldHandlerFactory {
     
+    private final static String DOT = ".";
+    
     public static FieldHandler create(Object obj, Field f, String prefix){
         FieldHandler handler = null;
         if(f.getAnnotation(Id.class) != null){
@@ -38,16 +40,16 @@ public class FieldHandlerFactory {
             handler = new PropertyFieldHandler(obj, f, prefix);
         }
         else if(f.getAnnotation(IndexEmbed.class) != null){
-            handler = new EmbedFieldHandler(obj, f, f.getName() + ".");
+            handler = new EmbedFieldHandler(obj, f, f.getName() + DOT);
         }
         else if(f.getAnnotation(IndexEmbedList.class) != null){
-            handler = new EmbedListFieldHandler(obj, f, f.getName() + ".");
+            handler = new EmbedListFieldHandler(obj, f, f.getName() + DOT);
         }
         else if(f.getAnnotation(IndexRef.class) != null){
-            handler = new RefFieldHandler(obj, f, f.getName() + ".");
+            handler = new RefFieldHandler(obj, f, f.getName() + DOT);
         }
         else if(f.getAnnotation(IndexRefList.class) != null){
-            handler = new RefListFieldHandler(obj, f, f.getName() + ".");
+            handler = new RefListFieldHandler(obj, f, f.getName() + DOT);
         }
         return handler;
     }
