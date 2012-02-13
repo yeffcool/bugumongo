@@ -16,7 +16,10 @@
 package com.bugull.mongo.mapper;
 
 /**
- *
+ * utility class for String.
+ * 
+ * thanks to wendal1985
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class StringUtil {
