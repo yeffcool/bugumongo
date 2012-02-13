@@ -62,6 +62,10 @@ public class IndexWriterCache {
                             IndexWriter.unlock(dir);
                         }
                         IndexWriterConfig conf = new IndexWriterConfig(index.getVersion(), index.getAnalyzer());
+                        double bufferSizeMB = index.getBufferSizeMB();
+                        if(bufferSizeMB > 0.0){
+                            conf.setRAMBufferSizeMB(bufferSizeMB);
+                        }
                         writer = new IndexWriter(dir, conf);
                     }catch(Exception ex){
                         logger.error("Something is wrong when create the IndexWriter", ex);
