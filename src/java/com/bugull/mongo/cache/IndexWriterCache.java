@@ -26,7 +26,8 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 /**
- *
+ * Cache(Map) contains IndexWriter
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class IndexWriterCache {
@@ -58,6 +59,7 @@ public class IndexWriterCache {
                     String path = index.getDirectoryPath();
                     try{
                         Directory dir = FSDirectory.open(new File(path + "/" + name));
+                        //failure recovery, unlock the directory
                         if(IndexWriter.isLocked(dir)){
                             IndexWriter.unlock(dir);
                         }

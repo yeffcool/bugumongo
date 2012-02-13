@@ -20,7 +20,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
+ * Cache(Map) contains dao instance
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class DaoCache {
