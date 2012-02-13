@@ -15,13 +15,13 @@
 
 package com.bugull.mongo.fs;
 
+import com.bugull.mongo.mapper.StringUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFSDBFile;
 import java.awt.AlphaComposite;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -145,11 +145,10 @@ public class ImageUploader extends Uploader{
             saveImage(srcImage);
             return;
         }
-        Image scaledImage = srcImage.getScaledInstance(srcWidth, srcHeight, Image.SCALE_SMOOTH); 
         double ratio = Math.min((double) maxWidth / srcWidth, (double) maxHeight / srcHeight);
         AffineTransformOp op = new AffineTransformOp(AffineTransform.getScaleInstance(ratio, ratio), null); 
-        scaledImage = op.filter(srcImage, null);
-        saveImage((BufferedImage)scaledImage);
+        BufferedImage scaledImage = op.filter(srcImage, null);
+        saveImage(scaledImage);
     }
     
     private InputStream getOriginalInputStream(){
@@ -183,7 +182,7 @@ public class ImageUploader extends Uploader{
     private void saveImage(BufferedImage bi){
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            ImageIO.write(bi, getExtention(), baos);
+            ImageIO.write(bi, StringUtil.getExtention(originalName), baos);
         } catch (IOException ex) {
             logger.error("Can not write the BufferedImage", ex);
         }

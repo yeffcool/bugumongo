@@ -24,8 +24,27 @@ package com.bugull.mongo.mapper;
  */
 public class StringUtil {
     
+    /**
+     * check if a string is empty
+     * @param s
+     * @return 
+     */
     public static boolean isEmpty(String s){
         return s == null || s.trim().length() == 0;
+    }
+    
+    /**
+     * get the file's extension name, such as doc, png, jpeg
+     * @param filename
+     * @return 
+     */
+    public static String getExtention(String filename){
+        String ext = null;
+        int index = filename.lastIndexOf(".");
+        if(index > 0){
+            ext = filename.substring(index + 1);
+        }
+        return ext;
     }
     
 }

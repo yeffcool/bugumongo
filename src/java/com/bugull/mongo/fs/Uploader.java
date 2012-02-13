@@ -15,6 +15,7 @@
 
 package com.bugull.mongo.fs;
 
+import com.bugull.mongo.mapper.StringUtil;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -108,7 +109,11 @@ public class Uploader {
             SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
             String dateStr = format.format(date);
             StringBuilder sb = new StringBuilder();
-            sb.append(dateStr).append(date.getTime()).append(".").append(getExtention());
+            sb.append(dateStr).append(date.getTime());
+            String ext = StringUtil.getExtention(originalName);
+            if(!StringUtil.isEmpty(ext)){
+                sb.append(".").append(ext);
+            }
             filename = sb.toString();
         }else{
             filename = originalName;
@@ -122,18 +127,6 @@ public class Uploader {
         }catch(IOException ex){
             logger.error("Can not close the InputStream", ex);
         }
-    }
-    
-    /**
-     * @return the extension name, such as doc, png, jpeg
-     */
-    protected String getExtention(){
-        String ext = "";
-        int index = originalName.lastIndexOf(".");
-        if(index > 0){
-            ext = originalName.substring(index + 1);
-        }
-        return ext;
     }
     
 }

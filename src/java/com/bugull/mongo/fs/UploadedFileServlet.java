@@ -15,6 +15,7 @@
 
 package com.bugull.mongo.fs;
 
+import com.bugull.mongo.mapper.StringUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFSDBFile;
@@ -59,11 +60,7 @@ public class UploadedFileServlet extends HttpServlet {
         }
         GridFSDBFile f = BuguFS.getInstance().findOne(query);
         if(f != null){
-            String ext = null;
-            int index = filename.lastIndexOf(".");
-            if(index > 0){
-                ext = filename.substring(index+1).toLowerCase();
-            }
+            String ext = StringUtil.getExtention(filename);
             response.setContentType(getContentType(ext));
             if(needCache(ext)){
                 String modifiedSince = request.getHeader("If-Modified-Since");
@@ -99,9 +96,10 @@ public class UploadedFileServlet extends HttpServlet {
     }
     
     private boolean needCache(String ext){
-        if(ext == null){
+        if(StringUtil.isEmpty(ext)){
             return false;
         }
+        ext = ext.toLowerCase();
         boolean need = false;
         String[] arr = {"jpg", "jpeg", "png", "gif", "bmp", "html", "htm", "swf", "mp3", "mp4", "pdf"};
         for(String s : arr){
@@ -114,11 +112,12 @@ public class UploadedFileServlet extends HttpServlet {
     }
     
     private String getContentType(String ext){
-        String type = null;
-        if(ext == null){
-            type = "application/octet-stream";
+        if(StringUtil.isEmpty(ext)){
+            return "application/octet-stream";
         }
-        else if(ext.equals("jpg")){
+        String type = null;
+        ext = ext.toLowerCase();
+        if(ext.equals("jpg")){
             type = "image/jpeg";
         }
         else if(ext.equals("jpeg") || ext.equals("png") || ext.equals("gif") || ext.equals("bmp")){
