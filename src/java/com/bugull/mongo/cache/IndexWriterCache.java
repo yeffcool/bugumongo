@@ -59,10 +59,6 @@ public class IndexWriterCache {
                     String path = index.getDirectoryPath();
                     try{
                         Directory dir = FSDirectory.open(new File(path + "/" + name));
-                        //failure recovery, unlock the directory
-                        if(IndexWriter.isLocked(dir)){
-                            IndexWriter.unlock(dir);
-                        }
                         IndexWriterConfig conf = new IndexWriterConfig(index.getVersion(), index.getAnalyzer());
                         double bufferSizeMB = index.getBufferSizeMB();
                         if(bufferSizeMB > 0.0){
@@ -70,7 +66,7 @@ public class IndexWriterCache {
                         }
                         writer = new IndexWriter(dir, conf);
                     }catch(Exception ex){
-                        logger.error("Something is wrong when create the IndexWriter", ex);
+                        logger.error("Something is wrong when create the IndexWriter for " + name, ex);
                     }
                     cache.put(name, writer);
                 }
