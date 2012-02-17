@@ -17,6 +17,7 @@ package com.bugull.mongo.lucene;
 
 import com.bugull.mongo.cache.IndexWriterCache;
 import com.bugull.mongo.lucene.backend.IndexReopenTask;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,7 +26,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.Version;
 
 /**
@@ -76,11 +79,25 @@ public class BuguIndex {
         }
         Map<String, IndexWriter>  map = IndexWriterCache.getInstance().getAll();
         for(IndexWriter writer : map.values()){
-            try{
-                writer.commit();
-                writer.close(true);
-            }catch(Exception ex){
-                logger.error("Can not commit and close the lucene index", ex);
+            if(writer != null){
+                Directory dir = writer.getDirectory();
+                try{
+                    writer.commit();
+                    writer.close(true);
+                }catch(CorruptIndexException ex){
+                    logger.error("Can not commit and close the lucene index", ex);
+                }catch(IOException ex){
+                    logger.error("Can not commit and close the lucene index", ex);
+                }finally{
+                    try{
+                        if(dir != null && IndexWriter.isLocked(dir)){
+                            IndexWriter.unlock(dir);
+                        }
+                    }catch(IOException ex){
+                        logger.error("Can not unlock the lucene index", ex);
+                    }
+                    
+                }
             }
         }
     }
