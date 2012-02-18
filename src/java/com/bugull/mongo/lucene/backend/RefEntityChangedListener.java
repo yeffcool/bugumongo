@@ -33,15 +33,12 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
-import org.apache.log4j.Logger;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class RefEntityChangedListener {
-    
-    private final static Logger logger = Logger.getLogger(RefEntityChangedListener.class);
     
     private Set<Class<?>> refBySet;
     
@@ -50,55 +47,58 @@ public class RefEntityChangedListener {
     }
     
     public void entityChange(Class<?> refClass, String id){
-        logger.warn("refClass: " + refClass.getName());
         for(Class<?> cls : refBySet){
-            logger.warn("ref by class (cls): " + cls.getName());
             Field[] fields = FieldsCache.getInstance().get(cls);
             for(Field f : fields){
-                boolean match = false;
-                String fieldName = f.getName();
-                Ref ref = f.getAnnotation(Ref.class);
-                if(ref!=null && f.getType().equals(refClass) && f.getAnnotation(IndexRef.class)!=null){
+                processField(refClass, id, cls, f);
+            }
+        }
+    }
+    
+    private void processField(Class<?> refClass, String id, Class<?> cls, Field f){
+        boolean match = false;
+        String fieldName = f.getName();
+        Ref ref = f.getAnnotation(Ref.class);
+        if(ref!=null && f.getType().equals(refClass) && f.getAnnotation(IndexRef.class)!=null){
+            match = true;
+            String name = ref.name();
+            if(!name.equals(Default.NAME)){
+                fieldName = name;
+            }
+        }
+        else{
+            RefList refList = f.getAnnotation(RefList.class);
+            if(refList!=null && f.getAnnotation(IndexRefList.class)!=null){
+                Class<?> c = null;
+                Class<?> type = f.getType();
+                if(type.isArray()){
+                    c = type.getComponentType();
+                }else{
+                    ParameterizedType paramType = (ParameterizedType)f.getGenericType();
+                    Type[] types = paramType.getActualTypeArguments();
+                    if(types.length == 1){
+                        c = (Class)types[0];
+                    }else{
+                        c = (Class)types[1];
+                    }
+                }
+                if(c!=null && c.equals(refClass)){
                     match = true;
-                    String name = ref.name();
+                    String name = refList.name();
                     if(!name.equals(Default.NAME)){
                         fieldName = name;
                     }
                 }
-                else{
-                    RefList refList = f.getAnnotation(RefList.class);
-                    if(refList!=null && f.getAnnotation(IndexRefList.class)!=null){
-                        Class<?> c = null;
-                        Class<?> type = f.getType();
-                        if(type.isArray()){
-                            c = type.getComponentType();
-                        }else{
-                            ParameterizedType paramType = (ParameterizedType)f.getGenericType();
-                            Type[] types = paramType.getActualTypeArguments();
-                            if(types.length == 1){
-                                c = (Class)types[0];
-                            }else{
-                                c = (Class)types[1];
-                            }
-                        }
-                        if(c!=null && c.equals(refClass)){
-                            match = true;
-                            String name = refList.name();
-                            if(!name.equals(Default.NAME)){
-                                fieldName = name;
-                            }
-                        }
-                    }
-                }
-                if(match){
-                    BuguDao dao = DaoCache.getInstance().get(cls);
-                    DBObject query = new BasicDBObject(fieldName, BuguMapper.toDBRef(refClass, id));
-                    List<BuguEntity> list = dao.findForLucene(query);
-                    for(BuguEntity o : list){
-                        IndexUpdateTask task = new IndexUpdateTask(o);
-                        BuguIndex.getInstance().getExecutor().execute(task);
-                    }
-                }
+            }
+        }
+        
+        if(match){
+            BuguDao dao = DaoCache.getInstance().get(cls);
+            DBObject query = new BasicDBObject(fieldName, BuguMapper.toDBRef(refClass, id));
+            List<BuguEntity> list = dao.findForLucene(query);
+            for(BuguEntity o : list){
+                IndexUpdateTask task = new IndexUpdateTask(o);
+                BuguIndex.getInstance().getExecutor().execute(task);
             }
         }
     }
