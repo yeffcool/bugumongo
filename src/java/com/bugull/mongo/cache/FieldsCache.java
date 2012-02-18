@@ -46,7 +46,7 @@ public class FieldsCache {
     }
     
     /**
-     * get all declared and inherited field
+     * Get all declared and inherited field
      * @param clazz
      * @return 
      */
@@ -62,7 +62,7 @@ public class FieldsCache {
     }
     
     /**
-     * filter the static filed, and set all the filed to alccessibe=true
+     * Filter the static filed, and set all the filed to alccessibe=true
      * @param fields
      * @return 
      */
@@ -89,6 +89,11 @@ public class FieldsCache {
         return fields;
     }
     
+    /**
+     * Get the field's name with @Id on it. In natural case, it returns "id".
+     * @param clazz
+     * @return 
+     */
     public String getIdFieldName(Class<?> clazz){
         String name = null;
         Field[] fields = get(clazz);
