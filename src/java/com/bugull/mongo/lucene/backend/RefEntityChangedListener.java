@@ -72,14 +72,14 @@ public class RefEntityChangedListener {
                 Class<?> c = null;
                 Class<?> type = f.getType();
                 if(type.isArray()){
-                    c = type.getComponentType();
+                    c = type.getComponentType();  //for Array
                 }else{
                     ParameterizedType paramType = (ParameterizedType)f.getGenericType();
                     Type[] types = paramType.getActualTypeArguments();
                     if(types.length == 1){
-                        c = (Class)types[0];
+                        c = (Class)types[0];  //for List, Set
                     }else{
-                        c = (Class)types[1];
+                        c = (Class)types[1];  //for Map
                     }
                 }
                 if(c!=null && c.equals(refClass)){
