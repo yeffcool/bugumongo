@@ -15,7 +15,6 @@
 
 package com.bugull.mongo.mapper;
 
-import com.bugull.mongo.BuguConnection;
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Embed;
 import com.bugull.mongo.annotations.EmbedList;
@@ -31,26 +30,15 @@ import com.bugull.mongo.decoder.Decoder;
 import com.bugull.mongo.decoder.DecoderFactory;
 import com.bugull.mongo.encoder.Encoder;
 import com.bugull.mongo.encoder.EncoderFactory;
-import com.bugull.mongo.lucene.annotations.BoostSwitch;
-import com.bugull.mongo.lucene.annotations.IndexEmbed;
-import com.bugull.mongo.lucene.annotations.IndexEmbedList;
-import com.bugull.mongo.lucene.annotations.IndexFilter;
-import com.bugull.mongo.lucene.annotations.IndexProperty;
-import com.bugull.mongo.lucene.annotations.IndexRef;
-import com.bugull.mongo.lucene.annotations.IndexRefBy;
-import com.bugull.mongo.lucene.annotations.IndexRefList;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.DBRef;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import org.bson.types.ObjectId;
 
 /**
- * utility class for internal useage.
+ * Utility class for internal useage.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
@@ -214,34 +202,6 @@ public class MapperUtil {
             keys.put(fieldName, 1);
         }
         return keys;
-    }
-    
-    public static DBRef toDBRef(Class<?> clazz, String id){
-        DB db = BuguConnection.getInstance().getDB();
-        String name = getEntityName(clazz);
-        ObjectId oid = new ObjectId(id);
-        return new DBRef(db, name, oid);
-    }
-    
-    public static boolean hasIndexAnnotation(Class<?> clazz, String key){
-        boolean result = false;
-        //check if the key has "." in it
-        int index = key.indexOf(".");
-        if(index != -1){
-            key = key.substring(0, index);
-        }
-        Field field = FieldsCache.getInstance().getField(clazz, key);
-        if(field.getAnnotation(IndexProperty.class)!=null
-                || field.getAnnotation(IndexEmbed.class)!=null
-                || field.getAnnotation(IndexEmbedList.class)!=null
-                || field.getAnnotation(IndexRef.class)!= null
-                || field.getAnnotation(IndexRefList.class)!= null
-                || field.getAnnotation(IndexRefBy.class)!=null
-                || field.getAnnotation(BoostSwitch.class)!=null
-                || field.getAnnotation(IndexFilter.class)!=null){
-            result = true;
-        }
-        return result;
     }
     
 }

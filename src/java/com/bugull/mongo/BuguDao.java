@@ -17,8 +17,8 @@ package com.bugull.mongo;
 
 import com.bugull.mongo.annotations.EnsureIndex;
 import com.bugull.mongo.annotations.Entity;
-import com.bugull.mongo.lucene.annotations.Indexed;
 import com.bugull.mongo.lucene.backend.EntityChangedListener;
+import com.bugull.mongo.lucene.backend.IndexChecker;
 import com.bugull.mongo.mapper.DBIndex;
 import com.bugull.mongo.mapper.EntityRemovedListener;
 import com.bugull.mongo.mapper.MapperUtil;
@@ -43,7 +43,6 @@ public class BuguDao {
     protected DBCollection coll;
     protected Class<?> clazz;
     protected DBObject keys;
-    protected boolean indexed;
     protected EntityChangedListener luceneListener;
     protected EntityRemovedListener cascadeListener;
     
@@ -72,11 +71,10 @@ public class BuguDao {
             }
         }
         //for lucene
-        if(clazz.getAnnotation(Indexed.class) != null){
-            indexed = true;
+        if(IndexChecker.needListener(clazz)){
             luceneListener = new EntityChangedListener(clazz);
         }
-        //for cascadeDelete
+        //for cascade delete
         cascadeListener = new EntityRemovedListener(clazz);
     }
     
@@ -89,7 +87,7 @@ public class BuguDao {
         coll.insert(dbo);
         String id = dbo.get(Operator.ID).toString();
         obj.setId(id);
-        if(indexed){
+        if(luceneListener != null){
             luceneListener.entityInsert(obj);
         }
     }
@@ -99,7 +97,7 @@ public class BuguDao {
      * @param list 
      */
     public void insert(List<BuguEntity> list){
-        if(indexed){
+        if(luceneListener != null){
             for(BuguEntity obj : list){
                 insert(obj);
             }
@@ -121,7 +119,7 @@ public class BuguDao {
             insert(obj);
         }else{
             coll.save(MapperUtil.toDBObject(obj));
-            if(indexed){
+            if(luceneListener != null){
                 luceneListener.entityUpdate(obj);
             }
         }
@@ -131,7 +129,7 @@ public class BuguDao {
      * Remove all entity.
      */
     public void drop(){
-        if(!indexed && !cascadeListener.hasCascade()){
+        if(luceneListener == null && !cascadeListener.hasCascade()){
             coll.drop();
         }else{
             List list = findAll();
@@ -147,7 +145,7 @@ public class BuguDao {
         DBObject query = new BasicDBObject();
         query.put(Operator.ID, new ObjectId(entity.getId()));
         coll.remove(query);
-        if(indexed){
+        if(luceneListener != null){
             luceneListener.entityRemove(entity.getId());
         }
         if(cascadeListener.hasCascade()){
@@ -159,7 +157,7 @@ public class BuguDao {
         DBObject query = new BasicDBObject();
         query.put(Operator.ID, new ObjectId(id));
         coll.remove(query);
-        if(indexed){
+        if(luceneListener != null){
             luceneListener.entityRemove(id);
         }
     }
@@ -191,7 +189,7 @@ public class BuguDao {
      * @param ids 
      */
     public void remove(String... ids){
-        if(indexed || cascadeListener.hasCascade()){
+        if(luceneListener != null || cascadeListener.hasCascade()){
             for(String id : ids){
                 remove(id);
             }
@@ -229,7 +227,7 @@ public class BuguDao {
      * @param query 
      */
     public void remove(DBObject query){
-        if(indexed || cascadeListener.hasCascade()){
+        if(luceneListener != null || cascadeListener.hasCascade()){
             List ids = coll.distinct(Operator.ID, query);
             for(Object id : ids){
                 remove(id.toString());
@@ -241,7 +239,7 @@ public class BuguDao {
     
     private void update(String id, DBObject dbo){
         updateWithOutIndex(id, dbo);
-        if(indexed){
+        if(luceneListener != null){
             BuguEntity entity = (BuguEntity)findOne(id);
             luceneListener.entityUpdate(entity);
         }
@@ -306,11 +304,11 @@ public class BuguDao {
      */
     public void set(DBObject query, DBObject dbo){
         List ids = null;
-        if(indexed){
+        if(luceneListener != null){
             ids = coll.distinct(Operator.ID, query);
         }
         coll.updateMulti(query, new BasicDBObject(Operator.SET,dbo));
-        if(indexed){
+        if(luceneListener != null){
             for(Object id : ids){
                 BuguEntity entity = (BuguEntity)findOne(id.toString());
                 luceneListener.entityUpdate(entity);
@@ -337,7 +335,7 @@ public class BuguDao {
     public void set(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject set = new BasicDBObject(Operator.SET, query);
-        if(indexed && MapperUtil.hasIndexAnnotation(clazz, key)){
+        if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, key)){
             update(id, set);
         }else{
             updateWithOutIndex(id, set);
@@ -351,7 +349,7 @@ public class BuguDao {
     public void unset(String id, String key){
         DBObject query = new BasicDBObject(key, 1);
         DBObject unset = new BasicDBObject(Operator.UNSET, query);
-        if(indexed && MapperUtil.hasIndexAnnotation(clazz, key)){
+        if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, key)){
             update(id, unset);
         }else{
             updateWithOutIndex(id, unset);
@@ -363,7 +361,7 @@ public class BuguDao {
     }
     
     public void unset(DBObject query, String key){
-        boolean indexField = indexed && MapperUtil.hasIndexAnnotation(clazz, key); 
+        boolean indexField = (luceneListener != null) && IndexChecker.hasIndexAnnotation(clazz, key); 
         List ids = null;
         if(indexField){
             ids = coll.distinct(Operator.ID, query);
@@ -397,7 +395,7 @@ public class BuguDao {
     public void inc(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject inc = new BasicDBObject(Operator.INC, query);
-        if(indexed && MapperUtil.hasIndexAnnotation(clazz, key)){
+        if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, key)){
             update(id, inc);
         }else{
             updateWithOutIndex(id, inc);
@@ -422,12 +420,12 @@ public class BuguDao {
      */
     public void inc(DBObject query, String key, Object value){
         List ids = null;
-        if(indexed){
+        if(luceneListener != null){
             ids = coll.distinct(Operator.ID, query);
         }
         DBObject dbo = new BasicDBObject(key, value);
         coll.updateMulti(query, new BasicDBObject(Operator.INC, dbo));
-        if(indexed){
+        if(luceneListener != null){
             for(Object id : ids){
                 BuguEntity entity = (BuguEntity)findOne(id.toString());
                 luceneListener.entityUpdate(entity);
@@ -454,7 +452,7 @@ public class BuguDao {
     public void push(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject push = new BasicDBObject(Operator.PUSH, query);
-        if(indexed && MapperUtil.hasIndexAnnotation(clazz, key)){
+        if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, key)){
             update(id, push);
         }else{
             updateWithOutIndex(id, push);
@@ -480,7 +478,7 @@ public class BuguDao {
     public void pull(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
         DBObject pull = new BasicDBObject(Operator.PULL, query);
-        if(indexed && MapperUtil.hasIndexAnnotation(clazz, key)){
+        if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, key)){
             update(id, pull);
         }else{
             updateWithOutIndex(id, pull);

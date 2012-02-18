@@ -17,6 +17,7 @@ package com.bugull.mongo.lucene.backend;
 
 import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.BuguEntity;
+import com.bugull.mongo.BuguMapper;
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
@@ -25,7 +26,6 @@ import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.BuguIndex;
 import com.bugull.mongo.lucene.annotations.IndexRef;
 import com.bugull.mongo.lucene.annotations.IndexRefList;
-import com.bugull.mongo.mapper.MapperUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
@@ -33,12 +33,15 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class RefEntityChangedListener {
+    
+    private final static Logger logger = Logger.getLogger(RefEntityChangedListener.class);
     
     private Set<Class<?>> refBySet;
     
@@ -47,7 +50,9 @@ public class RefEntityChangedListener {
     }
     
     public void entityChange(Class<?> refClass, String id){
+        logger.warn("refClass: " + refClass.getName());
         for(Class<?> cls : refBySet){
+            logger.warn("ref by class (cls): " + cls.getName());
             Field[] fields = FieldsCache.getInstance().get(cls);
             for(Field f : fields){
                 boolean match = false;
@@ -87,7 +92,7 @@ public class RefEntityChangedListener {
                 }
                 if(match){
                     BuguDao dao = DaoCache.getInstance().get(cls);
-                    DBObject query = new BasicDBObject(fieldName, MapperUtil.toDBRef(refClass, id));
+                    DBObject query = new BasicDBObject(fieldName, BuguMapper.toDBRef(refClass, id));
                     List<BuguEntity> list = dao.findForLucene(query);
                     for(BuguEntity o : list){
                         IndexUpdateTask task = new IndexUpdateTask(o);
