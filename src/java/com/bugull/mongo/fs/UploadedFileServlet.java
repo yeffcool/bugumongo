@@ -33,7 +33,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * A convenient Servlet for getting a file in GridFS.
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class UploadedFileServlet extends HttpServlet {

@@ -19,7 +19,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- *
+ * Thread pool for cascase delete.
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class CascadeDeleteExecutor {

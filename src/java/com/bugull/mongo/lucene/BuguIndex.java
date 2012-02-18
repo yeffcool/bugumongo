@@ -33,7 +33,8 @@ import org.apache.lucene.util.Version;
 
 /**
  * Set the lucene index parameter.
- * Singleton Pattern is used here. An application should use only one BuguIndex.
+ * 
+ * <p>Singleton Pattern is used here. An application should use only one BuguIndex.</p>
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */

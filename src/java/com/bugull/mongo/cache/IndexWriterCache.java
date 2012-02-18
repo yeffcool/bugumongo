@@ -26,7 +26,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 /**
- * Cache(Map) contains IndexWriter
+ * Cache(Map) contains IndexWriter.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */

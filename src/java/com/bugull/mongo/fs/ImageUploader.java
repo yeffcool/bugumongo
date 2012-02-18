@@ -33,7 +33,10 @@ import javax.imageio.ImageIO;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Convenient class for uploading an image file to GridFS.
+ * 
+ * <p>Besides uploading, ImageUploader can watermark and compress an image.</p>
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class ImageUploader extends Uploader{

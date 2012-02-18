@@ -39,6 +39,12 @@ public class BuguParser {
     
     private static BuguIndex index = BuguIndex.getInstance();
     
+    /**
+     * Create a term query.
+     * @param field
+     * @param value
+     * @return 
+     */
     public static Query parseTerm(String field, String value){
         Term t = new Term(field, value);
         return new TermQuery(t);

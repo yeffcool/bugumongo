@@ -31,7 +31,8 @@ import java.util.regex.Pattern;
 import org.bson.types.ObjectId;
 
 /**
- *
+ * Convenient class for creating DBObject queries.
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class Query {

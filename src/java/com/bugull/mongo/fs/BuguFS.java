@@ -37,7 +37,12 @@ import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 
 /**
- *
+ * Basic class for operating the GridFS.
+ * 
+ * <p>Singleton Pattern is used here. An application should use only one BuguFS.</p>
+ * 
+ * <p>BuguFS uses the BuguConnection class internally, so you don't need to care about the connetion and collections of GridFS.</p>
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class BuguFS {

@@ -74,14 +74,29 @@ public class DataType {
         return type.equals(java.sql.Timestamp.class);
     }
     
+    /**
+     * Only List, ArrayList, LinkedList are supported now.
+     * @param type
+     * @return 
+     */
     public static boolean isList(Class type){
         return type.equals(java.util.List.class) || type.equals(java.util.ArrayList.class) || type.equals(java.util.LinkedList.class);
     }
     
+    /**
+     * Only Set, HashSet, TreeSet are supported now.
+     * @param type
+     * @return 
+     */
     public static boolean isSet(Class type){
         return type.equals(java.util.Set.class) || type.equals(java.util.HashSet.class) || type.equals(java.util.TreeSet.class);
     }
     
+    /**
+     * Only Map, HashMap, TreeMap are supported now.
+     * @param type
+     * @return 
+     */
     public static boolean isMap(Class type){
         return type.equals(java.util.Map.class) || type.equals(java.util.HashMap.class) || type.equals(java.util.TreeMap.class);
     }

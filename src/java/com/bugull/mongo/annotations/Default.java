@@ -16,7 +16,8 @@
 package com.bugull.mongo.annotations;
 
 /**
- *
+ * Default value for some annotations' property.
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class Default {

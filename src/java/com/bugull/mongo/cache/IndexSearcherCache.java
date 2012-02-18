@@ -25,7 +25,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
 
 /**
- * Cache(Map) contains IndexSearcher
+ * Cache(Map) contains IndexSearcher.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */

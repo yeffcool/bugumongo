@@ -16,16 +16,16 @@
 package com.bugull.mongo.mapper;
 
 /**
- * utility class for String.
+ * Utility class for String.
  * 
- * thanks to wendal1985
+ * <p>Thanks to wendal1985</p>
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class StringUtil {
     
     /**
-     * check if a string is empty
+     * Check if a string is empty
      * @param s
      * @return 
      */
@@ -34,7 +34,7 @@ public class StringUtil {
     }
     
     /**
-     * get the file's extension name, such as doc, png, jpeg
+     * Get the file's extension name, such as doc, png, jpeg
      * @param filename
      * @return 
      */

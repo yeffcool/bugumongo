@@ -29,6 +29,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 /**
+ * Convenient class for uploading a file to GridFS. It uses the BuguFS class internally.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
