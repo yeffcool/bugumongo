@@ -69,12 +69,16 @@ public class ImageUploader extends Uploader{
         super(data, originalName, rename);
     }
     
+    /**
+     * Save the image with a watermark on it.
+     * @param watermark 
+     */
     public void save(Watermark watermark){
         processFilename();
-        if(watermark.getText() != null){
+        if(!StringUtil.isEmpty(watermark.getText())){
             pressText(watermark);
         }
-        else if(watermark.getImagePath() != null){
+        else if(!StringUtil.isEmpty(watermark.getImagePath())){
             pressImage(watermark);
         }
         else{
