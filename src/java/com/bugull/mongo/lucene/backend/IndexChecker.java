@@ -26,7 +26,7 @@ import java.lang.reflect.Field;
 public class IndexChecker {
     
     /**
-     * Check a filed whether has index annotation on it.
+     * Check a filed whether it has index annotation on it.
      * @param clazz the class that field in
      * @param key the field name
      * @return 
@@ -53,7 +53,10 @@ public class IndexChecker {
     }
     
     /**
-     * Check if the clazz need a lucene listener
+     * Check whether the clazz need a lucene listener.
+     * <p>If it has @Indexed annotation, or, some of it's fields has @IndexRefBy annotation,
+     * then it need a lucene listener.</p>
+     * 
      * @param clazz
      * @return 
      */
