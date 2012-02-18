@@ -16,7 +16,8 @@
 package com.bugull.mongo.encoder;
 
 /**
- *
+ * Converter that change an java object to DBObject, in order to save it to mongoDB.
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public interface Encoder {
