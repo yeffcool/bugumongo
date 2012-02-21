@@ -27,6 +27,7 @@ import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,7 +91,7 @@ public class BuguFS {
         GridFSInputFile f = null;
         try{
             f = fs.createFile(file);
-        }catch(Exception ex){
+        }catch(IOException ex){
             logger.error("Can not create GridFSInputFile", ex);
         }
         f.setFilename(filename);
