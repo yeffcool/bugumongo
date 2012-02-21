@@ -65,6 +65,12 @@ public class BuguMapper {
         return new DBRef(db, name, id);
     }
     
+    /**
+     * Create a DBRef for a type of entity, with id string. Useful when operate on @Ref and @RefList field.
+     * @param clazz
+     * @param idStr
+     * @return 
+     */
     public static DBRef toDBRef(Class<?> clazz, String idStr){
         if(StringUtil.isEmpty(idStr)){
             return null;
@@ -180,8 +186,10 @@ public class BuguMapper {
             Type[] types = paramType.getActualTypeArguments();
             int len = types.length;
             if(len == 1){
-                fetchList(obj, field, (Class)types[0]);
+                //for List and Set
+                fetchListAndSet(obj, field, (Class)types[0]);
             }else if(len == 2){
+                //for Map
                 fetchMap(obj, field, (Class)types[1]);
             }
         }
@@ -223,7 +231,7 @@ public class BuguMapper {
         FieldUtil.set(obj, field, arr);
     }
     
-    private static void fetchList(BuguEntity obj, Field field, Class clazz){
+    private static void fetchListAndSet(BuguEntity obj, Field field, Class clazz){
         Object o = FieldUtil.get(obj, field);
         if(o == null){
             return;
