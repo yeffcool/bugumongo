@@ -87,8 +87,10 @@ public class BuguMapper {
      */
     public static void fetchLazy(List list){
         for(Object o : list){
-            BuguEntity obj = (BuguEntity)o;
-            obj = (BuguEntity)DaoCache.getInstance().get(obj.getClass()).findOne(obj.getId());
+            if(o != null){
+                BuguEntity obj = (BuguEntity)o;
+                obj = (BuguEntity)DaoCache.getInstance().get(obj.getClass()).findOne(obj.getId());
+            }
         }
     }
     
@@ -98,16 +100,18 @@ public class BuguMapper {
      * @param names the fields' names
      */
     public static void fetchCascade(BuguEntity obj, String... names){
-        for(String name : names){
-            String remainder = null;
-            int index = name.indexOf(".");
-            if(index > 0){
-                remainder = name.substring(index+1);
-                name = name.substring(0, index);
-            }
-            fetchOneLevel(obj, name);
-            if(remainder != null){
-                fetchRemainder(obj, name, remainder);
+        if(obj != null){
+            for(String name : names){
+                String remainder = null;
+                int index = name.indexOf(".");
+                if(index > 0){
+                    remainder = name.substring(index+1);
+                    name = name.substring(0, index);
+                }
+                fetchOneLevel(obj, name);
+                if(remainder != null){
+                    fetchRemainder(obj, name, remainder);
+                }
             }
         }
     }
@@ -119,8 +123,10 @@ public class BuguMapper {
      */
     public static void fetchCascade(List list, String... names){
         for(Object o : list){
-            BuguEntity obj = (BuguEntity)o;
-            fetchCascade(obj, names);
+            if(o != null){
+                BuguEntity obj = (BuguEntity)o;
+                fetchCascade(obj, names);
+            }
         }
     }
     
