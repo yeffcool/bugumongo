@@ -95,6 +95,15 @@ public class BuguMapper {
     }
     
     /**
+     * Fetch out the lazy @Property, @Embed, @EmbedList field of an entity.
+     * <p>This method is only used in iteration of a list.</p>
+     * @param obj the entity needs to operate on
+     */
+    public static void fetchLazy(BuguEntity obj){
+        obj = (BuguEntity)DaoCache.getInstance().get(obj.getClass()).findOne(obj.getId());
+    }
+    
+    /**
      * Fetch out the cascade @Ref or @RefList entity.
      * @param obj the entity needs to operate on
      * @param names the fields' names
