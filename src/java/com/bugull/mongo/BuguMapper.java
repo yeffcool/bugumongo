@@ -89,18 +89,20 @@ public class BuguMapper {
         for(Object o : list){
             if(o != null){
                 BuguEntity obj = (BuguEntity)o;
-                obj = (BuguEntity)DaoCache.getInstance().get(obj.getClass()).findOne(obj.getId());
+                BuguEntity newObj = (BuguEntity)DaoCache.getInstance().get(obj.getClass()).findOne(obj.getId());
+                FieldUtil.copy(newObj, obj);
             }
         }
     }
     
     /**
      * Fetch out the lazy @Property, @Embed, @EmbedList field of an entity.
-     * <p>This method is only used in iteration of a list.</p>
+     * <p>The entity must be an element of a list.</p>
      * @param obj the entity needs to operate on
      */
     public static void fetchLazy(BuguEntity obj){
-        obj = (BuguEntity)DaoCache.getInstance().get(obj.getClass()).findOne(obj.getId());
+        BuguEntity newObj = (BuguEntity)DaoCache.getInstance().get(obj.getClass()).findOne(obj.getId());
+        FieldUtil.copy(newObj, obj);
     }
     
     /**
