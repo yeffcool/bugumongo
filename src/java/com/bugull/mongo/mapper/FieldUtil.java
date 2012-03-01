@@ -15,6 +15,7 @@
 
 package com.bugull.mongo.mapper;
 
+import com.bugull.mongo.cache.FieldsCache;
 import java.lang.reflect.Field;
 import org.apache.log4j.Logger;
 
@@ -45,6 +46,14 @@ public class FieldUtil {
             logger.error("Can not set the field's value", ex);
         }catch(IllegalAccessException ex){
             logger.error("Can not set the field's value", ex);
+        }
+    }
+    
+    public static void copy(Object src, Object target){
+        Field[] fields = FieldsCache.getInstance().get(src.getClass());
+        for(Field f : fields){
+            Object value = get(src, f);
+            set(target, f, value);
         }
     }
     
