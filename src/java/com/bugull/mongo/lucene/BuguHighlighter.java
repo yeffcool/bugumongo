@@ -26,7 +26,8 @@ import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.search.highlight.SimpleSpanFragmenter;
 
 /**
- *
+ * Wrapped class on top of lucene highlighter for convinient use.
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class BuguHighlighter {

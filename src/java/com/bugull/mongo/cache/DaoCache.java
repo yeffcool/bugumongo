@@ -24,27 +24,28 @@ import java.util.concurrent.ConcurrentHashMap;
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
+@SuppressWarnings("unchecked")
 public class DaoCache {
     
     private static DaoCache instance = new DaoCache();
     
-    private Map<String, BuguDao> cache;
+    private Map<String, BuguDao<?>> cache;
     
     private DaoCache(){
-        cache = new ConcurrentHashMap<String, BuguDao>();
+        cache = new ConcurrentHashMap<String, BuguDao<?>>();
     }
     
     public static DaoCache getInstance(){
         return instance;
     }
     
-    public BuguDao get(Class<?> clazz){
-        BuguDao dao = null;
+    public <T> BuguDao<T> get(Class<T> clazz){
+        BuguDao<T> dao = null;
         String name = clazz.getName();
         if(cache.containsKey(name)){
-            dao = cache.get(name);
+            dao = (BuguDao<T>) cache.get(name);
         }else{
-            dao = new BuguDao(clazz);
+            dao = new BuguDao<T>(clazz);
             cache.put(name, dao);
         }
         return dao;

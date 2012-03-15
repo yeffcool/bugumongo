@@ -39,6 +39,7 @@ import java.util.Set;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
+@SuppressWarnings("unchecked")
 public class RefListEncoder extends AbstractEncoder{
     
     private RefList refList;

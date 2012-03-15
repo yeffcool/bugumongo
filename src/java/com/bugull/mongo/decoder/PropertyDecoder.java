@@ -32,6 +32,7 @@ import org.apache.log4j.Logger;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
+@SuppressWarnings("unchecked")
 public class PropertyDecoder extends AbstractDecoder{
     
     private final static Logger logger = Logger.getLogger(PropertyDecoder.class);

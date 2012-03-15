@@ -16,7 +16,13 @@
 package com.bugull.mongo;
 
 /**
- *
+ * The interface for all entity model.
+ * 
+ * <p>
+ * Entity model which implements <code>BuguEntity</code> must has <code>@Entity</code> annotation on it, 
+ * then it can be persisted to mongoDB.
+ * </p>
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public interface BuguEntity {

@@ -38,15 +38,15 @@ import org.bson.types.ObjectId;
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class BuguDao {
+public class BuguDao<T> {
     
     protected DBCollection coll;
-    protected Class<?> clazz;
+    protected Class<T> clazz;
     protected DBObject keys;
     protected EntityChangedListener luceneListener;
     protected EntityRemovedListener cascadeListener;
     
-    public BuguDao(Class<?> clazz){
+    public BuguDao(Class<T> clazz){
         this.clazz = clazz;
         DB db = BuguConnection.getInstance().getDB();
         Entity entity = clazz.getAnnotation(Entity.class);
@@ -502,97 +502,93 @@ public class BuguDao {
      */
     public boolean exists(DBObject query){
         DBObject dbo = coll.findOne(query);
-        if(dbo != null){
-            return true;
-        }else{
-            return false;
-        }
+        return dbo != null;
     }
     
-    public Object findOne(String id){
+    public T findOne(String id){
         DBObject dbo = new BasicDBObject();
         dbo.put(Operator.ID, new ObjectId(id));
         DBObject result = coll.findOne(dbo);
         return MapperUtil.fromDBObject(clazz, result);
     }
     
-    public Object findOne(String key, Object value){
+    public T findOne(String key, Object value){
         return findOne(new BasicDBObject(key, value));
     }
     
-    public Object findOne(DBObject query){
+    public T findOne(DBObject query){
         DBObject dbo = coll.findOne(query);
         return MapperUtil.fromDBObject(clazz, dbo);
     }
 
-    public List findAll(){
+    public List<T> findAll(){
         DBCursor cursor = coll.find(new BasicDBObject(), keys);
         return MapperUtil.toList(clazz, cursor);
     }
     
-    public List findAll(String orderBy){
+    public List<T> findAll(String orderBy){
         return findAll(MapperUtil.getSort(orderBy));
     }
 
-    public List findAll(DBObject orderBy){
+    public List<T> findAll(DBObject orderBy){
         DBCursor cursor = coll.find(new BasicDBObject(), keys).sort(orderBy);
         return MapperUtil.toList(clazz, cursor);
     }
 
-    public List findAll(int pageNum, int pageSize){
+    public List<T> findAll(int pageNum, int pageSize){
         DBCursor cursor = coll.find(new BasicDBObject(), keys).skip((pageNum-1)*pageSize).limit(pageSize);
         return MapperUtil.toList(clazz, cursor);
     }
     
-    public List findAll(String orderBy, int pageNum, int pageSize){
+    public List<T> findAll(String orderBy, int pageNum, int pageSize){
         return findAll(MapperUtil.getSort(orderBy), pageNum, pageSize);
     }
 
-    public List findAll(DBObject orderBy, int pageNum, int pageSize){
+    public List<T> findAll(DBObject orderBy, int pageNum, int pageSize){
         DBCursor cursor = coll.find(new BasicDBObject(), keys).sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
         return MapperUtil.toList(clazz, cursor);
     }
     
-    public List find(String key, Object value){
+    public List<T> find(String key, Object value){
         return find(new BasicDBObject(key, value));
     }
 
-    public List find(DBObject query){
+    public List<T> find(DBObject query){
         DBCursor cursor = coll.find(query, keys);
         return MapperUtil.toList(clazz, cursor);
     }
     
-    public List find(String key, Object value, String orderBy){
+    public List<T> find(String key, Object value, String orderBy){
         return find(new BasicDBObject(key, value), MapperUtil.getSort(orderBy));
     }
     
-    public List find(DBObject query, String orderBy){
+    public List<T> find(DBObject query, String orderBy){
         return find(query, MapperUtil.getSort(orderBy));
     }
 
-    public List find(DBObject query, DBObject orderBy){
+    public List<T> find(DBObject query, DBObject orderBy){
         DBCursor cursor = coll.find(query, keys).sort(orderBy);
         return MapperUtil.toList(clazz, cursor);
     }
     
-    public List find(String key, Object value, int pageNum, int pageSize){
+    public List<T> find(String key, Object value, int pageNum, int pageSize){
         return find(new BasicDBObject(key, value), pageNum, pageSize);
     }
 
-    public List find(DBObject query, int pageNum, int pageSize){
+    public List<T> find(DBObject query, int pageNum, int pageSize){
         DBCursor cursor = coll.find(query, keys).skip((pageNum-1)*pageSize).limit(pageSize);
         return MapperUtil.toList(clazz, cursor);
     }
     
-    public List find(String key, Object value, String orderBy, int pageNum, int pageSize){
+    public List<T> find(String key, Object value, String orderBy, int pageNum, int pageSize){
         return find(new BasicDBObject(key, value), MapperUtil.getSort(orderBy), pageNum, pageSize);
     }
     
-    public List find(DBObject query, String orderBy, int pageNum, int pageSize){
+    public List<T> find(DBObject query, String orderBy, int pageNum, int pageSize){
         return find(query, MapperUtil.getSort(orderBy), pageNum, pageSize);
     }
 
-    public List find(DBObject query, DBObject orderBy, int pageNum, int pageSize){
+    public List<T> find(DBObject query, DBObject orderBy, int pageNum, int pageSize){
         DBCursor cursor = coll.find(query, keys).sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
         return MapperUtil.toList(clazz, cursor);
     }
@@ -602,7 +598,7 @@ public class BuguDao {
      * @param query
      * @return 
      */
-    public List findForLucene(DBObject query){
+    public List<T> findForLucene(DBObject query){
         DBCursor cursor = coll.find(query);
         return MapperUtil.toList(clazz, cursor);
     }
@@ -613,7 +609,7 @@ public class BuguDao {
      * @param pageSize
      * @return 
      */
-    public List findForLucene(int pageNum, int pageSize){
+    public List<T> findForLucene(int pageNum, int pageSize){
         DBCursor cursor = coll.find().skip((pageNum-1)*pageSize).limit(pageSize);
         return MapperUtil.toList(clazz, cursor);
     }
@@ -661,8 +657,8 @@ public class BuguDao {
      * Create a query.
      * @return a new Query object
      */
-    public Query query(){
-        return new Query(coll, clazz, keys);
+    public Query<T> query(){
+        return new Query<T>(coll, clazz, keys);
     }
     
 }

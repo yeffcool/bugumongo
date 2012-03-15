@@ -38,7 +38,8 @@ public class BuguParser {
     private final static Logger logger = Logger.getLogger(BuguParser.class);
     
     /**
-     * Create a term query.
+     * Create a term query. 
+     * <p>Note: in fact, it does not parse. It just create a term query.</p>
      * @param field
      * @param value
      * @return 
@@ -120,18 +121,38 @@ public class BuguParser {
         return NumericRangeQuery.newDoubleRange(field, minValue, maxValue, true, true);
     }
     
+    /**
+     * Date value is converted to long value, same as it's field type in index file. 
+     * @param field
+     * @param begin
+     * @param end
+     * @return 
+     */
     public static Query parse(String field, Date begin, Date end){
         long beginTime = begin.getTime();
         long endTime = end.getTime();
         return parse(field, beginTime, endTime);
     }
     
+    /**
+     * Timestamp value is converted to long value, same as it's field type in index file. 
+     * @param field
+     * @param begin
+     * @param end
+     * @return 
+     */
     public static Query parse(String field, Timestamp begin, Timestamp end){
         long beginTime = begin.getTime();
         long endTime = end.getTime();
         return parse(field, beginTime, endTime);
     }
     
+    /**
+     * Boolean value is converted to string value, same as it's field type in index file. 
+     * @param field
+     * @param value
+     * @return 
+     */
     public static Query parse(String field, boolean value){
         if(value){
             return parse(field, "true");
@@ -140,6 +161,12 @@ public class BuguParser {
         }
     }
     
+    /**
+     * Char value is converted to string value, same as it's field type in index file. 
+     * @param field
+     * @param value
+     * @return 
+     */
     public static Query parse(String field, char value){
         return parse(field, String.valueOf(value));
     }

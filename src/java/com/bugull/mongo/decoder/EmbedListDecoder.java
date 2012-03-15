@@ -35,6 +35,7 @@ import java.util.Map;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
+@SuppressWarnings("unchecked")
 public class EmbedListDecoder extends AbstractDecoder{
     
     public EmbedListDecoder(Field field, DBObject dbo){

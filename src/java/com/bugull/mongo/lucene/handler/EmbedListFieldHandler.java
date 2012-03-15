@@ -33,6 +33,7 @@ import org.apache.lucene.document.Document;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
+@SuppressWarnings("unchecked")
 public class EmbedListFieldHandler extends AbstractFieldHandler{
      
     public EmbedListFieldHandler(Object obj, Field field, String prefix){

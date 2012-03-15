@@ -33,6 +33,7 @@ import java.util.List;
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
+@SuppressWarnings("unchecked")
 public class AdvancedDao extends BuguDao{
     
     public AdvancedDao(Class<?> clazz){

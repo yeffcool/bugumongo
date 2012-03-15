@@ -26,27 +26,28 @@ import org.apache.log4j.Logger;
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
+@SuppressWarnings("unchecked")
 public class ConstructorCache {
     
     private final static Logger logger = Logger.getLogger(ConstructorCache.class);
     
     private static ConstructorCache instance = new ConstructorCache();
     
-    private Map<String, Constructor> cache;
+    private Map<String, Constructor<?>> cache;
     
     private ConstructorCache(){
-        cache = new ConcurrentHashMap<String, Constructor>();
+        cache = new ConcurrentHashMap<String, Constructor<?>>();
     }
     
     public static ConstructorCache getInstance(){
         return instance;
     }
     
-    private Constructor get(Class<?> clazz){
-        Constructor cons = null;
+    private <T> Constructor<T> get(Class<T> clazz){
+        Constructor<T> cons = null;
         String name = clazz.getName();
         if(cache.containsKey(name)){
-            cons = cache.get(name);
+            cons = (Constructor<T>) cache.get(name);
         }else{
             Class[] types = null;
             try {
@@ -61,9 +62,9 @@ public class ConstructorCache {
         return cons;
     }
     
-    public Object create(Class<?> clazz){
-        Object obj = null;
-        Constructor cons = get(clazz);
+    public <T> T create(Class<T> clazz){
+        T obj = null;
+        Constructor<T> cons = get(clazz);
         Object[] args = null;
         try {
             obj = cons.newInstance(args);

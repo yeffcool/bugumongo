@@ -33,6 +33,7 @@ import java.util.Set;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
+@SuppressWarnings("unchecked")
 public class EmbedListEncoder extends AbstractEncoder{
     
     public EmbedListEncoder(Object obj, Field field){

@@ -16,7 +16,7 @@
 package com.bugull.mongo.decoder;
 
 /**
- * Converter that change a DBObject to java object, when get data from mongoDB.
+ * Converter that change a DBObject to java object, when getting data from mongoDB.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */

@@ -43,6 +43,7 @@ import org.bson.types.ObjectId;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
+@SuppressWarnings("unchecked")
 public class RefListDecoder extends AbstractDecoder{
     
     private RefList refList;

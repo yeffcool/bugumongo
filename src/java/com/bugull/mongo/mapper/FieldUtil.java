@@ -20,7 +20,8 @@ import java.lang.reflect.Field;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Utility class for operating object's fields.
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class FieldUtil {
@@ -49,7 +50,16 @@ public class FieldUtil {
         }
     }
     
+    /**
+     * Copy an object's properties to another object. 
+     * <p>Note: The source and target object can't be null.</p>
+     * @param src
+     * @param target 
+     */
     public static void copy(Object src, Object target){
+        if(src==null || target==null){
+            return;
+        }
         Field[] fields = FieldsCache.getInstance().get(src.getClass());
         for(Field f : fields){
             Object value = get(src, f);

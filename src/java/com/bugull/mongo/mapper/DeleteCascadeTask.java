@@ -34,6 +34,7 @@ import org.bson.types.ObjectId;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
+@SuppressWarnings("unchecked")
 public class DeleteCascadeTask implements Runnable{
         
     private List<Field> refFields;

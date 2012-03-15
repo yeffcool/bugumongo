@@ -44,11 +44,11 @@ import java.util.List;
  */
 public class MapperUtil {
     
-    public static Object fromDBObject(Class<?> clazz, DBObject dbo){
+    public static <T> T fromDBObject(Class<T> clazz, DBObject dbo){
         if(dbo == null){
             return null;
         }
-        Object obj = ConstructorCache.getInstance().create(clazz);
+        T obj = ConstructorCache.getInstance().create(clazz);
         Field[] fields = FieldsCache.getInstance().get(clazz);
         for(Field field : fields){
             Decoder decoder = DecoderFactory.create(field, dbo);
@@ -75,8 +75,8 @@ public class MapperUtil {
         return dbo;
     }
     
-    public static List toList(Class<?> clazz, DBCursor cursor){
-        List list = new ArrayList();
+    public static <T> List<T> toList(Class<T> clazz, DBCursor cursor){
+        List<T> list = new ArrayList<T>();
         while(cursor.hasNext()){
             DBObject dbo = cursor.next();
             list.add(fromDBObject(clazz, dbo));

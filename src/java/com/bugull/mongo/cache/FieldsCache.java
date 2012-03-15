@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
 
 /**
- * Cache(Map) contains entity classes' fields.
+ * Cache(Map) contains entity classes' fields, for performance purporse.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */

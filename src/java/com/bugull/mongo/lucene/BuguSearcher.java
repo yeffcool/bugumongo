@@ -40,11 +40,11 @@ import org.apache.lucene.search.TopDocs;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class BuguSearcher {
+public class BuguSearcher<T> {
     
     private final static Logger logger = Logger.getLogger(BuguSearcher.class);
     
-    private Class<?> clazz;
+    private Class<T> clazz;
     private IndexSearcher searcher;
     private IndexReader reader;
     
@@ -57,7 +57,7 @@ public class BuguSearcher {
     private int resultCount;
     private BuguHighlighter highlighter;
     
-    public BuguSearcher(Class<?> clazz){
+    public BuguSearcher(Class<T> clazz){
         this.clazz = clazz;
         String name = MapperUtil.getEntityName(clazz);
         searcher = IndexSearcherCache.getInstance().get(name);
@@ -65,37 +65,37 @@ public class BuguSearcher {
         reader.incRef();
     }
     
-    public BuguSearcher setQuery(Query query){
+    public BuguSearcher<T> setQuery(Query query){
         this.query = query;
         return this;
     }
     
-    public BuguSearcher setSort(Sort sort){
+    public BuguSearcher<T> setSort(Sort sort){
         this.sort = sort;
         return this;
     }
     
-    public BuguSearcher setFilter(Filter filter){
+    public BuguSearcher<T> setFilter(Filter filter){
         this.filter = filter;
         return this;
     }
     
-    public BuguSearcher setMaxPage(int maxPage){
+    public BuguSearcher<T> setMaxPage(int maxPage){
         this.maxPage = maxPage;
         return this;
     }
     
-    public BuguSearcher setPageNumber(int pageNumber){
+    public BuguSearcher<T> setPageNumber(int pageNumber){
         this.pageNumber = pageNumber;
         return this;
     }
     
-    public BuguSearcher setPageSize(int pageSize){
+    public BuguSearcher<T> setPageSize(int pageSize){
         this.pageSize = pageSize;
         return this;
     }
     
-    public BuguSearcher setHighlighter(BuguHighlighter highlighter) {
+    public BuguSearcher<T> setHighlighter(BuguHighlighter highlighter) {
         this.highlighter = highlighter;
         return this;
     }
@@ -104,31 +104,31 @@ public class BuguSearcher {
         return resultCount;
     }
     
-    public List search(Query query){
+    public List<T> search(Query query){
         this.query = query;
         return search();
     }
     
-    public List search(Query query, Sort sort){
+    public List<T> search(Query query, Sort sort){
         this.query = query;
         this.sort = sort;
         return search();
     }
     
-    public List search(Query query, Filter filter){
+    public List<T> search(Query query, Filter filter){
         this.query = query;
         this.filter = filter;
         return search();
     }
     
-    public List search(Query query, Filter filter, Sort sort){
+    public List<T> search(Query query, Filter filter, Sort sort){
         this.query = query;
         this.filter = filter;
         this.sort = sort;
         return search();
     }
     
-    public List search(){
+    public List<T> search(){
         TopDocs topDocs = null;
         try{
             if(sort == null){
@@ -144,8 +144,8 @@ public class BuguSearcher {
         }
         resultCount = topDocs.totalHits;
         ScoreDoc[] docs = topDocs.scoreDocs;
-        List list = new ArrayList();
-        BuguDao dao = DaoCache.getInstance().get(clazz);
+        List<T> list = new ArrayList<T>();
+        BuguDao<T> dao = DaoCache.getInstance().get(clazz);
         int begin = (pageNumber - 1) * pageSize;
         int end = begin + pageSize;
         if(end > resultCount){

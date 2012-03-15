@@ -35,10 +35,11 @@ import org.bson.types.ObjectId;
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class Query {
+@SuppressWarnings("unchecked")
+public class Query<T> {
     
     private DBCollection coll;
-    private Class<?> clazz;
+    private Class<T> clazz;
     private DBObject keys;
     
     private String orderBy;
@@ -46,7 +47,7 @@ public class Query {
     private int pageNumber = 0;
     private int pageSize = 0;
     
-    public Query(DBCollection coll, Class<?> clazz, DBObject keys){
+    public Query(DBCollection coll, Class<T> clazz, DBObject keys){
         this.coll = coll;
         this.clazz = clazz;
         this.keys = keys;
@@ -133,17 +134,17 @@ public class Query {
         }
     }
     
-    public Query is(String key, Object value){
+    public Query<T> is(String key, Object value){
         appendEquals(key, null, value);
         return this;
     }
     
-    public Query notEquals(String key, Object value){
+    public Query<T> notEquals(String key, Object value){
         appendEquals(key, Operator.NE, value);
         return this;
     }
     
-    public Query or(Query... qs){
+    public Query<T> or(Query... qs){
         List list = (List)condition.get(Operator.OR);
         if(list == null){
             list = new ArrayList();
@@ -155,7 +156,7 @@ public class Query {
         return this;
     }
     
-    public Query and(Query... qs){
+    public Query<T> and(Query... qs){
         List list = (List)condition.get(Operator.AND);
         if(list == null){
             list = new ArrayList();
@@ -167,7 +168,7 @@ public class Query {
         return this;
     }
     
-    public Query greaterThan(String key, Object value){
+    public Query<T> greaterThan(String key, Object value){
         append(key, Operator.GT, value);
         return this;
     }
@@ -177,17 +178,17 @@ public class Query {
         return this;
     }
     
-    public Query lessThan(String key, Object value){
+    public Query<T> lessThan(String key, Object value){
         append(key, Operator.LT, value);
         return this;
     }
     
-    public Query lessThanEquals(String key, Object value){
+    public Query<T> lessThanEquals(String key, Object value){
         append(key, Operator.LTE, value);
         return this;
     }
     
-    public Query in(String key, Object... values){
+    public Query<T> in(String key, Object... values){
         appendIn(key, Operator.IN, values);
         return this;
     }
@@ -197,79 +198,79 @@ public class Query {
         return this;
     }
     
-    public Query all(String key, Object... values){
+    public Query<T> all(String key, Object... values){
         append(key, Operator.ALL, values);
         return this;
     }
     
-    public Query regex(String key, String regex){
+    public Query<T> regex(String key, String regex){
         append(key, Operator.REGEX, Pattern.compile(regex));
         return this;
     }
     
-    public Query size(String key, int value){
+    public Query<T> size(String key, int value){
         append(key, Operator.SIZE, value);
         return this;
     }
     
-    public Query mod(String key, int divisor, int remainder){
+    public Query<T> mod(String key, int divisor, int remainder){
         append(key, Operator.MOD, new int[]{divisor, remainder});
         return this;
     }
     
-    public Query existsField(String key){
+    public Query<T> existsField(String key){
         append(key, Operator.EXISTS, Boolean.TRUE);
         return this;
     }
     
-    public Query notExistsField(String key){
+    public Query<T> notExistsField(String key){
         append(key, Operator.EXISTS, Boolean.FALSE);
         return this;
     }
     
-    public Query withinCenter(String key, double x, double y, double radius){
+    public Query<T> withinCenter(String key, double x, double y, double radius){
         DBObject dbo = new BasicDBObject(Operator.CENTER, new Object[]{new Double[]{x, y}, radius});
         append(key, Operator.WITHIN, dbo);
         return this;
     }
     
-    public Query withinBox(String key, double x1, double y1, double x2, double y2){
+    public Query<T> withinBox(String key, double x1, double y1, double x2, double y2){
         DBObject dbo = new BasicDBObject(Operator.BOX, new Object[]{new Double[]{x1, y1}, new Double[]{x2, y2} });
     	append(key, Operator.WITHIN, dbo);
     	return this;
     }
     
-    public Query near(String key, double x, double y){
+    public Query<T> near(String key, double x, double y){
         append(key, Operator.NEAR, new Double[]{x, y});
         return this;
     }
 
-    public Query near(String key, double x, double y, double maxDistance){
+    public Query<T> near(String key, double x, double y, double maxDistance){
         append(key, Operator.NEAR, new Double[]{x, y, maxDistance});
         return this;
     }
     
-    public Query sort(String orderBy){
+    public Query<T> sort(String orderBy){
         this.orderBy = orderBy;
         return this;
     }
     
-    public Query pageNumber(int pageNumber){
+    public Query<T> pageNumber(int pageNumber){
         this.pageNumber = pageNumber;
         return this;
     }
     
-    public Query pageSize(int pageSize){
+    public Query<T> pageSize(int pageSize){
         this.pageSize = pageSize;
         return this;
     }
     
-    public Object result(){
+    public T result(){
         DBObject dbo = coll.findOne(condition);
         return MapperUtil.fromDBObject(clazz, dbo);
     }
     
-    public List results(){
+    public List<T> results(){
         DBCursor cursor = coll.find(condition, keys);
         if(orderBy != null){
             cursor.sort(MapperUtil.getSort(orderBy));
@@ -286,11 +287,7 @@ public class Query {
     
     public boolean exists(){
         DBObject dbo = coll.findOne(condition);
-        if(dbo != null){
-            return true;
-        }else{
-            return false;
-        }
+        return dbo != null;
     }
     
     public List distinct(String key){

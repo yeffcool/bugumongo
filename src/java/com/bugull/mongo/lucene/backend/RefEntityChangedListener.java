@@ -38,6 +38,7 @@ import java.util.Set;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
+@SuppressWarnings("unchecked")
 public class RefEntityChangedListener {
     
     private Set<Class<?>> refBySet;
