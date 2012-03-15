@@ -37,8 +37,6 @@ public class BuguParser {
     
     private final static Logger logger = Logger.getLogger(BuguParser.class);
     
-    private static BuguIndex index = BuguIndex.getInstance();
-    
     /**
      * Create a term query.
      * @param field
@@ -55,7 +53,7 @@ public class BuguParser {
     }
     
     public static Query parse(String field, String value, Operator op){
-        QueryParser parser = new QueryParser(index.getVersion(), field, index.getAnalyzer());
+        QueryParser parser = new QueryParser(BuguIndex.getInstance().getVersion(), field, BuguIndex.getInstance().getAnalyzer());
         parser.setDefaultOperator(op);
         return parse(parser, value);
     }
@@ -65,7 +63,7 @@ public class BuguParser {
     }
     
     public static Query parse(String[] fields, String value, Operator op){
-        QueryParser parser = new MultiFieldQueryParser(index.getVersion(), fields, index.getAnalyzer());
+        QueryParser parser = new MultiFieldQueryParser(BuguIndex.getInstance().getVersion(), fields, BuguIndex.getInstance().getAnalyzer());
         parser.setDefaultOperator(op);
         return parse(parser, value);
     }
@@ -73,7 +71,7 @@ public class BuguParser {
     public static Query parse(String[] fields, Occur[] occurs, String value){
         Query query = null;
         try{
-            query = MultiFieldQueryParser.parse(index.getVersion(), value, fields, occurs, index.getAnalyzer());
+            query = MultiFieldQueryParser.parse(BuguIndex.getInstance().getVersion(), value, fields, occurs, BuguIndex.getInstance().getAnalyzer());
         }catch(ParseException ex){
             logger.error("MultiFieldQueryParser can not parse the value " + value , ex);
         }
