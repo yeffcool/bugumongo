@@ -173,7 +173,7 @@ public class Query<T> {
         return this;
     }
     
-    public Query greaterThanEquals(String key, Object value){
+    public Query<T> greaterThanEquals(String key, Object value){
         append(key, Operator.GTE, value);
         return this;
     }
@@ -193,7 +193,7 @@ public class Query<T> {
         return this;
     }
     
-    public Query notIn(String key, Object... values){
+    public Query<T> notIn(String key, Object... values){
         appendIn(key, Operator.NIN, values);
         return this;
     }
