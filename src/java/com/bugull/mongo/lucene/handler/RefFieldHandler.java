@@ -36,7 +36,11 @@ public class RefFieldHandler extends AbstractFieldHandler{
 
     @Override
     public void handle(Document doc){
-        BuguEntity entity = (BuguEntity)FieldUtil.get(obj, field);
+        Object objValue = FieldUtil.get(obj, field);
+        if(objValue == null){
+            return;
+        }
+        BuguEntity entity = (BuguEntity)objValue;
         String refId = entity.getId();
         Class<?> clazz = field.getType();
         BuguDao dao = DaoCache.getInstance().get(field.getType());

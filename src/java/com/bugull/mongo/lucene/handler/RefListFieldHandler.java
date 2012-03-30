@@ -49,8 +49,11 @@ public class RefListFieldHandler extends AbstractFieldHandler{
 
     @Override
     public void handle(Document doc){
-        Class clazz = null;
         Object value = FieldUtil.get(obj, field);
+        if(value == null){
+            return;
+        }
+        Class clazz = null;
         Class<?> type = field.getType();
         List<ObjectId> idList = new ArrayList<ObjectId>();
         if(type.isArray()){

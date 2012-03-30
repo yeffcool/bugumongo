@@ -170,15 +170,17 @@ public class BuguSearcher<T> {
                 for(String fieldName : fields){
                     if(! fieldName.contains(".")){
                         Field field = FieldsCache.getInstance().getField(clazz, fieldName);
-                        String fieldValue = FieldUtil.get(obj, field).toString();
-                        String result = null;
-                        try{
-                            result = highlighter.getResult(fieldName, fieldValue);
-                        }catch(Exception ex){
-                            logger.error("Something is wrong when getting the highlighter result", ex);
-                        }
-                        if(result!=null && !result.equals("")){
-                            FieldUtil.set(obj, field, result);
+                        Object fieldValue = FieldUtil.get(obj, field);
+                        if(fieldValue != null){
+                            String result = null;
+                            try{
+                                result = highlighter.getResult(fieldName, fieldValue.toString());
+                            }catch(Exception ex){
+                                logger.error("Something is wrong when getting the highlighter result", ex);
+                            }
+                            if(result!=null && !result.equals("")){
+                                FieldUtil.set(obj, field, result);
+                            }
                         }
                     }
                 }

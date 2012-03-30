@@ -33,8 +33,10 @@ public class EmbedFieldHandler extends AbstractFieldHandler{
     @Override
     public void handle(Document doc){
         Object embedObj = FieldUtil.get(obj, field);
-        IndexCreator creator = new IndexCreator(embedObj, prefix);
-        creator.create(doc);
+        if(embedObj != null){
+            IndexCreator creator = new IndexCreator(embedObj, prefix);
+            creator.create(doc);
+        }
     }
     
 }

@@ -42,9 +42,12 @@ public class EmbedListFieldHandler extends AbstractFieldHandler{
 
     @Override
     public void handle(Document doc) {
+        Object value = FieldUtil.get(obj, field);
+        if(value == null){
+            return;
+        }
         List list = null;
         Class clazz = null;
-        Object value = FieldUtil.get(obj, field);
         Class<?> type = field.getType();
         if(type.isArray()){
             clazz = type.getComponentType();

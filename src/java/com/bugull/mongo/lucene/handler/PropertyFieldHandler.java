@@ -52,9 +52,12 @@ public class PropertyFieldHandler extends AbstractFieldHandler{
     }
     
     private void processArray(Document doc, boolean analyze, boolean store, float boost) {
+        Object objValue = FieldUtil.get(obj, field);
+        if(objValue == null){
+            return;
+        }
         Class<?> type = field.getType();
         String fieldName = prefix + field.getName();
-        Object objValue = FieldUtil.get(obj, field);
         Field f = new Field(fieldName, getArrayString(objValue, type.getComponentType()),
                     store ? Field.Store.YES : Field.Store.NO,
                     analyze ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
@@ -63,8 +66,11 @@ public class PropertyFieldHandler extends AbstractFieldHandler{
     }
     
     private void processPrimitive(Document doc, boolean analyze, boolean store, float boost) {
-        Class<?> type = field.getType();
         Object objValue = FieldUtil.get(obj, field);
+        if(objValue == null){
+            return;
+        }
+        Class<?> type = field.getType();
         String fieldName = prefix + field.getName();
         Fieldable f = null;
         if(DataType.isString(type)){
