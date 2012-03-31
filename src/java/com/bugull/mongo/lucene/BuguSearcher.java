@@ -21,6 +21,7 @@ import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.cache.IndexSearcherCache;
 import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.MapperUtil;
+import com.bugull.mongo.mapper.StringUtil;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -181,7 +182,7 @@ public class BuguSearcher<T> {
                             }catch(Exception ex){
                                 logger.error("Something is wrong when getting the highlighter result", ex);
                             }
-                            if(result!=null && !result.equals("")){
+                            if(!StringUtil.isEmpty(result)){
                                 FieldUtil.set(obj, field, result);
                             }
                         }
