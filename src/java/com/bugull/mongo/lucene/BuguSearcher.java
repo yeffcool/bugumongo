@@ -160,7 +160,10 @@ public class BuguSearcher<T> {
             }
             if(doc != null){
                 String id = doc.get(FieldsCache.getInstance().getIdFieldName(clazz));
-                list.add(dao.findOne(id));
+                T t = dao.findOne(id);
+                if(t != null){
+                    list.add(t);
+                }
             }
         }
         //process highlighter
