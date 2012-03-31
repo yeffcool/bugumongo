@@ -17,6 +17,7 @@ package com.bugull.mongo.lucene.backend;
 
 import com.bugull.mongo.lucene.annotations.Compare;
 import com.bugull.mongo.mapper.DataType;
+import com.bugull.mongo.mapper.FieldUtil;
 import java.lang.reflect.Field;
 import org.apache.log4j.Logger;
 
@@ -71,9 +72,13 @@ public class CompareChecker {
         return fit;
     }
     
-    private boolean isEquals(Field f, String value) throws Exception {
+    private boolean isEquals(Field f, String value) {
+        Object objValue = FieldUtil.get(obj, f);
+        if(objValue == null){
+            return false;
+        }
+        String objStr = objValue.toString();
         Class type = f.getType();
-        String objStr = f.get(obj).toString();
         if(DataType.isString(type)){
             return value.equals(objStr);
         }
@@ -103,13 +108,22 @@ public class CompareChecker {
         }
     }
     
-    private boolean notEquals(Field f, String value) throws Exception{
-        return !isEquals(f, value);
+    private boolean notEquals(Field f, String value) {
+        Object objValue = FieldUtil.get(obj, f);
+        if(objValue == null){
+            return false;
+        }else{
+            return !isEquals(f, value);
+        }
     }
     
     private boolean greaterThan(Field f, String value) throws Exception{
+        Object objValue = FieldUtil.get(obj, f);
+        if(objValue == null){
+            return false;
+        }
+        String objStr = objValue.toString();
         Class type = f.getType();
-        String objStr = f.get(obj).toString();
         if(DataType.isInteger(type) || DataType.isIntegerObject(type)){
             return Integer.parseInt(objStr) > Integer.parseInt(value);
         }
@@ -131,8 +145,12 @@ public class CompareChecker {
     }
     
     private boolean greaterThanEquals(Field f, String value) throws Exception{
+        Object objValue = FieldUtil.get(obj, f);
+        if(objValue == null){
+            return false;
+        }
+        String objStr = objValue.toString();
         Class type = f.getType();
-        String objStr = f.get(obj).toString();
         if(DataType.isInteger(type) || DataType.isIntegerObject(type)){
             return Integer.parseInt(objStr) >= Integer.parseInt(value);
         }
@@ -154,11 +172,21 @@ public class CompareChecker {
     }
     
     private boolean lessThan(Field f, String value) throws Exception {
-        return !greaterThanEquals(f, value);
+        Object objValue = FieldUtil.get(obj, f);
+        if(objValue == null){
+            return false;
+        }else{
+            return !greaterThanEquals(f, value);
+        }
     }
     
     private boolean lessThanEquals(Field f, String value) throws Exception {
-        return !greaterThan(f, value);
+        Object objValue = FieldUtil.get(obj, f);
+        if(objValue == null){
+            return false;
+        }else{
+            return !greaterThan(f, value);
+        }
     }
     
     private boolean isNull(Object o){
