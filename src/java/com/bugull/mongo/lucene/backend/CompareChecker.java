@@ -19,15 +19,12 @@ import com.bugull.mongo.lucene.annotations.Compare;
 import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.FieldUtil;
 import java.lang.reflect.Field;
-import org.apache.log4j.Logger;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class CompareChecker {
-    
-    private final static Logger logger = Logger.getLogger(CompareChecker.class);
     
     private Object obj;
     
@@ -37,37 +34,33 @@ public class CompareChecker {
     
     public boolean isFit(Field f, Compare compare, String value){
         boolean fit = false;
-        try{
-            switch(compare){
-                case IS_EQUALS:
-                    fit = isEquals(f, value);
-                    break;
-                case NOT_EQUALS:
-                    fit = notEquals(f, value);
-                    break;
-                case GREATER_THAN:
-                    fit = greaterThan(f, value);
-                    break;
-                case GREATER_THAN_EQUALS:
-                    fit = greaterThanEquals(f, value);
-                    break;
-                case LESS_THAN:
-                    fit = lessThan(f, value);
-                    break;
-                case LESS_THAN_EQUALS:
-                    fit = lessThanEquals(f, value);
-                    break;
-                case IS_NULL:
-                    fit = isNull(f.get(obj));
-                    break;
-                case NOT_NULL:
-                    fit = notNull(f.get(obj));
-                    break;
-                default:
-                    break;
-            }
-        }catch(Exception ex){
-            logger.error("Something is wrong when checking it's fit or not", ex);
+        switch(compare){
+            case IS_EQUALS:
+                fit = isEquals(f, value);
+                break;
+            case NOT_EQUALS:
+                fit = notEquals(f, value);
+                break;
+            case GREATER_THAN:
+                fit = greaterThan(f, value);
+                break;
+            case GREATER_THAN_EQUALS:
+                fit = greaterThanEquals(f, value);
+                break;
+            case LESS_THAN:
+                fit = lessThan(f, value);
+                break;
+            case LESS_THAN_EQUALS:
+                fit = lessThanEquals(f, value);
+                break;
+            case IS_NULL:
+                fit = isNull(FieldUtil.get(obj, f));
+                break;
+            case NOT_NULL:
+                fit = notNull(FieldUtil.get(obj, f));
+                break;
+            default:
+                break;
         }
         return fit;
     }
@@ -117,7 +110,7 @@ public class CompareChecker {
         }
     }
     
-    private boolean greaterThan(Field f, String value) throws Exception{
+    private boolean greaterThan(Field f, String value){
         Object objValue = FieldUtil.get(obj, f);
         if(objValue == null){
             return false;
@@ -144,7 +137,7 @@ public class CompareChecker {
         }
     }
     
-    private boolean greaterThanEquals(Field f, String value) throws Exception{
+    private boolean greaterThanEquals(Field f, String value){
         Object objValue = FieldUtil.get(obj, f);
         if(objValue == null){
             return false;
@@ -171,7 +164,7 @@ public class CompareChecker {
         }
     }
     
-    private boolean lessThan(Field f, String value) throws Exception {
+    private boolean lessThan(Field f, String value){
         Object objValue = FieldUtil.get(obj, f);
         if(objValue == null){
             return false;
@@ -180,7 +173,7 @@ public class CompareChecker {
         }
     }
     
-    private boolean lessThanEquals(Field f, String value) throws Exception {
+    private boolean lessThanEquals(Field f, String value){
         Object objValue = FieldUtil.get(obj, f);
         if(objValue == null){
             return false;
@@ -189,12 +182,12 @@ public class CompareChecker {
         }
     }
     
-    private boolean isNull(Object o){
-        return o==null ? true : false;
+    private boolean isNull(Object objValue){
+        return objValue==null ? true : false;
     }
     
-    private boolean notNull(Object o){
-        return !isNull(o);
+    private boolean notNull(Object objValue){
+        return !isNull(objValue);
     }
     
 }
