@@ -51,7 +51,7 @@ public class IndexWriterCache {
         if(cache.containsKey(name)){
             writer = cache.get(name);
         }else{
-            synchronized(name){
+            synchronized(this){
                 if(cache.containsKey(name)){
                     writer = cache.get(name);
                 }else{
@@ -66,7 +66,7 @@ public class IndexWriterCache {
                         }
                         writer = new IndexWriter(dir, conf);
                     }catch(Exception ex){
-                        logger.error("Something is wrong when create the IndexWriter for " + name, ex);
+                        logger.error("Something is wrong when create IndexWriter for " + name, ex);
                     }
                     cache.put(name, writer);
                 }
