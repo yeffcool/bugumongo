@@ -22,8 +22,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.log4j.Logger;
@@ -106,11 +104,8 @@ public class Uploader {
     
     protected void processFilename(){
         if(rename){
-            Date date = new Date();
-            SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-            String dateStr = format.format(date);
             StringBuilder sb = new StringBuilder();
-            sb.append(dateStr).append(date.getTime());
+            sb.append(System.nanoTime());
             String ext = StringUtil.getExtention(originalName);
             if(!StringUtil.isEmpty(ext)){
                 sb.append(".").append(ext);
