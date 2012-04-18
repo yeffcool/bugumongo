@@ -19,11 +19,10 @@ import com.bugull.mongo.mapper.StringUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFSDBFile;
-import java.awt.AlphaComposite;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGEncodeParam;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -153,9 +152,14 @@ public class ImageUploader extends Uploader{
             return;
         }
         double ratio = Math.min((double) maxWidth / srcWidth, (double) maxHeight / srcHeight);
-        AffineTransformOp op = new AffineTransformOp(AffineTransform.getScaleInstance(ratio, ratio), null); 
-        BufferedImage scaledImage = op.filter(srcImage, null);
-        saveImage(scaledImage);
+        int targetWidth = (int)(srcWidth * ratio);
+        int targetHeight = (int)(srcHeight * ratio);
+        BufferedImage targetImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
+        Image img = srcImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+        Graphics g = targetImage.getGraphics();
+        g.drawImage(img, 0, 0, targetWidth, targetHeight, null);
+        g.dispose();
+        saveImage(targetImage);
     }
     
     private InputStream getOriginalInputStream(){
@@ -188,10 +192,13 @@ public class ImageUploader extends Uploader{
     
     private void saveImage(BufferedImage bi){
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(baos);
+        JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(bi);
+        param.setQuality(1.0f, true);
         try {
-            ImageIO.write(bi, StringUtil.getExtention(originalName), baos);
-        } catch (IOException ex) {
-            logger.error("Can not write the BufferedImage", ex);
+            encoder.encode(bi, param);
+        } catch (Exception ex) {
+            logger.error(ex);
         }
         fs.save(baos.toByteArray(), filename, folder, params);
         try{
