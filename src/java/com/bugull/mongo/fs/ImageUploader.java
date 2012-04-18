@@ -19,9 +19,7 @@ import com.bugull.mongo.mapper.StringUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFSDBFile;
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGEncodeParam;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
+import com.sun.image.codec.jpeg.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -197,8 +195,10 @@ public class ImageUploader extends Uploader{
         param.setQuality(1.0f, true);
         try {
             encoder.encode(bi, param);
-        } catch (Exception ex) {
-            logger.error(ex);
+        } catch (ImageFormatException ex) {
+            logger.error("Can not encode the JPEGImageEncoder", ex);
+        } catch (IOException ex) {
+            logger.error("Can not encode the JPEGImageEncoder", ex);
         }
         fs.save(baos.toByteArray(), filename, folder, params);
         try{
