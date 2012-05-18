@@ -36,7 +36,7 @@ import org.bson.types.ObjectId;
  * @author Frank Wen(xbwen@hotmail.com)
  */
 @SuppressWarnings("unchecked")
-public class Query<T> {
+public class BuguQuery<T> {
     
     private DBCollection coll;
     private Class<T> clazz;
@@ -47,7 +47,7 @@ public class Query<T> {
     private int pageNumber = 0;
     private int pageSize = 0;
     
-    public Query(DBCollection coll, Class<T> clazz, DBObject keys){
+    public BuguQuery(DBCollection coll, Class<T> clazz, DBObject keys){
         this.coll = coll;
         this.clazz = clazz;
         this.keys = keys;
@@ -134,133 +134,133 @@ public class Query<T> {
         }
     }
     
-    public Query<T> is(String key, Object value){
+    public BuguQuery<T> is(String key, Object value){
         appendEquals(key, null, value);
         return this;
     }
     
-    public Query<T> notEquals(String key, Object value){
+    public BuguQuery<T> notEquals(String key, Object value){
         appendEquals(key, Operator.NE, value);
         return this;
     }
     
-    public Query<T> or(Query... qs){
+    public BuguQuery<T> or(BuguQuery... qs){
         List list = (List)condition.get(Operator.OR);
         if(list == null){
             list = new ArrayList();
             condition.put(Operator.OR, list);
         }
-        for(Query q : qs){
+        for(BuguQuery q : qs){
             list.add(q.getCondition());
         }
         return this;
     }
     
-    public Query<T> and(Query... qs){
+    public BuguQuery<T> and(BuguQuery... qs){
         List list = (List)condition.get(Operator.AND);
         if(list == null){
             list = new ArrayList();
             condition.put(Operator.AND, list);
         }
-        for(Query q : qs){
+        for(BuguQuery q : qs){
             list.add(q.getCondition());
         }
         return this;
     }
     
-    public Query<T> greaterThan(String key, Object value){
+    public BuguQuery<T> greaterThan(String key, Object value){
         append(key, Operator.GT, value);
         return this;
     }
     
-    public Query<T> greaterThanEquals(String key, Object value){
+    public BuguQuery<T> greaterThanEquals(String key, Object value){
         append(key, Operator.GTE, value);
         return this;
     }
     
-    public Query<T> lessThan(String key, Object value){
+    public BuguQuery<T> lessThan(String key, Object value){
         append(key, Operator.LT, value);
         return this;
     }
     
-    public Query<T> lessThanEquals(String key, Object value){
+    public BuguQuery<T> lessThanEquals(String key, Object value){
         append(key, Operator.LTE, value);
         return this;
     }
     
-    public Query<T> in(String key, Object... values){
+    public BuguQuery<T> in(String key, Object... values){
         appendIn(key, Operator.IN, values);
         return this;
     }
     
-    public Query<T> notIn(String key, Object... values){
+    public BuguQuery<T> notIn(String key, Object... values){
         appendIn(key, Operator.NIN, values);
         return this;
     }
     
-    public Query<T> all(String key, Object... values){
+    public BuguQuery<T> all(String key, Object... values){
         append(key, Operator.ALL, values);
         return this;
     }
     
-    public Query<T> regex(String key, String regex){
+    public BuguQuery<T> regex(String key, String regex){
         append(key, Operator.REGEX, Pattern.compile(regex));
         return this;
     }
     
-    public Query<T> size(String key, int value){
+    public BuguQuery<T> size(String key, int value){
         append(key, Operator.SIZE, value);
         return this;
     }
     
-    public Query<T> mod(String key, int divisor, int remainder){
+    public BuguQuery<T> mod(String key, int divisor, int remainder){
         append(key, Operator.MOD, new int[]{divisor, remainder});
         return this;
     }
     
-    public Query<T> existsField(String key){
+    public BuguQuery<T> existsField(String key){
         append(key, Operator.EXISTS, Boolean.TRUE);
         return this;
     }
     
-    public Query<T> notExistsField(String key){
+    public BuguQuery<T> notExistsField(String key){
         append(key, Operator.EXISTS, Boolean.FALSE);
         return this;
     }
     
-    public Query<T> withinCenter(String key, double x, double y, double radius){
+    public BuguQuery<T> withinCenter(String key, double x, double y, double radius){
         DBObject dbo = new BasicDBObject(Operator.CENTER, new Object[]{new Double[]{x, y}, radius});
         append(key, Operator.WITHIN, dbo);
         return this;
     }
     
-    public Query<T> withinBox(String key, double x1, double y1, double x2, double y2){
+    public BuguQuery<T> withinBox(String key, double x1, double y1, double x2, double y2){
         DBObject dbo = new BasicDBObject(Operator.BOX, new Object[]{new Double[]{x1, y1}, new Double[]{x2, y2} });
     	append(key, Operator.WITHIN, dbo);
     	return this;
     }
     
-    public Query<T> near(String key, double x, double y){
+    public BuguQuery<T> near(String key, double x, double y){
         append(key, Operator.NEAR, new Double[]{x, y});
         return this;
     }
 
-    public Query<T> near(String key, double x, double y, double maxDistance){
+    public BuguQuery<T> near(String key, double x, double y, double maxDistance){
         append(key, Operator.NEAR, new Double[]{x, y, maxDistance});
         return this;
     }
     
-    public Query<T> sort(String orderBy){
+    public BuguQuery<T> sort(String orderBy){
         this.orderBy = orderBy;
         return this;
     }
     
-    public Query<T> pageNumber(int pageNumber){
+    public BuguQuery<T> pageNumber(int pageNumber){
         this.pageNumber = pageNumber;
         return this;
     }
     
-    public Query<T> pageSize(int pageSize){
+    public BuguQuery<T> pageSize(int pageSize){
         this.pageSize = pageSize;
         return this;
     }

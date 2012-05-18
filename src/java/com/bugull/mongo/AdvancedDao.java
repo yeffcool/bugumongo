@@ -44,7 +44,7 @@ public class AdvancedDao extends BuguDao{
         return max(key, new BasicDBObject());
     }
     
-    public double max(String key, Query query){
+    public double max(String key, BuguQuery query){
         return max(key, query.getCondition());
     }
     
@@ -69,7 +69,7 @@ public class AdvancedDao extends BuguDao{
         return min(key, new BasicDBObject());
     }
     
-    public double min(String key, Query query){
+    public double min(String key, BuguQuery query){
         return min(key, query.getCondition());
     }
     
@@ -94,7 +94,7 @@ public class AdvancedDao extends BuguDao{
         return sum(key, new BasicDBObject());
     }
     
-    public double sum(String key, Query query){
+    public double sum(String key, BuguQuery query){
         return sum(key, query.getCondition());
     }
     
@@ -134,7 +134,7 @@ public class AdvancedDao extends BuguDao{
         return coll.mapReduce(map, reduce, null, OutputType.INLINE, null).results();
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce, Query query) {
+    public Iterable<DBObject> mapReduce(String map, String reduce, BuguQuery query) {
         return mapReduce(map, reduce, query.getCondition());
     }
     
@@ -142,7 +142,7 @@ public class AdvancedDao extends BuguDao{
         return coll.mapReduce(map, reduce, null, OutputType.INLINE, query).results();
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, Query query) {
+    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, BuguQuery query) {
         return mapReduce(map, reduce, outputTarget, outputType, orderBy, query.getCondition());
     }
     
@@ -164,7 +164,7 @@ public class AdvancedDao extends BuguDao{
         }
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, int pageNum, int pageSize, Query query) {
+    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, int pageNum, int pageSize, BuguQuery query) {
         return mapReduce(map, reduce, outputTarget, outputType, orderBy, pageNum, pageSize, query.getCondition());
     }
     

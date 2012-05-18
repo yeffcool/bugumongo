@@ -218,7 +218,7 @@ public class BuguDao<T> {
      * Remove by condition.
      * @param query 
      */
-    public void remove(Query query){
+    public void remove(BuguQuery query){
         remove(query.getCondition());
     }
     
@@ -293,7 +293,7 @@ public class BuguDao<T> {
      * @param query the query condition
      * @param values the new key/value pairs
      */
-    public void set(Query query, Map values){
+    public void set(BuguQuery query, Map values){
         set(query.getCondition(), new BasicDBObject(values));
     }
     
@@ -356,7 +356,7 @@ public class BuguDao<T> {
         }
     }
     
-    public void unset(Query query, String key){
+    public void unset(BuguQuery query, String key){
         unset(query.getCondition(), key);
     }
     
@@ -408,7 +408,7 @@ public class BuguDao<T> {
      * @param key the field's name
      * @param value the numeric value to be added. It can be positive or negative integer, long, float, double
      */
-    public void inc(Query query, String key, Object value){
+    public void inc(BuguQuery query, String key, Object value){
         inc(query.getCondition(), key, value);
     }
     
@@ -657,8 +657,8 @@ public class BuguDao<T> {
      * Create a query.
      * @return a new Query object
      */
-    public Query<T> query(){
-        return new Query<T>(coll, clazz, keys);
+    public BuguQuery<T> query(){
+        return new BuguQuery<T>(coll, clazz, keys);
     }
     
 }
