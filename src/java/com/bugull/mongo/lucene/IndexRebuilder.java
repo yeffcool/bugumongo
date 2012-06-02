@@ -18,13 +18,14 @@ package com.bugull.mongo.lucene;
 import com.bugull.mongo.lucene.backend.IndexRebuildTask;
 
 /**
- *
+ * Rebuild the lucene index for all entities of a collection.
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class IndexRebuilder {
     
     private Class<?> clazz;
-    private int batchSize = 100;
+    private int batchSize = 100;  //the default batch size is 100
     
     public IndexRebuilder(Class<?> clazz){
         this.clazz = clazz;

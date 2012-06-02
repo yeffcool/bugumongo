@@ -44,6 +44,13 @@ import java.util.List;
  */
 public class MapperUtil {
     
+    /**
+     * Convert a DBObject to entity object
+     * @param <T>
+     * @param clazz
+     * @param dbo
+     * @return 
+     */
     public static <T> T fromDBObject(Class<T> clazz, DBObject dbo){
         if(dbo == null){
             return null;
@@ -59,6 +66,11 @@ public class MapperUtil {
         return obj;
     }
     
+    /**
+     * Convert an entity object to DBObject
+     * @param obj
+     * @return 
+     */
     public static DBObject toDBObject(Object obj){
         if(obj == null){
             return null;
@@ -132,6 +144,12 @@ public class MapperUtil {
         return list;
     }
     
+    /**
+     * Get the name property of @Entity annotation. 
+     * If the name property is not set, then return the class' name, in lower case type.
+     * @param clazz
+     * @return 
+     */
     public static String getEntityName(Class<?> clazz){
         Entity entity = clazz.getAnnotation(Entity.class);
         String name = entity.name();
@@ -141,6 +159,11 @@ public class MapperUtil {
         return name;
     }
     
+    /**
+     * Get the non-lazy fields
+     * @param clazz
+     * @return 
+     */
     public static DBObject getKeyFields(Class<?> clazz){
         DBObject keys = new BasicDBObject();
         Field[] fields = FieldsCache.getInstance().get(clazz);
