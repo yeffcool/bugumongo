@@ -88,6 +88,7 @@ public class RefListFieldHandler extends AbstractFieldHandler{
                 }
             }
             else if(types.length == 2){
+                clazz = (Class)types[1];
                 Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
                 for(Object key : map.keySet()){
                     BuguEntity ent = map.get(key);
@@ -100,6 +101,7 @@ public class RefListFieldHandler extends AbstractFieldHandler{
                 return;
             }
         }
+        clazz = FieldUtil.getRealType(clazz);
         BuguDao dao = DaoCache.getInstance().get(clazz);
         DBObject in = new BasicDBObject(Operator.IN, idList);
         DBObject query = new BasicDBObject(Operator.ID, in);

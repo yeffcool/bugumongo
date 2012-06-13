@@ -42,8 +42,8 @@ public class RefFieldHandler extends AbstractFieldHandler{
         }
         BuguEntity entity = (BuguEntity)objValue;
         String refId = entity.getId();
-        Class<?> clazz = field.getType();
-        BuguDao dao = DaoCache.getInstance().get(field.getType());
+        Class<?> clazz = FieldUtil.getRealType(field);
+        BuguDao dao = DaoCache.getInstance().get(clazz);
         Object refObj = dao.findOne(refId);
         if(refObj != null){
             Field[] fields = FieldsCache.getInstance().get(clazz);

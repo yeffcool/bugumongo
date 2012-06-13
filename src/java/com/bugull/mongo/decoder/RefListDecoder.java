@@ -77,6 +77,7 @@ public class RefListDecoder extends AbstractDecoder{
     }
     
     private void decodeArray(Object obj, Class clazz){
+        clazz = FieldUtil.getRealType(clazz);
         List list = (ArrayList)value;
         int size = list.size();
         if(size <= 0){
@@ -127,6 +128,7 @@ public class RefListDecoder extends AbstractDecoder{
     }
     
     private void decodeList(Object obj, Class clazz){
+        clazz = FieldUtil.getRealType(clazz);
         List<DBRef> list = (List<DBRef>)value;
         List<BuguEntity> result = new ArrayList<BuguEntity>();
         if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_RETRIEVE)==-1){
@@ -164,6 +166,7 @@ public class RefListDecoder extends AbstractDecoder{
     }
     
     private void decodeMap(Object obj, Class clazz){
+        clazz = FieldUtil.getRealType(clazz);
         Map<Object, DBRef> map = (Map<Object, DBRef>)value;
         Map<Object, BuguEntity> result = new HashMap<Object, BuguEntity>();
         if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_RETRIEVE)==-1){

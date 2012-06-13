@@ -49,7 +49,7 @@ public class RefDecoder extends AbstractDecoder{
     public void decode(Object obj){
         DBRef dbRef = (DBRef)value;
         String refId = dbRef.getId().toString();
-        Class<?> clazz = field.getType();
+        Class<?> clazz = FieldUtil.getRealType(field);
         BuguEntity refObj = null;
         if(ref.cascade().toUpperCase().indexOf(Default.CASCADE_RETRIEVE)==-1){
             refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);

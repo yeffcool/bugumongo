@@ -190,7 +190,8 @@ public class BuguMapper {
         }
         BuguEntity refObj = (BuguEntity)o;
         String id = refObj.getId();
-        BuguDao dao = DaoCache.getInstance().get(field.getType());
+        Class cls = FieldUtil.getRealType(field);
+        BuguDao dao = DaoCache.getInstance().get(cls);
         Object value = dao.findOne(id);
         FieldUtil.set(obj, field, value);
     }
@@ -219,6 +220,7 @@ public class BuguMapper {
             return;
         }
         int len = Array.getLength(o);
+        clazz = FieldUtil.getRealType(clazz);
         Object arr = Array.newInstance(clazz, len);
         List<ObjectId> idList = new ArrayList<ObjectId>();
         for(int i=0; i<len; i++){
@@ -256,6 +258,7 @@ public class BuguMapper {
         }
         Class type = field.getType();
         RefList refList = field.getAnnotation(RefList.class);
+        clazz = FieldUtil.getRealType(clazz);
         BuguDao dao = DaoCache.getInstance().get(clazz);
         if(DataType.isList(type)){
             List<BuguEntity> list = (List<BuguEntity>)o;
@@ -304,6 +307,7 @@ public class BuguMapper {
         }
         Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)o;
         Map result = new HashMap();
+        clazz = FieldUtil.getRealType(clazz);
         BuguDao dao = DaoCache.getInstance().get(clazz);
         for(Object key : map.keySet()){
             BuguEntity refObj = map.get(key);

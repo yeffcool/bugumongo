@@ -16,6 +16,7 @@
 package com.bugull.mongo.mapper;
 
 import com.bugull.mongo.cache.FieldsCache;
+import com.bugull.mongo.face.BuguFace;
 import java.lang.reflect.Field;
 import org.apache.log4j.Logger;
 
@@ -65,6 +66,18 @@ public class FieldUtil {
             Object value = get(src, f);
             set(target, f, value);
         }
+    }
+    
+    public static Class<?> getRealType(Field field){
+        Class<?> clazz = field.getType();
+        return getRealType(clazz);
+    }
+    
+    public static Class<?> getRealType(Class<?> clazz){
+        if(clazz.isInterface()){
+            clazz = BuguFace.getIntance().getImplementation(clazz);
+        }
+        return clazz;
     }
     
 }

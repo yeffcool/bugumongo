@@ -21,6 +21,7 @@ import com.bugull.mongo.BuguMapper;
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.cache.DaoCache;
+import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.StringUtil;
 import java.lang.reflect.Field;
 
@@ -52,12 +53,12 @@ public class RefEncoder extends AbstractEncoder{
         BuguEntity entity = (BuguEntity)value;
         String idStr = entity.getId();
         if(ref.cascade().toUpperCase().indexOf(Default.CASCADE_CREATE)!=-1 && StringUtil.isEmpty(idStr)){
-            Class<?> clazz = field.getType();
+            Class<?> clazz = FieldUtil.getRealType(field);
             BuguDao dao = DaoCache.getInstance().get(clazz);
             dao.insert(entity);
         }
         if(ref.cascade().toUpperCase().indexOf(Default.CASCADE_UPDATE)!=-1 && !StringUtil.isEmpty(idStr)){
-            Class<?> clazz = field.getType();
+            Class<?> clazz = FieldUtil.getRealType(field);
             BuguDao dao = DaoCache.getInstance().get(clazz);
             dao.save(entity);
         }

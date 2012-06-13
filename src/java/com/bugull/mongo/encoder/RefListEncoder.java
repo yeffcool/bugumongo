@@ -22,6 +22,7 @@ import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.mapper.DataType;
+import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.StringUtil;
 import com.mongodb.DBRef;
 import java.lang.reflect.Array;
@@ -70,9 +71,10 @@ public class RefListEncoder extends AbstractEncoder{
     }
     
     private Object encodeArray(Class<?> clazz){
+        clazz = FieldUtil.getRealType(clazz);
+        BuguDao dao = DaoCache.getInstance().get(clazz);
         int len = Array.getLength(value);
         List<DBRef> result = new ArrayList<DBRef>();
-        BuguDao dao = DaoCache.getInstance().get(clazz);
         for(int i=0; i<len; i++){
             BuguEntity entity = (BuguEntity)Array.get(value, i);
             if(entity != null){
@@ -89,7 +91,8 @@ public class RefListEncoder extends AbstractEncoder{
         if(DataType.isList(type)){
             List<BuguEntity> list = (List<BuguEntity>)value;
             List<DBRef> result = new ArrayList<DBRef>();
-            BuguDao dao = DaoCache.getInstance().get((Class)types[0]);
+            Class<?> cls = FieldUtil.getRealType((Class)types[0]);
+            BuguDao dao = DaoCache.getInstance().get(cls);
             for(BuguEntity entity : list){
                 if(entity != null){
                     doCascade(dao, entity);
@@ -101,7 +104,8 @@ public class RefListEncoder extends AbstractEncoder{
         else if(DataType.isSet(type)){
             Set<BuguEntity> set = (Set<BuguEntity>)value;
             Set<DBRef> result = new HashSet<DBRef>();
-            BuguDao dao = DaoCache.getInstance().get((Class)types[0]);
+            Class<?> cls = FieldUtil.getRealType((Class)types[0]);
+            BuguDao dao = DaoCache.getInstance().get(cls);
             for(BuguEntity entity : set){
                 if(entity != null){
                     doCascade(dao, entity);
@@ -113,7 +117,8 @@ public class RefListEncoder extends AbstractEncoder{
         else if(DataType.isMap(type)){
             Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
             Map<Object, DBRef> result = new HashMap<Object, DBRef>();
-            BuguDao dao = DaoCache.getInstance().get((Class)types[1]);
+            Class<?> cls = FieldUtil.getRealType((Class)types[1]);
+            BuguDao dao = DaoCache.getInstance().get(cls);
             for(Object key : map.keySet()){
                 BuguEntity entity = map.get(key);
                 if(entity != null){
