@@ -19,7 +19,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
+ * The specified implementations of entity interfaces.
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class BuguFace {
