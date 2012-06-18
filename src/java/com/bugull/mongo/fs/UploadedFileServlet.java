@@ -58,7 +58,7 @@ public class UploadedFileServlet extends HttpServlet {
             String[] arr = sub.split(SLASH);
             for(int i=0; i<arr.length; i+=2){
                 if(arr[i].equals(BuguFS.BUCKET)){
-                    bucketName = arr[i];
+                    bucketName = arr[i+1];
                 }else{
                     query.put(arr[i], arr[i+1]);
                 }
