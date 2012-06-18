@@ -51,15 +51,21 @@ public class UploadedFileServlet extends HttpServlet {
         String filename = url.substring(last+1);
         DBObject query = new BasicDBObject(BuguFS.FILENAME, filename);
         query.put(ImageUploader.DIMENSION, null);
+        String bucketName = BuguFS.DEFAULT_BUCKET;
         int first = url.indexOf(SLASH);
         if(first != last){
             String sub = url.substring(first+1, last);
             String[] arr = sub.split(SLASH);
             for(int i=0; i<arr.length; i+=2){
-                query.put(arr[i], arr[i+1]);
+                if(arr[i].equals(BuguFS.BUCKET)){
+                    bucketName = arr[i];
+                }else{
+                    query.put(arr[i], arr[i+1]);
+                }
             }
         }
-        GridFSDBFile f = BuguFS.getInstance().findOne(query);
+        BuguFS fs = new BuguFS(bucketName);
+        GridFSDBFile f = fs.findOne(query);
         if(f != null){
             String ext = StringUtil.getExtention(filename);
             response.setContentType(getContentType(ext));

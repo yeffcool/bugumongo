@@ -39,14 +39,13 @@ public class Uploader {
     protected String originalName;
     protected boolean rename;
     
+    protected String bucketName = BuguFS.DEFAULT_BUCKET;
+    protected long chunkSize = BuguFS.DEFAULT_CHUNKSIZE;
     protected String filename;
     protected String folder;
     protected Map<String, Object> params;
     
-    protected BuguFS fs;
-    
     public Uploader(File file, String originalName){
-        fs = BuguFS.getInstance();
         try{
             this.input = new FileInputStream(file);
         }catch(FileNotFoundException ex){
@@ -61,7 +60,6 @@ public class Uploader {
     }
     
     public Uploader(InputStream input, String originalName){
-        fs = BuguFS.getInstance();
         this.input = input;
         this.originalName = originalName;
     }
@@ -72,7 +70,6 @@ public class Uploader {
     }
     
     public Uploader(byte[] data, String originalName){
-        fs = BuguFS.getInstance();
         this.input = new ByteArrayInputStream(data);
         this.originalName = originalName;
     }
@@ -80,6 +77,14 @@ public class Uploader {
     public Uploader(byte[] data, String originalName, boolean rename){
         this(data, originalName);
         this.rename = rename;
+    }
+    
+    public void setBucketName(String bucketName){
+        this.bucketName = bucketName;
+    }
+    
+    public void setChunkSize(long chunkSize){
+        this.chunkSize = chunkSize;
     }
     
     public void setFolder(String folder){
@@ -117,6 +122,7 @@ public class Uploader {
     }
     
     protected void saveInputStream(){
+        BuguFS fs = new BuguFS(bucketName, chunkSize);
         fs.save(input, filename, folder, params);
         try{
             input.close();

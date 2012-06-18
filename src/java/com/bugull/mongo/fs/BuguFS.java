@@ -50,28 +50,44 @@ public class BuguFS {
     
     private final static Logger logger = Logger.getLogger(BuguFS.class);
     
-    private static BuguFS instance = new BuguFS();
+    
     private GridFS fs;
     private DBCollection files;
+    private long chunkSize;
     
-    private final static String FS_FILES = "fs.files";
+    public final static String DEFAULT_BUCKET = "fs";
+    public final static long DEFAULT_CHUNKSIZE = 256L * 1024L;  //256KB
     
+    public final static String BUCKET = "bucket";
     public final static String FOLDER = "folder";
     public final static String FILENAME = "filename";
     public final static String LENGTH = "length";
     public final static String UPLOADDATE = "uploadDate";
     
-    private BuguFS(){
+    public BuguFS(){
+        init(DEFAULT_BUCKET, DEFAULT_CHUNKSIZE);
+    }
+    
+    public BuguFS(String bucketName){
+        init(bucketName, DEFAULT_CHUNKSIZE);
+    }
+    
+    public BuguFS(long chunkSize){
+        init(DEFAULT_BUCKET, chunkSize);
+    }
+    
+    public BuguFS(String bucketName, long chunkSize){
+        init(bucketName, chunkSize);
+    }
+    
+    private void init(String bucketName, long chunkSize){
+        this.chunkSize = chunkSize;
         DB db = BuguConnection.getInstance().getDB();
-        fs = new GridFS(db);
-        files = db.getCollection(FS_FILES);
+        fs = new GridFS(db, bucketName);
+        files = db.getCollection(bucketName + ".files");
     }
     
-    public static BuguFS getInstance(){
-        return instance;
-    }
-    
-    public GridFS getFS(){
+    public GridFS getGridFS(){
         return fs;
     }
     
@@ -94,6 +110,7 @@ public class BuguFS {
         }catch(IOException ex){
             logger.error("Can not create GridFSInputFile", ex);
         }
+        f.setChunkSize(chunkSize);
         f.setFilename(filename);
         setParams(f, folderName, params);
         f.save();
@@ -109,6 +126,7 @@ public class BuguFS {
     
     public void save(InputStream is, String filename, String folderName, Map<String, Object> params){
         GridFSInputFile f = fs.createFile(is);
+        f.setChunkSize(chunkSize);
         f.setFilename(filename);
         setParams(f, folderName, params);
         f.save();
@@ -124,6 +142,7 @@ public class BuguFS {
     
     public void save(byte[] data, String filename, String folderName, Map<String, Object> params){
         GridFSInputFile f = fs.createFile(data);
+        f.setChunkSize(chunkSize);
         f.setFilename(filename);
         setParams(f, folderName, params);
         f.save();
