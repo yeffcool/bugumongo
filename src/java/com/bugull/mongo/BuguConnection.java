@@ -180,6 +180,9 @@ public class BuguConnection {
     }
 
     public DB getDB(){
+        if(db == null){
+            logger.error("Can not get database instance! Please ensure connected to mongoDB correctly.");
+        }
         return db;
     }
     
