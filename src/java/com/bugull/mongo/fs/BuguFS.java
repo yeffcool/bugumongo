@@ -16,6 +16,7 @@
 package com.bugull.mongo.fs;
 
 import com.bugull.mongo.BuguConnection;
+import com.bugull.mongo.exception.DBConnectionException;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
@@ -40,8 +41,6 @@ import org.bson.types.ObjectId;
 /**
  * Basic class for operating the GridFS.
  * 
- * <p>Singleton Pattern is used here. An application should use only one BuguFS.</p>
- * 
  * <p>BuguFS uses the BuguConnection class internally, so you don't need to care about the connetion and collections of GridFS.</p>
  * 
  * @author Frank Wen(xbwen@hotmail.com)
@@ -50,9 +49,9 @@ public class BuguFS {
     
     private final static Logger logger = Logger.getLogger(BuguFS.class);
     
-    
     private GridFS fs;
     private DBCollection files;
+    private String bucketName;
     private long chunkSize;
     
     public final static String DEFAULT_BUCKET = "fs";
@@ -81,8 +80,14 @@ public class BuguFS {
     }
     
     private void init(String bucketName, long chunkSize){
+        this.bucketName = bucketName;
         this.chunkSize = chunkSize;
-        DB db = BuguConnection.getInstance().getDB();
+        DB db = null;
+        try {
+            db = BuguConnection.getInstance().getDB();
+        } catch (DBConnectionException ex) {
+            logger.error("Can not get database instance! Please ensure connected to mongoDB correctly.", ex);
+        }
         fs = new GridFS(db, bucketName);
         files = db.getCollection(bucketName + ".files");
     }
@@ -291,6 +296,14 @@ public class BuguFS {
         }
         cursor.close();
         return list;
+    }
+
+    public String getBucketName() {
+        return bucketName;
+    }
+
+    public long getChunkSize() {
+        return chunkSize;
     }
     
 }
