@@ -20,6 +20,7 @@ import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
+import com.bugull.mongo.exception.DBConnectionException;
 import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.MapperUtil;
@@ -39,6 +40,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 
 /**
@@ -48,6 +50,8 @@ import org.bson.types.ObjectId;
  */
 @SuppressWarnings("unchecked")
 public class BuguMapper {
+    
+    private final static Logger logger = Logger.getLogger(BuguMapper.class);
         
     /**
      * Convert BuguEntity to DBRef. Useful when operate on @Ref and @RefList field.
@@ -59,7 +63,12 @@ public class BuguMapper {
         if(StringUtil.isEmpty(idStr)){
             return null;
         }
-        DB db = BuguConnection.getInstance().getDB();
+        DB db = null;
+        try {
+            db = BuguConnection.getInstance().getDB();
+        } catch (DBConnectionException ex) {
+            logger.error("Can not get database instance! Please ensure connected to mongoDB correctly.", ex);
+        }
         Class<?> clazz = obj.getClass();
         String name = MapperUtil.getEntityName(clazz);
         ObjectId id = new ObjectId(idStr);
@@ -76,7 +85,12 @@ public class BuguMapper {
         if(StringUtil.isEmpty(idStr)){
             return null;
         }
-        DB db = BuguConnection.getInstance().getDB();
+        DB db = null;
+        try {
+            db = BuguConnection.getInstance().getDB();
+        } catch (DBConnectionException ex) {
+            logger.error("Can not get database instance! Please ensure connected to mongoDB correctly.", ex);
+        }
         String name = MapperUtil.getEntityName(clazz);
         ObjectId id = new ObjectId(idStr);
         return new DBRef(db, name, id);
