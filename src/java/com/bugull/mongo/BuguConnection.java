@@ -15,6 +15,7 @@
 
 package com.bugull.mongo;
 
+import com.bugull.mongo.exception.DBConnectionException;
 import com.bugull.mongo.mapper.CascadeDeleteExecutor;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
@@ -83,40 +84,46 @@ public class BuguConnection {
     }
     
     public void connect(){
-        doConnect();
+        try {
+            doConnect();
+        } catch (UnknownHostException ex) {
+            logger.error("Can not connect to host " + host, ex);
+        } catch (DBConnectionException ex) {
+            logger.error("Can not connect to mongoDB", ex);
+        }
         if(username != null && password != null){
-            auth();
+            try{
+                auth();
+            }catch(DBConnectionException ex){
+                logger.error("Can not connect to mongoDB. Failed to authenticate!", ex);
+            } 
         }
     }
 
-    private void doConnect(){
-        try{
-            if(host != null && port != 0){
-                ServerAddress sa = new ServerAddress(host, port);
-                if(options != null){
-                    mongo = new Mongo(sa, options);
-                }else{
-                    mongo = new Mongo(sa);
-                }
+    private void doConnect() throws UnknownHostException, DBConnectionException {
+        if(host != null && port != 0){
+            ServerAddress sa = new ServerAddress(host, port);
+            if(options != null){
+                mongo = new Mongo(sa, options);
+            }else{
+                mongo = new Mongo(sa);
             }
-            else if(replicaSet != null){
-                if(options != null){
-                    mongo = new Mongo(replicaSet, options);
-                }else{
-                    mongo = new Mongo(replicaSet);
-                }
-                if(readPreference != null){
-                    mongo.setReadPreference(readPreference);
-                }
+        }
+        else if(replicaSet != null){
+            if(options != null){
+                mongo = new Mongo(replicaSet, options);
+            }else{
+                mongo = new Mongo(replicaSet);
             }
-        }catch(UnknownHostException ex){
-            logger.error("Can not connect to the MongoDB host" ,ex);
+            if(readPreference != null){
+                mongo.setReadPreference(readPreference);
+            }
         }
-        if(mongo == null){
-            logger.error("Can not connect to mongoDB.");
-            return;
+        if(mongo != null){
+            db = mongo.getDB(database);
+        }else{
+            throw new DBConnectionException();
         }
-        db = mongo.getDB(database);
     }
     
     public void close(){
@@ -129,13 +136,13 @@ public class BuguConnection {
         }
     }
     
-    private void auth(){
+    private void auth() throws DBConnectionException {
         boolean auth = db.authenticate(username, password.toCharArray());
         if(auth){
             logger.info("Connected to mongodb successfully!");
         }else{
             db = null;
-            logger.error("Can not connect to mongodb. Failed to authenticate!");
+            throw new DBConnectionException();
         }
     }
     
@@ -179,11 +186,12 @@ public class BuguConnection {
         return this;
     }
 
-    public DB getDB(){
+    public DB getDB() throws DBConnectionException {
         if(db == null){
-            logger.error("Can not get database instance! Please ensure connected to mongoDB correctly.");
+            throw new DBConnectionException();
+        }else{
+            return db;
         }
-        return db;
     }
     
 }
