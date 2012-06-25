@@ -17,6 +17,7 @@ package com.bugull.mongo;
 
 import com.bugull.mongo.annotations.EnsureIndex;
 import com.bugull.mongo.annotations.Entity;
+import com.bugull.mongo.exception.DBConnectionException;
 import com.bugull.mongo.lucene.backend.EntityChangedListener;
 import com.bugull.mongo.lucene.backend.IndexChecker;
 import com.bugull.mongo.mapper.DBIndex;
@@ -31,6 +32,7 @@ import com.mongodb.DBObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 
 /**
@@ -40,6 +42,8 @@ import org.bson.types.ObjectId;
  */
 public class BuguDao<T> {
     
+    private final static Logger logger = Logger.getLogger(BuguDao.class);
+    
     protected DBCollection coll;
     protected Class<T> clazz;
     protected DBObject keys;
@@ -48,7 +52,12 @@ public class BuguDao<T> {
     
     public BuguDao(Class<T> clazz){
         this.clazz = clazz;
-        DB db = BuguConnection.getInstance().getDB();
+        DB db = null;
+        try {
+            db = BuguConnection.getInstance().getDB();
+        } catch (DBConnectionException ex) {
+            logger.error("Can not get database instance! Please ensure connected to mongoDB correctly.", ex);
+        }
         Entity entity = clazz.getAnnotation(Entity.class);
         String name = MapperUtil.getEntityName(clazz);
         //if capped
