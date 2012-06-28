@@ -84,7 +84,7 @@ public class RefListDecoder extends AbstractDecoder{
             return;
         }
         Object arr = Array.newInstance(clazz, size);
-        if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_RETRIEVE)==-1){
+        if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_READ)==-1){
             for(int i=0; i<size; i++){
                 Object item = list.get(i);
                 if(item != null){
@@ -131,7 +131,7 @@ public class RefListDecoder extends AbstractDecoder{
         clazz = FieldUtil.getRealType(clazz);
         List<DBRef> list = (List<DBRef>)value;
         List<BuguEntity> result = new ArrayList<BuguEntity>();
-        if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_RETRIEVE)==-1){
+        if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_READ)==-1){
             for(DBRef dbRef : list){
                 if(dbRef != null){
                     BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
@@ -169,7 +169,7 @@ public class RefListDecoder extends AbstractDecoder{
         clazz = FieldUtil.getRealType(clazz);
         Map<Object, DBRef> map = (Map<Object, DBRef>)value;
         Map<Object, BuguEntity> result = new HashMap<Object, BuguEntity>();
-        if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_RETRIEVE)==-1){
+        if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_READ)==-1){
             for(Object key : map.keySet()){
                 DBRef dbRef = map.get(key);
                 if(dbRef != null){
