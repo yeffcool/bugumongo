@@ -207,6 +207,12 @@ public class BuguQuery<T> {
         return this;
     }
     
+    /**
+     * Note: the regex string must in Java style, not JavaScript style.
+     * @param key
+     * @param regex
+     * @return 
+     */
     public BuguQuery<T> regex(String key, String regex){
         append(key, Operator.REGEX, Pattern.compile(regex));
         return this;
