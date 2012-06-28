@@ -17,6 +17,7 @@ package com.bugull.mongo;
 
 import com.bugull.mongo.annotations.Id;
 import com.bugull.mongo.cache.FieldsCache;
+import com.bugull.mongo.exception.DBQueryException;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
@@ -28,6 +29,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 
 /**
@@ -38,14 +40,16 @@ import org.bson.types.ObjectId;
 @SuppressWarnings("unchecked")
 public class BuguQuery<T> {
     
+    private final static Logger logger = Logger.getLogger(BuguQuery.class);
+    
     private DBCollection coll;
     private Class<T> clazz;
     private DBObject keys;
     
     private String orderBy;
     private DBObject condition;
-    private int pageNumber = 0;
-    private int pageSize = 0;
+    private int pageNumber;  //default value is zero
+    private int pageSize;  //default value is zero
     
     public BuguQuery(DBCollection coll, Class<T> clazz, DBObject keys){
         this.coll = coll;
@@ -265,7 +269,18 @@ public class BuguQuery<T> {
         return this;
     }
     
+    private void checkSingle() throws DBQueryException{
+        if(orderBy!=null || pageNumber!=0 || pageSize!=0){
+            throw new DBQueryException();
+        }
+    }
+    
     public T result(){
+        try{
+            checkSingle();
+        }catch(DBQueryException ex){
+            logger.error("You should use results() to get a list, when you use sorting or pagination", ex);
+        }
         DBObject dbo = coll.findOne(condition);
         return MapperUtil.fromDBObject(clazz, dbo);
     }
