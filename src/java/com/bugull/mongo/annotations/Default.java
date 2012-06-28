@@ -29,7 +29,7 @@ public class Default {
     public final static String CASCADE = "";
     
     public final static String CASCADE_CREATE = "C";
-    public final static String CASCADE_RETRIEVE = "R";
+    public final static String CASCADE_READ = "R";
     public final static String CASCADE_UPDATE = "U";
     public final static String CASCADE_DELETE = "D";
     
