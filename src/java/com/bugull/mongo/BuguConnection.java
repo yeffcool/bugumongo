@@ -38,7 +38,7 @@ public class BuguConnection {
     
     private final static Logger logger = Logger.getLogger(BuguConnection.class);
     
-    private static BuguConnection instance = new BuguConnection();
+    private static BuguConnection instance;
     
     private String host;
     private int port;
@@ -56,6 +56,9 @@ public class BuguConnection {
     }
     
     public static BuguConnection getInstance(){
+        if(instance == null){
+            instance = new BuguConnection();
+        }
         return instance;
     }
     

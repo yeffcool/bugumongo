@@ -20,6 +20,7 @@ import com.bugull.mongo.annotations.Id;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.BuguIndex;
 import com.bugull.mongo.lucene.annotations.IndexRefBy;
+import com.bugull.mongo.lucene.cluster.*;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -35,6 +36,8 @@ public class EntityChangedListener {
     private Class<?> clazz;
     private boolean onlyIdRefBy;
     private RefEntityChangedListener refListener;
+    
+    private ClusterConfig cluster = BuguIndex.getInstance().getClusterConfig();
     
     public EntityChangedListener(Class<?> clazz){
         this.clazz = clazz;
@@ -65,33 +68,74 @@ public class EntityChangedListener {
     public void entityInsert(BuguEntity obj){
         IndexFilterChecker checker = new IndexFilterChecker(obj);
         if(checker.needIndex()){
+            //insert to local index
             IndexInsertTask task = new IndexInsertTask(obj);
             BuguIndex.getInstance().getExecutor().execute(task);
+            //insert to remote cluster index
+            if(cluster != null){
+                EntityMessage message = MessageFactory.createInsertMessage(obj);
+                cluster.sendMessage(message);
+            }
         }
     }
     
     public void entityUpdate(BuguEntity obj){
         IndexFilterChecker checker = new IndexFilterChecker(obj);
         if(checker.needIndex()){
+            //update local index
             IndexUpdateTask task = new IndexUpdateTask(obj);
             BuguIndex.getInstance().getExecutor().execute(task);
-        }else{
+            //update remote cluster index
+            if(cluster != null){
+                EntityMessage message = MessageFactory.createUpdateMessage(obj);
+                cluster.sendMessage(message);
+            }
+        }
+        else{
+            //remove from local index
             IndexRemoveTask task = new IndexRemoveTask(clazz, obj.getId());
             BuguIndex.getInstance().getExecutor().execute(task);
+            //remove from remote cluster index
+            if(cluster != null){
+                ClassIdMessage message = MessageFactory.createRemoveMessage(clazz, obj.getId());
+                cluster.sendMessage(message);
+            }
         }
-        //for refBy
+        //for @IndexRefBy
         if(refListener != null && !onlyIdRefBy){
+            //update local index
             refListener.entityChange(clazz, obj.getId());
+            //update remote cluster index
+            if(cluster != null){
+                ClassIdMessage message = MessageFactory.createRefByMessage(clazz, obj.getId());
+                cluster.sendMessage(message);
+            }
         }
     }
     
     public void entityRemove(String id){
+        //remove from local index
         IndexRemoveTask task = new IndexRemoveTask(clazz, id);
         BuguIndex.getInstance().getExecutor().execute(task);
-        //for refBy
-        if(refListener != null){
-            refListener.entityChange(clazz, id);
+        //remove from remote cluster index
+        if(cluster != null){
+            ClassIdMessage message = MessageFactory.createRemoveMessage(clazz, id);
+            cluster.sendMessage(message);
         }
+        //for @IndexRefBy
+        if(refListener != null){
+            //update local index
+            refListener.entityChange(clazz, id);
+            //update remote cluster index
+            if(cluster != null){
+                ClassIdMessage message = MessageFactory.createRefByMessage(clazz, id);
+                cluster.sendMessage(message);
+            }
+        }
+    }
+
+    public RefEntityChangedListener getRefListener() {
+        return refListener;
     }
     
 }

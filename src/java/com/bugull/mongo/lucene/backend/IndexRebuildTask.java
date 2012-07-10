@@ -49,6 +49,7 @@ public class IndexRebuildTask implements Runnable{
 
     @Override
     public void run() {
+        logger.info("Index rebuilding start...");
         try{
             writer.deleteAll();
         }catch(IOException ex){
@@ -69,6 +70,7 @@ public class IndexRebuildTask implements Runnable{
             List list = dao.findForLucene(++pages, remainder);
             process(list);
         }
+        logger.info("Index rebuilding finish!!!");
     }
     
     private void process(List list){

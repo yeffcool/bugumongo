@@ -669,5 +669,9 @@ public class BuguDao<T> {
     public BuguQuery<T> query(){
         return new BuguQuery<T>(coll, clazz, keys);
     }
+
+    public EntityChangedListener getLuceneListener() {
+        return luceneListener;
+    }
     
 }

@@ -17,6 +17,7 @@ package com.bugull.mongo.lucene;
 
 import com.bugull.mongo.cache.IndexWriterCache;
 import com.bugull.mongo.lucene.backend.IndexReopenTask;
+import com.bugull.mongo.lucene.cluster.ClusterConfig;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -32,7 +33,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.Version;
 
 /**
- * Set the lucene index parameter.
+ * Set the lucene index attributes.
  * 
  * <p>Singleton Pattern is used here. An application should use only one BuguIndex.</p>
  * 
@@ -42,18 +43,19 @@ public class BuguIndex {
     
     private final static Logger logger = Logger.getLogger(BuguIndex.class);
     
-    private static BuguIndex instance = new BuguIndex();
+    private static BuguIndex instance;
     
     private double bufferSizeMB = 0.0;
     private Version version = Version.LUCENE_35;
     private Analyzer analyzer = new StandardAnalyzer(version);
     private String directoryPath;
+    private ClusterConfig clusterConfig;  //used in clustering environment
     
-    private ExecutorService executor;
-    private int poolSize = 10;
+    private ExecutorService executor;  //thread pool to maintain index writing 
+    private int threadPoolSize = 10;  //default thread pool size is 10
     
-    private ScheduledExecutorService scheduler;
-    private long period = 30L * 1000L;  //30 seconds
+    private ScheduledExecutorService scheduler;  //scheduler to reopen index
+    private long period = 30L * 1000L;  //in default, reopen index per 30 seconds
     
     private boolean reopening = false;
     
@@ -62,13 +64,19 @@ public class BuguIndex {
     }
     
     public static BuguIndex getInstance(){
+        if(instance == null){
+            instance = new BuguIndex();
+        }
         return instance;
     }
     
     public void open(){
-        executor = Executors.newFixedThreadPool(poolSize);
-        scheduler = Executors.newScheduledThreadPool(2);
+        executor = Executors.newFixedThreadPool(threadPoolSize);
+        scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(new IndexReopenTask(), period, period, TimeUnit.MILLISECONDS);
+        if(clusterConfig != null){
+            clusterConfig.validate();
+        }
     }
     
     public void close(){
@@ -77,6 +85,9 @@ public class BuguIndex {
         }
         if(scheduler != null){
             scheduler.shutdown();
+        }
+        if(clusterConfig != null){
+            clusterConfig.invalidate();
         }
         Map<String, IndexWriter>  map = IndexWriterCache.getInstance().getAll();
         for(IndexWriter writer : map.values()){
@@ -97,7 +108,6 @@ public class BuguIndex {
                     }catch(IOException ex){
                         logger.error("Can not unlock the lucene index", ex);
                     }
-                    
                 }
             }
         }
@@ -107,8 +117,8 @@ public class BuguIndex {
         return executor;
     }
     
-    public void setThreadPoolSize(int poolSize){
-        this.poolSize = poolSize;
+    public void setThreadPoolSize(int threadPoolSize){
+        this.threadPoolSize = threadPoolSize;
     }
 
     public double getBufferSizeMB() {
@@ -153,6 +163,14 @@ public class BuguIndex {
 
     public void setReopening(boolean reopening) {
         this.reopening = reopening;
+    }
+
+    public ClusterConfig getClusterConfig() {
+        return clusterConfig;
+    }
+
+    public void setClusterConfig(ClusterConfig clusterConfig) {
+        this.clusterConfig = clusterConfig;
     }
     
 }
