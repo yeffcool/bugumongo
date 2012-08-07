@@ -29,7 +29,7 @@ import java.lang.reflect.Field;
 public class EmbedDecoder extends AbstractDecoder{
         
     public EmbedDecoder(Field field, DBObject dbo){
-        super(field, dbo);
+        super(field);
         String fieldName = field.getName();
         Embed embed = field.getAnnotation(Embed.class);
         String name = embed.name();

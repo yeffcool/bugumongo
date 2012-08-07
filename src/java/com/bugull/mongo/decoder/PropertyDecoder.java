@@ -38,7 +38,7 @@ public class PropertyDecoder extends AbstractDecoder{
     private final static Logger logger = Logger.getLogger(PropertyDecoder.class);
     
     public PropertyDecoder(Field field, DBObject dbo){
-        super(field, dbo);
+        super(field);
         String fieldName = field.getName();
         Property property = field.getAnnotation(Property.class);
         if(property != null){

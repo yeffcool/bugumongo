@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -119,13 +120,13 @@ public class RefListEncoder extends AbstractEncoder{
             Map<Object, DBRef> result = new HashMap<Object, DBRef>();
             Class<?> cls = FieldUtil.getRealType((Class)types[1]);
             BuguDao dao = DaoCache.getInstance().get(cls);
-            for(Object key : map.keySet()){
-                BuguEntity entity = map.get(key);
+            for(Entry<Object, BuguEntity> entry : map.entrySet()){
+                BuguEntity entity = entry.getValue();
                 if(entity != null){
                     doCascade(dao, entity);
-                    result.put(key, BuguMapper.toDBRef(entity));
+                    result.put(entry.getKey(), BuguMapper.toDBRef(entity));
                 }else{
-                    result.put(key, null);
+                    result.put(entry.getKey(), null);
                 }
             }
             return result;

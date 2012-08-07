@@ -35,7 +35,7 @@ public class RefDecoder extends AbstractDecoder{
     private Ref ref;
     
     public RefDecoder(Field field, DBObject dbo){
-        super(field, dbo);
+        super(field);
         ref = field.getAnnotation(Ref.class);
         String fieldName = field.getName();
         String name = ref.name();

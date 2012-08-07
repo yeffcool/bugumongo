@@ -74,13 +74,14 @@ public class FieldUtil {
     }
     
     public static Class<?> getRealType(Class<?> clazz){
+        Class cls = clazz;
         if(clazz.isInterface()){
-            clazz = BuguFace.getIntance().getImplementation(clazz);
-            if(clazz == null){
+            cls = BuguFace.getIntance().getImplementation(clazz);
+            if(cls == null){
                 logger.error("The implementation of interface " + clazz.toString() + " is not specified.");
             }
         }
-        return clazz;
+        return cls;
     }
     
 }

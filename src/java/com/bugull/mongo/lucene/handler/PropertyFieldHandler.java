@@ -122,8 +122,10 @@ public class PropertyFieldHandler extends AbstractFieldHandler{
                     store ? Field.Store.YES : Field.Store.NO,
                     analyze ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
         }
-        f.setBoost(boost);
-        doc.add(f);
+        if(f != null){
+            f.setBoost(boost);
+            doc.add(f);
+        }
     }
     
 }

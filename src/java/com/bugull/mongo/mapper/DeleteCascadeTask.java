@@ -90,6 +90,9 @@ public class DeleteCascadeTask implements Runnable{
                 idList = getMapIds(value);
             }
         }
+        if(clazz == null){
+            return;
+        }
         BuguDao dao = DaoCache.getInstance().get(clazz);
         DBObject in = new BasicDBObject(Operator.IN, idList);
         DBObject query = new BasicDBObject(Operator.ID, in);

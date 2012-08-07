@@ -27,7 +27,7 @@ import java.lang.reflect.Field;
 public class IdDecoder extends AbstractDecoder{
     
     public IdDecoder(Field field, DBObject dbo){
-        super(field, dbo);
+        super(field);
         value = dbo.get(Operator.ID);
     }
     

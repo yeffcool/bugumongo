@@ -49,7 +49,7 @@ public class RefListDecoder extends AbstractDecoder{
     private RefList refList;
     
     public RefListDecoder(Field field, DBObject dbo){
-        super(field, dbo);
+        super(field);
         refList = field.getAnnotation(RefList.class);
         String fieldName = field.getName();
         String name = refList.name();

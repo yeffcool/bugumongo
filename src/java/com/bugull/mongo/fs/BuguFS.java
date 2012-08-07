@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
@@ -161,9 +162,8 @@ public class BuguFS {
             params.put(FOLDER, folderName);
         }
         if(params != null){
-            Set<String> keys = params.keySet();
-            for(String key : keys){
-                f.put(key, params.get(key));
+            for(Entry<String, Object> entry : params.entrySet()){
+                f.put(entry.getKey(), entry.getValue());
             }
         }
     }

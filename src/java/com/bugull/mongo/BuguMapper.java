@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
@@ -190,8 +191,8 @@ public class BuguMapper {
             }
             else if(DataType.isMap(type)){
                 Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
-                for(Object key : map.keySet()){
-                    fetchCascade(map.get(key), remainder);
+                for(Entry<Object, BuguEntity> entry : map.entrySet()){
+                    fetchCascade(entry.getValue(), remainder);
                 }
             }
         }
@@ -323,14 +324,14 @@ public class BuguMapper {
         Map result = new HashMap();
         clazz = FieldUtil.getRealType(clazz);
         BuguDao dao = DaoCache.getInstance().get(clazz);
-        for(Object key : map.keySet()){
-            BuguEntity refObj = map.get(key);
+        for(Entry<Object, BuguEntity> entry : map.entrySet()){
+            BuguEntity refObj = entry.getValue();
             if(refObj != null){
                 String id = refObj.getId();
                 Object value = dao.findOne(id);
-                result.put(key, value);
+                result.put(entry.getKey(), value);
             }else{
-                result.put(key, null);
+                result.put(entry.getKey(), null);
             }
         }
         FieldUtil.set(obj, field, result);

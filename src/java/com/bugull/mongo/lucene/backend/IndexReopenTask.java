@@ -19,6 +19,7 @@ import com.bugull.mongo.cache.IndexSearcherCache;
 import com.bugull.mongo.lucene.BuguIndex;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
@@ -40,8 +41,8 @@ public class IndexReopenTask implements Runnable {
         index.setReopening(true);
         IndexSearcherCache searcherCache = IndexSearcherCache.getInstance();
         Map<String, IndexSearcher> map = searcherCache.getAll();
-        for(String name : map.keySet()){
-            IndexSearcher searcher = map.get(name);
+        for(Entry<String, IndexSearcher> entry : map.entrySet()){
+            IndexSearcher searcher = entry.getValue();
             IndexReader reader = searcher.getIndexReader();
             IndexReader newReader = null;
             try{
@@ -56,7 +57,7 @@ public class IndexReopenTask implements Runnable {
                     logger.error("Something is wrong when decrease the reference of the lucene IndexReader", ex);
                 }
                 IndexSearcher newSearcher = new IndexSearcher(newReader);
-                searcherCache.put(name, newSearcher);
+                searcherCache.put(entry.getKey(), newSearcher);
             }
         }
         index.setReopening(false);

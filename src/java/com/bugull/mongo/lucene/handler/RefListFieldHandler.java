@@ -32,6 +32,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.lucene.document.Document;
 import org.bson.types.ObjectId;
@@ -90,8 +91,8 @@ public class RefListFieldHandler extends AbstractFieldHandler{
             else if(types.length == 2){
                 clazz = (Class)types[1];
                 Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
-                for(Object key : map.keySet()){
-                    BuguEntity ent = map.get(key);
+                for(Entry<Object, BuguEntity> entry : map.entrySet()){
+                    BuguEntity ent = entry.getValue();
                     if(ent != null){
                         idList.add(new ObjectId(ent.getId()));
                     }

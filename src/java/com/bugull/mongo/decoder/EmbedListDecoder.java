@@ -39,7 +39,7 @@ import java.util.Map;
 public class EmbedListDecoder extends AbstractDecoder{
     
     public EmbedListDecoder(Field field, DBObject dbo){
-        super(field, dbo);
+        super(field);
         String fieldName = field.getName();
         EmbedList embedList = field.getAnnotation(EmbedList.class);
         String name = embedList.name();

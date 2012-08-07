@@ -15,7 +15,6 @@
 
 package com.bugull.mongo.decoder;
 
-import com.mongodb.DBObject;
 import java.lang.reflect.Field;
 
 /**
@@ -25,12 +24,10 @@ import java.lang.reflect.Field;
 public abstract class AbstractDecoder implements Decoder{
     
     protected Field field;
-    protected DBObject dbo;
     protected Object value;
     
-    protected AbstractDecoder(Field field, DBObject dbo){
+    protected AbstractDecoder(Field field){
         this.field = field;
-        this.dbo = dbo;
     }
     
     @Override
