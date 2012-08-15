@@ -40,8 +40,6 @@ public class ClusterConfig {
     private ExecutorService serverExecutor;
     private ClusterServer server;
     
-    private int connectTimeout = 3000;
-    
     private int bufferSize = 1024;  //1K
     private int maxEntitySize = 4*1024*1024;  //4M
     
@@ -95,14 +93,6 @@ public class ClusterConfig {
 
     public void setThreadPoolSize(int threadPoolSize) {
         this.threadPoolSize = threadPoolSize;
-    }
-
-    public int getConnectTimeout() {
-        return connectTimeout;
-    }
-
-    public void setConnectTimeout(int connectTimeout) {
-        this.connectTimeout = connectTimeout;
     }
 
     public int getBufferSize() {

@@ -54,10 +54,10 @@ public class ClusterNode {
             channel = SocketChannel.open();
             channel.configureBlocking(false);
             SocketAddress address = new InetSocketAddress(host, port);
-            int timeout = BuguIndex.getInstance().getClusterConfig().getConnectTimeout();
-            channel.socket().connect(address, timeout);
-            while(!channel.finishConnect()){
-                //poll until it's connected
+            if(!channel.connect(address)){
+                while(!channel.finishConnect()){
+                    //poll until it's connected
+                };
             }
             //write data
             channel.write(BufferUtil.toBuffer(message));

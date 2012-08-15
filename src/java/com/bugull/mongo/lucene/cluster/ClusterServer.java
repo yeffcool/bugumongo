@@ -75,7 +75,7 @@ public class ClusterServer implements Runnable {
         while(true){
             int i = 0;
             try{
-                i = selector.select(cluster.getConnectTimeout());
+                i = selector.select();
             }catch(IOException ex){
                 logger.error("Error when selecting", ex);
             }
