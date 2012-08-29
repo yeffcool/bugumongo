@@ -48,8 +48,8 @@ public class BuguQuery<T> {
     
     private String orderBy;
     private DBObject condition;
-    private int pageNumber;  //default value is zero
-    private int pageSize;  //default value is zero
+    private int pageNumber = 0;  //default value is zero
+    private int pageSize = 0;  //default value is zero
     
     public BuguQuery(DBCollection coll, Class<T> clazz, DBObject keys){
         this.coll = coll;
@@ -214,7 +214,7 @@ public class BuguQuery<T> {
      * @return 
      */
     public BuguQuery<T> regex(String key, String regex){
-        append(key, Operator.REGEX, Pattern.compile(regex));
+        append(key, null, Pattern.compile(regex));
         return this;
     }
     
@@ -296,7 +296,7 @@ public class BuguQuery<T> {
         if(orderBy != null){
             cursor.sort(MapperUtil.getSort(orderBy));
         }
-        if(pageNumber != 0 && pageSize != 0){
+        if(pageNumber>0 && pageSize>0){
             cursor.skip((pageNumber-1)*pageSize).limit(pageSize);
         }
         return MapperUtil.toList(clazz, cursor);
