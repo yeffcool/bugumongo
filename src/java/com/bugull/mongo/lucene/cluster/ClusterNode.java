@@ -15,7 +15,6 @@
 
 package com.bugull.mongo.lucene.cluster;
 
-import com.bugull.mongo.lucene.BuguIndex;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
