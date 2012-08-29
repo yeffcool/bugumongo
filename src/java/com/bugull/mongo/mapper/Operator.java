@@ -36,7 +36,6 @@ public class Operator {
     public static final String ALL = "$all";
     public static final String SIZE = "$size";
     public static final String EXISTS = "$exists";
-    public static final String REGEX = "$regex";
     
     public static final String NEAR = "$near";
     public static final String WITHIN = "$within";
