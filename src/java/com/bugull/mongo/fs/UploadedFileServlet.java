@@ -89,7 +89,7 @@ public class UploadedFileServlet extends HttpServlet {
                         return;
                     }
                 }
-                long maxAge = 10L * 365L * 24L * 60L * 60L;    //ten years, in seconds
+                long maxAge = 365L * 24L * 60L * 60L;    //one year, in seconds
                 response.setHeader("Cache-Control", "max-age=" + maxAge);
                 response.setHeader("Last-Modified", lastModified);
                 response.setDateHeader("Expires", uploadDate.getTime() + maxAge * 1000L);
@@ -102,13 +102,18 @@ public class UploadedFileServlet extends HttpServlet {
         }
     }
     
+    /**
+     * If it's an image file, cache it in browser
+     * @param ext
+     * @return 
+     */
     private boolean needCache(String ext){
         if(StringUtil.isEmpty(ext)){
             return false;
         }
         ext = ext.toLowerCase();
         boolean need = false;
-        String[] arr = {"jpg", "jpeg", "png", "gif", "bmp", "html", "htm", "swf", "mp3", "mp4", "pdf"};
+        String[] arr = {"jpg", "jpeg", "png", "gif", "bmp"};
         for(String s : arr){
             if(s.equals(ext)){
                 need = true;
