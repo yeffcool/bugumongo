@@ -521,6 +521,13 @@ public class BuguDao<T> {
         return MapperUtil.fromDBObject(clazz, result);
     }
     
+    public T findOneLazily(String id){
+        DBObject dbo = new BasicDBObject();
+        dbo.put(Operator.ID, new ObjectId(id));
+        DBObject result = coll.findOne(dbo, keys);
+        return MapperUtil.fromDBObject(clazz, result);
+    }
+    
     public T findOne(String key, Object value){
         return findOne(new BasicDBObject(key, value));
     }
@@ -672,6 +679,10 @@ public class BuguDao<T> {
 
     public EntityChangedListener getLuceneListener() {
         return luceneListener;
+    }
+
+    public DBObject getKeys() {
+        return keys;
     }
     
 }
