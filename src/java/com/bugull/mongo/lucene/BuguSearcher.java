@@ -27,6 +27,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
@@ -48,13 +49,14 @@ public class BuguSearcher<T> {
     private Class<T> clazz;
     private IndexSearcher searcher;
     private IndexReader reader;
+    private BuguDao<T> dao;
     
     private Query query;
     private Sort sort;
     private Filter filter;
     private int pageNumber = 1;
     private int pageSize = 20;
-    private int maxPage = 50;
+    private int maxPage = 100;
     private int resultCount;
     private BuguHighlighter highlighter;
     
@@ -146,12 +148,15 @@ public class BuguSearcher<T> {
         resultCount = topDocs.totalHits;
         ScoreDoc[] docs = topDocs.scoreDocs;
         List<T> list = new ArrayList<T>();
-        BuguDao<T> dao = DaoCache.getInstance().get(clazz);
+        dao = DaoCache.getInstance().get(clazz);
         int begin = (pageNumber - 1) * pageSize;
         int end = begin + pageSize;
         if(end > resultCount){
             end = resultCount;
         }
+        //fix lazy or not
+        boolean lazy = needLazy();
+        //get from db
         for(int i=begin; i<end; i++){
             Document doc = null;
             try{
@@ -161,7 +166,7 @@ public class BuguSearcher<T> {
             }
             if(doc != null){
                 String id = doc.get(FieldsCache.getInstance().getIdFieldName(clazz));
-                T t = dao.findOne(id);
+                T t = lazy ? dao.findOneLazily(id) : dao.findOne(id);
                 if(t != null){
                     list.add(t);
                 }
@@ -203,6 +208,22 @@ public class BuguSearcher<T> {
     
     public IndexSearcher getSearcher(){
         return searcher;
+    }
+    
+    private boolean needLazy(){
+        if(highlighter == null){
+            return true;
+        }
+        boolean lazy = true;
+        String[] fields = highlighter.getFields();
+        Set<String> keys = dao.getKeys().keySet();
+        for(String f : fields){
+            if(! keys.contains(f)){
+                lazy = false;
+                break;
+            }
+        }
+        return lazy;
     }
 
 }
