@@ -64,7 +64,14 @@ public class BuguDao<T> {
         if(entity.capped() && !db.collectionExists(name)){
             DBObject options = new BasicDBObject();
             options.put("capped", true);
-            options.put("size", entity.capSize());
+            long capSize = entity.capSize();
+            if(capSize != -1){
+                options.put("size", capSize);
+            }
+            long capMax = entity.capMax();
+            if(capMax != -1){
+                options.put("max", capMax);
+            }
             coll = db.createCollection(name, options);
         }else{
             coll = db.getCollection(name);

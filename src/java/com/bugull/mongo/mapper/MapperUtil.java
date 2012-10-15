@@ -135,6 +135,9 @@ public class MapperUtil {
                 else if(k.equalsIgnoreCase("name")){
                     options.put(k, v);
                 }
+                else if(k.equalsIgnoreCase("expireAfterSeconds")){
+                    keys.put(k, Integer.parseInt(v));
+                }
             }
             DBIndex dbi = new DBIndex();
             dbi.setKeys(keys);
