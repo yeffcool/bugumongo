@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 
@@ -87,7 +86,7 @@ public class BuguFS {
         try {
             db = BuguConnection.getInstance().getDB();
         } catch (DBConnectionException ex) {
-            logger.error("Can not get database instance! Please ensure connected to mongoDB correctly.", ex);
+            logger.error(ex.getMessage(), ex);
         }
         fs = new GridFS(db, bucketName);
         files = db.getCollection(bucketName + ".files");

@@ -15,7 +15,6 @@
 
 package com.bugull.mongo.encoder;
 
-import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.BuguMapper;
 import com.bugull.mongo.annotations.Default;
@@ -23,6 +22,7 @@ import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.FieldUtil;
+import com.bugull.mongo.mapper.InternalDao;
 import com.bugull.mongo.mapper.StringUtil;
 import com.mongodb.DBRef;
 import java.lang.reflect.Array;
@@ -73,7 +73,7 @@ public class RefListEncoder extends AbstractEncoder{
     
     private Object encodeArray(Class<?> clazz){
         clazz = FieldUtil.getRealType(clazz);
-        BuguDao dao = DaoCache.getInstance().get(clazz);
+        InternalDao dao = DaoCache.getInstance().get(clazz);
         int len = Array.getLength(value);
         List<DBRef> result = new ArrayList<DBRef>();
         for(int i=0; i<len; i++){
@@ -93,7 +93,7 @@ public class RefListEncoder extends AbstractEncoder{
             List<BuguEntity> list = (List<BuguEntity>)value;
             List<DBRef> result = new ArrayList<DBRef>();
             Class<?> cls = FieldUtil.getRealType((Class)types[0]);
-            BuguDao dao = DaoCache.getInstance().get(cls);
+            InternalDao dao = DaoCache.getInstance().get(cls);
             for(BuguEntity entity : list){
                 if(entity != null){
                     doCascade(dao, entity);
@@ -106,7 +106,7 @@ public class RefListEncoder extends AbstractEncoder{
             Set<BuguEntity> set = (Set<BuguEntity>)value;
             Set<DBRef> result = new HashSet<DBRef>();
             Class<?> cls = FieldUtil.getRealType((Class)types[0]);
-            BuguDao dao = DaoCache.getInstance().get(cls);
+            InternalDao dao = DaoCache.getInstance().get(cls);
             for(BuguEntity entity : set){
                 if(entity != null){
                     doCascade(dao, entity);
@@ -119,7 +119,7 @@ public class RefListEncoder extends AbstractEncoder{
             Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
             Map<Object, DBRef> result = new HashMap<Object, DBRef>();
             Class<?> cls = FieldUtil.getRealType((Class)types[1]);
-            BuguDao dao = DaoCache.getInstance().get(cls);
+            InternalDao dao = DaoCache.getInstance().get(cls);
             for(Entry<Object, BuguEntity> entry : map.entrySet()){
                 BuguEntity entity = entry.getValue();
                 if(entity != null){
@@ -136,7 +136,7 @@ public class RefListEncoder extends AbstractEncoder{
         }
     }
     
-    private void doCascade(BuguDao dao, BuguEntity entity){
+    private void doCascade(InternalDao dao, BuguEntity entity){
         String idStr = entity.getId();
         if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_CREATE)!=-1 && StringUtil.isEmpty(idStr)){
             dao.insert(entity);

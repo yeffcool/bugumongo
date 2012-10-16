@@ -19,9 +19,9 @@ package com.bugull.mongo.exception;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class DBQueryException extends Exception {
-
-    public DBQueryException(String message) {
+public class IdException extends Exception {
+    
+    public IdException(String message){
         super(message);
     }
 

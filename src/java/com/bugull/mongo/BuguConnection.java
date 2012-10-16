@@ -92,13 +92,13 @@ public class BuguConnection {
         } catch (UnknownHostException ex) {
             logger.error("Can not connect to host " + host, ex);
         } catch (DBConnectionException ex) {
-            logger.error("Can not connect to mongoDB", ex);
+            logger.error(ex.getMessage(), ex);
         }
         if(username != null && password != null){
             try{
                 auth();
             }catch(DBConnectionException ex){
-                logger.error("Can not connect to mongoDB. Failed to authenticate!", ex);
+                logger.error(ex.getMessage(), ex);
             } 
         }
     }
@@ -125,7 +125,7 @@ public class BuguConnection {
         if(mongo != null){
             db = mongo.getDB(database);
         }else{
-            throw new DBConnectionException();
+            throw new DBConnectionException("Can not get database instance! Please ensure connected to mongoDB correctly.");
         }
     }
     
@@ -145,7 +145,7 @@ public class BuguConnection {
             logger.info("Connected to mongodb successfully!");
         }else{
             db = null;
-            throw new DBConnectionException();
+            throw new DBConnectionException("Can not connect to mongoDB. Failed to authenticate!");
         }
     }
     
@@ -191,7 +191,7 @@ public class BuguConnection {
 
     public DB getDB() throws DBConnectionException {
         if(db == null){
-            throw new DBConnectionException();
+            throw new DBConnectionException("Can not get database instance! Please ensure connected to mongoDB correctly.");
         }else{
             return db;
         }

@@ -13,16 +13,14 @@
  * limitations under the License.
  */
 
-package com.bugull.mongo.exception;
+package com.bugull.mongo.annotations;
 
 /**
  *
- * @author Frank Wen(xbwen@hotmail.com)
+ * @author Frank Wen (xbwen@hotmail.com)
  */
-public class DBQueryException extends Exception {
-
-    public DBQueryException(String message) {
-        super(message);
-    }
-
+public enum IdType {
+    AUTO_GENERATE,
+    AUTO_INCREASE,
+    USER_DEFINE
 }

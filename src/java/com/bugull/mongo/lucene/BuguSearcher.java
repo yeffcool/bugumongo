@@ -15,11 +15,11 @@
 
 package com.bugull.mongo.lucene;
 
-import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.cache.IndexSearcherCache;
 import com.bugull.mongo.mapper.FieldUtil;
+import com.bugull.mongo.mapper.InternalDao;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.StringUtil;
 import java.io.IOException;
@@ -49,7 +49,7 @@ public class BuguSearcher<T> {
     private Class<T> clazz;
     private IndexSearcher searcher;
     private IndexReader reader;
-    private BuguDao<T> dao;
+    private InternalDao<T> dao;
     
     private Query query;
     private Sort sort;

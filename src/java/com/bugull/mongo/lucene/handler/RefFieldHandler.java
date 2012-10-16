@@ -15,12 +15,12 @@
 
 package com.bugull.mongo.lucene.handler;
 
-import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.IndexRefBy;
 import com.bugull.mongo.mapper.FieldUtil;
+import com.bugull.mongo.mapper.InternalDao;
 import java.lang.reflect.Field;
 import org.apache.lucene.document.Document;
 
@@ -43,7 +43,7 @@ public class RefFieldHandler extends AbstractFieldHandler{
         BuguEntity entity = (BuguEntity)objValue;
         String refId = entity.getId();
         Class<?> clazz = FieldUtil.getRealType(field);
-        BuguDao dao = DaoCache.getInstance().get(clazz);
+        InternalDao dao = DaoCache.getInstance().get(clazz);
         Object refObj = dao.findOne(refId);
         if(refObj != null){
             Field[] fields = FieldsCache.getInstance().get(clazz);

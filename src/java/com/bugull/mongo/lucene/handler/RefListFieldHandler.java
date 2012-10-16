@@ -15,13 +15,14 @@
 
 package com.bugull.mongo.lucene.handler;
 
-import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.IndexRefBy;
 import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.FieldUtil;
+import com.bugull.mongo.mapper.IdUtil;
+import com.bugull.mongo.mapper.InternalDao;
 import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -35,7 +36,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.lucene.document.Document;
-import org.bson.types.ObjectId;
 
 /**
  *
@@ -56,15 +56,16 @@ public class RefListFieldHandler extends AbstractFieldHandler{
         }
         Class clazz = null;
         Class<?> type = field.getType();
-        List<ObjectId> idList = new ArrayList<ObjectId>();
+        List<Object> idList = new ArrayList<Object>();
         if(type.isArray()){
             clazz = type.getComponentType();
             int len = Array.getLength(value);
             for(int i=0; i<len; i++){
                 Object item = Array.get(value, i);
                 if(item != null){
-                    BuguEntity entity = (BuguEntity)item;
-                    idList.add(new ObjectId(entity.getId()));
+                    BuguEntity ent = (BuguEntity)item;
+                    Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
+                    idList.add(dbId);
                 }
             }
         }else{
@@ -76,14 +77,16 @@ public class RefListFieldHandler extends AbstractFieldHandler{
                     List<BuguEntity> li = (List<BuguEntity>)value;
                     for(BuguEntity ent : li){
                         if(ent != null){
-                            idList.add(new ObjectId(ent.getId()));
+                            Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
+                            idList.add(dbId);
                         }
                     }
                 }else if(DataType.isSet(type)){
                     Set<BuguEntity> set = (Set<BuguEntity>)value;
                     for(BuguEntity ent : set){
                         if(ent != null){
-                            idList.add(new ObjectId(ent.getId()));
+                            Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
+                            idList.add(dbId);
                         }
                     }
                 }
@@ -94,7 +97,8 @@ public class RefListFieldHandler extends AbstractFieldHandler{
                 for(Entry<Object, BuguEntity> entry : map.entrySet()){
                     BuguEntity ent = entry.getValue();
                     if(ent != null){
-                        idList.add(new ObjectId(ent.getId()));
+                        Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
+                        idList.add(dbId);
                     }
                 }
             }
@@ -103,7 +107,7 @@ public class RefListFieldHandler extends AbstractFieldHandler{
             }
         }
         clazz = FieldUtil.getRealType(clazz);
-        BuguDao dao = DaoCache.getInstance().get(clazz);
+        InternalDao dao = DaoCache.getInstance().get(clazz);
         DBObject in = new BasicDBObject(Operator.IN, idList);
         DBObject query = new BasicDBObject(Operator.ID, in);
         List list = dao.findForLucene(query);

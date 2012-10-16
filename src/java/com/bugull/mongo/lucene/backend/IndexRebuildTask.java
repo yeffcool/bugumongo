@@ -15,10 +15,10 @@
 
 package com.bugull.mongo.lucene.backend;
 
-import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.IndexWriterCache;
+import com.bugull.mongo.mapper.InternalDao;
 import com.bugull.mongo.mapper.MapperUtil;
 import java.io.IOException;
 import java.util.List;
@@ -55,7 +55,7 @@ public class IndexRebuildTask implements Runnable{
         }catch(IOException ex){
             logger.error("Something is wrong when lucene IndexWriter doing deleteAll()", ex);
         }
-        BuguDao dao = DaoCache.getInstance().get(clazz);
+        InternalDao dao = DaoCache.getInstance().get(clazz);
         long count = dao.count();
         int pages = (int) (count / batchSize);
         int remainder = (int) (count % batchSize);

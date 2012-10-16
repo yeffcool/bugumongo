@@ -23,6 +23,8 @@ import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.exception.DBConnectionException;
 import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.FieldUtil;
+import com.bugull.mongo.mapper.IdUtil;
+import com.bugull.mongo.mapper.InternalDao;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
 import com.bugull.mongo.mapper.StringUtil;
@@ -42,7 +44,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.log4j.Logger;
-import org.bson.types.ObjectId;
 
 /**
  * The utility class for ODM(Object Document Mapping).
@@ -68,12 +69,11 @@ public class BuguMapper {
         try {
             db = BuguConnection.getInstance().getDB();
         } catch (DBConnectionException ex) {
-            logger.error("Can not get database instance! Please ensure connected to mongoDB correctly.", ex);
+            logger.error(ex.getMessage(), ex);
         }
         Class<?> clazz = obj.getClass();
         String name = MapperUtil.getEntityName(clazz);
-        ObjectId id = new ObjectId(idStr);
-        return new DBRef(db, name, id);
+        return new DBRef(db, name, IdUtil.toDbId(clazz, idStr));
     }
     
     /**
@@ -90,11 +90,10 @@ public class BuguMapper {
         try {
             db = BuguConnection.getInstance().getDB();
         } catch (DBConnectionException ex) {
-            logger.error("Can not get database instance! Please ensure connected to mongoDB correctly.", ex);
+            logger.error(ex.getMessage(), ex);
         }
         String name = MapperUtil.getEntityName(clazz);
-        ObjectId id = new ObjectId(idStr);
-        return new DBRef(db, name, id);
+        return new DBRef(db, name, IdUtil.toDbId(clazz, idStr));
     }
     
     /**
@@ -206,7 +205,7 @@ public class BuguMapper {
         BuguEntity refObj = (BuguEntity)o;
         String id = refObj.getId();
         Class cls = FieldUtil.getRealType(field);
-        BuguDao dao = DaoCache.getInstance().get(cls);
+        InternalDao dao = DaoCache.getInstance().get(cls);
         Object value = dao.findOne(id);
         FieldUtil.set(obj, field, value);
     }
@@ -237,17 +236,18 @@ public class BuguMapper {
         int len = Array.getLength(o);
         clazz = FieldUtil.getRealType(clazz);
         Object arr = Array.newInstance(clazz, len);
-        List<ObjectId> idList = new ArrayList<ObjectId>();
+        List<Object> idList = new ArrayList<Object>();
         for(int i=0; i<len; i++){
             Object item = Array.get(o, i);
             if(item != null){
                 BuguEntity entity = (BuguEntity)item;
-                idList.add(new ObjectId(entity.getId()));
+                Object dbId = IdUtil.toDbId(entity.getClass(), entity.getId());
+                idList.add(dbId);
             }
         }
         DBObject in = new BasicDBObject(Operator.IN, idList);
         DBObject query = new BasicDBObject(Operator.ID, in);
-        BuguDao dao = DaoCache.getInstance().get(clazz);
+        InternalDao dao = DaoCache.getInstance().get(clazz);
         RefList refList = field.getAnnotation(RefList.class);
         String sort = refList.sort();
         List<BuguEntity> entityList = null;
@@ -274,13 +274,14 @@ public class BuguMapper {
         Class type = field.getType();
         RefList refList = field.getAnnotation(RefList.class);
         clazz = FieldUtil.getRealType(clazz);
-        BuguDao dao = DaoCache.getInstance().get(clazz);
+        InternalDao dao = DaoCache.getInstance().get(clazz);
         if(DataType.isList(type)){
             List<BuguEntity> list = (List<BuguEntity>)o;
-            List<ObjectId> idList = new ArrayList<ObjectId>();
+            List<Object> idList = new ArrayList<Object>();
             for(BuguEntity ent : list){
                 if(ent != null){
-                    idList.add(new ObjectId(ent.getId()));
+                    Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
+                    idList.add(dbId);
                 }
             }
             DBObject in = new BasicDBObject(Operator.IN, idList);
@@ -296,10 +297,11 @@ public class BuguMapper {
         }
         else if(DataType.isSet(type)){
             Set<BuguEntity> set = (Set<BuguEntity>)o;
-            List<ObjectId> idList = new ArrayList<ObjectId>();
+            List<Object> idList = new ArrayList<Object>();
             for(BuguEntity ent : set){
                 if(ent != null){
-                    idList.add(new ObjectId(ent.getId()));
+                    Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
+                    idList.add(dbId);
                 }
             }
             DBObject in = new BasicDBObject(Operator.IN, idList);
@@ -323,7 +325,7 @@ public class BuguMapper {
         Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)o;
         Map result = new HashMap();
         clazz = FieldUtil.getRealType(clazz);
-        BuguDao dao = DaoCache.getInstance().get(clazz);
+        InternalDao dao = DaoCache.getInstance().get(clazz);
         for(Entry<Object, BuguEntity> entry : map.entrySet()){
             BuguEntity refObj = entry.getValue();
             if(refObj != null){

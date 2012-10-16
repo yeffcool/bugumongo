@@ -15,7 +15,6 @@
 
 package com.bugull.mongo.mapper;
 
-import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.cache.DaoCache;
 import com.mongodb.BasicDBObject;
@@ -28,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.bson.types.ObjectId;
 
 /**
  *
@@ -61,7 +59,7 @@ public class DeleteCascadeTask implements Runnable{
         Object value = FieldUtil.get(entity, f);
         if(value != null){
             Class<?> type = f.getType();
-            BuguDao dao = DaoCache.getInstance().get(type);
+            InternalDao dao = DaoCache.getInstance().get(type);
             BuguEntity obj = (BuguEntity)value;
             dao.remove(obj.getId());
         }
@@ -72,7 +70,7 @@ public class DeleteCascadeTask implements Runnable{
         if(value == null){
             return;
         }
-        List<ObjectId> idList = null;
+        List<Object> idList = null;
         Class<?> clazz = null;
         Class<?> type = f.getType();
         if(type.isArray()){
@@ -93,54 +91,58 @@ public class DeleteCascadeTask implements Runnable{
         if(clazz == null){
             return;
         }
-        BuguDao dao = DaoCache.getInstance().get(clazz);
+        InternalDao dao = DaoCache.getInstance().get(clazz);
         DBObject in = new BasicDBObject(Operator.IN, idList);
         DBObject query = new BasicDBObject(Operator.ID, in);
         dao.remove(query);
     }
     
-    private List<ObjectId> getArrayIds(Object value){
+    private List<Object> getArrayIds(Object value){
         int len = Array.getLength(value);
-        List<ObjectId> idList = new ArrayList<ObjectId>();
+        List<Object> idList = new ArrayList<Object>();
         for(int i=0; i<len; i++){
             Object item = Array.get(value, i);
             if(item != null){
-                BuguEntity obj = (BuguEntity)item;
-                idList.add(new ObjectId(obj.getId()));
+                BuguEntity ent = (BuguEntity)item;
+                Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
+                idList.add(dbId);
             }
         }
         return idList;
     }
     
-    private List<ObjectId> getListIds(Object value, Class type){
-        List<ObjectId> idList = new ArrayList<ObjectId>();
+    private List<Object> getListIds(Object value, Class type){
+        List<Object> idList = new ArrayList<Object>();
         if(DataType.isList(type)){
             List<BuguEntity> list = (List<BuguEntity>)value;
-            for(BuguEntity obj : list){
-                if(obj != null){
-                    idList.add(new ObjectId(obj.getId()));
+            for(BuguEntity ent : list){
+                if(ent != null){
+                    Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
+                    idList.add(dbId);
                 }
             }
         }
         else if(DataType.isSet(type)){
             Set<BuguEntity> set = (Set<BuguEntity>)value;
-            for(BuguEntity obj : set){
-                if(obj != null){
-                    idList.add(new ObjectId(obj.getId()));
+            for(BuguEntity ent : set){
+                if(ent != null){
+                    Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
+                    idList.add(dbId);
                 }
             }
         }
         return idList;
     }
     
-    private List<ObjectId> getMapIds(Object value){
+    private List<Object> getMapIds(Object value){
         Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
         Set<Object> keys = map.keySet();
-        List<ObjectId> idList = new ArrayList<ObjectId>();
+        List<Object> idList = new ArrayList<Object>();
         for(Object key : keys){
-            BuguEntity obj = map.get(key);
-            if(obj != null){
-                idList.add(new ObjectId(obj.getId()));
+            BuguEntity ent = map.get(key);
+            if(ent != null){
+                Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
+                idList.add(dbId);
             }
         }
         return idList;

@@ -15,7 +15,7 @@
 
 package com.bugull.mongo.cache;
 
-import com.bugull.mongo.BuguDao;
+import com.bugull.mongo.mapper.InternalDao;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,23 +29,23 @@ public class DaoCache {
     
     private static DaoCache instance = new DaoCache();
     
-    private Map<String, BuguDao<?>> cache;
+    private Map<String, InternalDao<?>> cache;
     
     private DaoCache(){
-        cache = new ConcurrentHashMap<String, BuguDao<?>>();
+        cache = new ConcurrentHashMap<String, InternalDao<?>>();
     }
     
     public static DaoCache getInstance(){
         return instance;
     }
     
-    public <T> BuguDao<T> get(Class<T> clazz){
-        BuguDao<T> dao = null;
+    public <T> InternalDao<T> get(Class<T> clazz){
+        InternalDao<T> dao = null;
         String name = clazz.getName();
         if(cache.containsKey(name)){
-            dao = (BuguDao<T>) cache.get(name);
+            dao = (InternalDao<T>) cache.get(name);
         }else{
-            dao = new BuguDao<T>(clazz);
+            dao = new InternalDao<T>(clazz);
             cache.put(name, dao);
         }
         return dao;

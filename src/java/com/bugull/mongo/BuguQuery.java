@@ -18,6 +18,7 @@ package com.bugull.mongo;
 import com.bugull.mongo.annotations.Id;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.exception.DBQueryException;
+import com.bugull.mongo.mapper.IdUtil;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
@@ -30,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
-import org.bson.types.ObjectId;
 
 /**
  * Convenient class for creating DBObject queries.
@@ -60,7 +60,8 @@ public class BuguQuery<T> {
     
     private void appendEquals(String key, String op, Object value){
         if(key.equals(Operator.ID)){
-            append(key, op, new ObjectId((String)value));
+            Object dbId = IdUtil.toDbId(clazz, (String)value);
+            append(key, op, dbId);
         }
         else if(key.indexOf(".")!=-1){
             append(key, op, value);
@@ -68,7 +69,8 @@ public class BuguQuery<T> {
         else{
             Field f = FieldsCache.getInstance().getField(clazz, key);
             if(f.getAnnotation(Id.class) != null){
-                append(Operator.ID, op, new ObjectId((String)value));
+                Object dbId = IdUtil.toDbId(clazz, (String)value);
+                append(Operator.ID, op, dbId);
             }
             else if(value instanceof BuguEntity){
                 append(key, op, BuguMapper.toDBRef((BuguEntity)value));
@@ -79,12 +81,13 @@ public class BuguQuery<T> {
         }
     }
     
-    private List<ObjectId> toIds(Object... values){
-        List<ObjectId> idList = new ArrayList<ObjectId>();
+    private List<Object> toIds(Object... values){
+        List<Object> idList = new ArrayList<Object>();
         int len = values.length;
         for(int i=0; i<len; i++){
             if(values[i] != null){
-                idList.add(new ObjectId((String)values[i]));
+                Object dbId = IdUtil.toDbId(clazz, (String)values[i]);
+                idList.add(dbId);
             }
         }
         return idList;
@@ -277,7 +280,7 @@ public class BuguQuery<T> {
     
     private void checkSingle() throws DBQueryException{
         if(orderBy!=null || pageNumber!=0 || pageSize!=0){
-            throw new DBQueryException();
+            throw new DBQueryException("You should use results() to get a list, when you use sorting or pagination");
         }
     }
     
@@ -285,7 +288,7 @@ public class BuguQuery<T> {
         try{
             checkSingle();
         }catch(DBQueryException ex){
-            logger.error("You should use results() to get a list, when you use sorting or pagination", ex);
+            logger.error(ex.getMessage(), ex);
         }
         DBObject dbo = coll.findOne(condition);
         return MapperUtil.fromDBObject(clazz, dbo);

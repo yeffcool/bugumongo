@@ -16,12 +16,12 @@
 package com.bugull.mongo.decoder;
 
 import com.bugull.mongo.BuguEntity;
-import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.cache.ConstructorCache;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.mapper.FieldUtil;
+import com.bugull.mongo.mapper.InternalDao;
 import com.mongodb.DBObject;
 import com.mongodb.DBRef;
 import java.lang.reflect.Field;
@@ -55,7 +55,7 @@ public class RefDecoder extends AbstractDecoder{
             refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
             refObj.setId(refId);
         }else{
-            BuguDao dao = DaoCache.getInstance().get(clazz);
+            InternalDao dao = DaoCache.getInstance().get(clazz);
             refObj = (BuguEntity)dao.findOne(refId);
         }
         FieldUtil.set(obj, field, refObj);

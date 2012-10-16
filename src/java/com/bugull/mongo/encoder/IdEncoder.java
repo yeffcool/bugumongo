@@ -15,8 +15,13 @@
 
 package com.bugull.mongo.encoder;
 
+import com.bugull.mongo.annotations.Id;
+import com.bugull.mongo.cache.DaoCache;
+import com.bugull.mongo.exception.IdException;
+import com.bugull.mongo.mapper.InternalDao;
 import com.bugull.mongo.mapper.Operator;
 import java.lang.reflect.Field;
+import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 
 /**
@@ -25,8 +30,13 @@ import org.bson.types.ObjectId;
  */
 public class IdEncoder extends AbstractEncoder{
     
+    private final static Logger logger = Logger.getLogger(IdEncoder.class);
+    
+    private Id id;
+    
     public IdEncoder(Object obj, Field field){
         super(obj, field);
+        id = field.getAnnotation(Id.class);
     }
     
     @Override
@@ -41,11 +51,42 @@ public class IdEncoder extends AbstractEncoder{
     
     @Override
     public Object encode(){
-        if(value == null){
-            return new ObjectId();
-        }else{
-            return new ObjectId(value.toString());
+        Object result = null;
+        try{
+            result = fixIdValue();
+        }catch(IdException ex){
+            logger.error(ex.getMessage(), ex);
         }
+        return result;
+    }
+    
+    private Object fixIdValue() throws IdException {
+        Object result = null;
+        switch(id.type()){
+            case AUTO_GENERATE:
+                if(value == null){
+                    result = new ObjectId();
+                }else{
+                    result = new ObjectId(value.toString());
+                }
+                break;
+            case AUTO_INCREASE:
+                if(value == null){
+                    InternalDao dao = DaoCache.getInstance().get(obj.getClass());
+                    result = dao.getMaxId() + 1L;
+                }else{
+                    result = value.toString();
+                }
+                break;
+            case USER_DEFINE:
+                if(value == null){
+                    throw new IdException("User define id haven't given a value!");
+                }else{
+                    result = value.toString();
+                }
+                break;
+        }
+        return result;
     }
     
 }

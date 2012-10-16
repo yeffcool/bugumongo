@@ -15,11 +15,11 @@
 
 package com.bugull.mongo.lucene.cluster;
 
-import com.bugull.mongo.BuguDao;
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.lucene.BuguIndex;
 import com.bugull.mongo.lucene.backend.*;
+import com.bugull.mongo.mapper.InternalDao;
 
 /**
  * Handle the received message.
@@ -87,7 +87,7 @@ public class HandleMessageTask implements Runnable {
         Class<?> clazz = msg.getClazz();
         String id = msg.getId();
         if(clazz!=null && id!=null){
-            BuguDao dao = DaoCache.getInstance().get(clazz);
+            InternalDao dao = DaoCache.getInstance().get(clazz);
             EntityChangedListener luceneListener = dao.getLuceneListener();
             if(luceneListener != null){
                 RefEntityChangedListener refListener = luceneListener.getRefListener();

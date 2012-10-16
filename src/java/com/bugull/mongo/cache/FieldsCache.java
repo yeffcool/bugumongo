@@ -90,21 +90,35 @@ public class FieldsCache {
     }
     
     /**
+     * Get the field with @Id on it.
+     * @param clazz
+     * @return 
+     */
+    public Field getIdField(Class<?> clazz){
+        Field result = null;
+        Field[] fields = get(clazz);
+        for(Field f : fields){
+            if(f.getAnnotation(Id.class) != null){
+                result = f;
+                break;
+            }
+        }
+        if(result == null){
+            logger.error(clazz.getName() + " does not contain Id field.");
+        }
+        return result;
+    }
+    
+    /**
      * Get the field's name with @Id on it. In natural case, it returns "id".
      * @param clazz
      * @return 
      */
     public String getIdFieldName(Class<?> clazz){
         String name = null;
-        Field[] fields = get(clazz);
-        for(Field f : fields){
-            if(f.getAnnotation(Id.class) != null){
-                name = f.getName();
-                break;
-            }
-        }
-        if(name == null){
-            logger.error(clazz.getName() + " does not contain Id field.");
+        Field f = this.getIdField(clazz);
+        if(f != null){
+            name = f.getName();
         }
         return name;
     }

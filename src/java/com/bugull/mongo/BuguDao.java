@@ -17,11 +17,15 @@ package com.bugull.mongo;
 
 import com.bugull.mongo.annotations.EnsureIndex;
 import com.bugull.mongo.annotations.Entity;
+import com.bugull.mongo.annotations.Id;
+import com.bugull.mongo.annotations.IdType;
+import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.exception.DBConnectionException;
 import com.bugull.mongo.lucene.backend.EntityChangedListener;
 import com.bugull.mongo.lucene.backend.IndexChecker;
 import com.bugull.mongo.mapper.DBIndex;
 import com.bugull.mongo.mapper.EntityRemovedListener;
+import com.bugull.mongo.mapper.IdUtil;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
 import com.mongodb.BasicDBObject;
@@ -29,11 +33,11 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
-import org.bson.types.ObjectId;
 
 /**
  * The basic Dao class.
@@ -46,7 +50,7 @@ public class BuguDao<T> {
     
     protected DBCollection coll;
     protected Class<T> clazz;
-    protected DBObject keys;
+    protected DBObject keys;  //non-lazy fields
     protected EntityChangedListener luceneListener;
     protected EntityRemovedListener cascadeListener;
     
@@ -56,14 +60,13 @@ public class BuguDao<T> {
         try {
             db = BuguConnection.getInstance().getDB();
         } catch (DBConnectionException ex) {
-            logger.error("Can not get database instance! Please ensure connected to mongoDB correctly.", ex);
+            logger.error(ex.getMessage(), ex);
         }
         Entity entity = clazz.getAnnotation(Entity.class);
         String name = MapperUtil.getEntityName(clazz);
         //if capped
         if(entity.capped() && !db.collectionExists(name)){
-            DBObject options = new BasicDBObject();
-            options.put("capped", true);
+            DBObject options = new BasicDBObject("capped", true);
             long capSize = entity.capSize();
             if(capSize != -1){
                 options.put("size", capSize);
@@ -95,7 +98,7 @@ public class BuguDao<T> {
     }
     
     /**
-     * Insert an entity to MongoDB. The entity should have no id in it.
+     * Insert an entity to mongoDB.
      * @param obj 
      */
     public void insert(BuguEntity obj){
@@ -109,7 +112,7 @@ public class BuguDao<T> {
     }
     
     /**
-     * Insert a list of entity to MongoDB. The entity should have no id in it.
+     * Insert a list of entity to mongoDB.
      * @param list 
      */
     public void insert(List<BuguEntity> list){
@@ -127,17 +130,35 @@ public class BuguDao<T> {
     }
     
     /**
-     * Save an entity. If no id in it, then insert the entity, else update the entity.
+     * Save an entity to mongoDB. 
+     * If no id in it, then insert the entity.
+     * Else, check the id type, to confirm do save or insert.
      * @param obj 
      */
     public void save(BuguEntity obj){
         if(obj.getId() == null){
             insert(obj);
-        }else{
-            coll.save(MapperUtil.toDBObject(obj));
-            if(luceneListener != null){
-                luceneListener.entityUpdate(obj);
+        }
+        else{
+            Field idField = FieldsCache.getInstance().getIdField(clazz);
+            Id idAnnotation = idField.getAnnotation(Id.class);
+            if(idAnnotation.type()==IdType.USER_DEFINE){
+                if(this.exists(Operator.ID, obj.getId())){
+                    doSave(obj);
+                }else{
+                    insert(obj);
+                }
             }
+            else{
+                doSave(obj);
+            }
+        }
+    }
+    
+    private void doSave(BuguEntity obj){
+        coll.save(MapperUtil.toDBObject(obj));
+        if(luceneListener != null){
+            luceneListener.entityUpdate(obj);
         }
     }
     
@@ -159,7 +180,7 @@ public class BuguDao<T> {
     
     private void removeRich(BuguEntity entity){
         DBObject query = new BasicDBObject();
-        query.put(Operator.ID, new ObjectId(entity.getId()));
+        query.put(Operator.ID, IdUtil.toDbId(clazz, entity.getId()));
         coll.remove(query);
         if(luceneListener != null){
             luceneListener.entityRemove(entity.getId());
@@ -171,7 +192,7 @@ public class BuguDao<T> {
     
     private void removeThin(String id){
         DBObject query = new BasicDBObject();
-        query.put(Operator.ID, new ObjectId(id));
+        query.put(Operator.ID, IdUtil.toDbId(clazz, id));
         coll.remove(query);
         if(luceneListener != null){
             luceneListener.entityRemove(id);
@@ -211,9 +232,9 @@ public class BuguDao<T> {
             }
         }else{
             int len = ids.length;
-            ObjectId[] arr = new ObjectId[len];
+            Object[] arr = new Object[len];
             for(int i=0; i<len; i++){
-                arr[i] = new ObjectId(ids[i]);
+                arr[i] = IdUtil.toDbId(clazz, ids[i]);
             }
             DBObject in = new BasicDBObject(Operator.IN, arr);
             DBObject query = new BasicDBObject(Operator.ID, in);
@@ -262,7 +283,7 @@ public class BuguDao<T> {
     }
     
     private void updateWithOutIndex(String id, DBObject dbo){
-        DBObject query = new BasicDBObject(Operator.ID, new ObjectId(id));
+        DBObject query = new BasicDBObject(Operator.ID, IdUtil.toDbId(clazz, id));
         coll.update(query, dbo);
     }
     
@@ -523,15 +544,8 @@ public class BuguDao<T> {
     
     public T findOne(String id){
         DBObject dbo = new BasicDBObject();
-        dbo.put(Operator.ID, new ObjectId(id));
+        dbo.put(Operator.ID, IdUtil.toDbId(clazz, id));
         DBObject result = coll.findOne(dbo);
-        return MapperUtil.fromDBObject(clazz, result);
-    }
-    
-    public T findOneLazily(String id){
-        DBObject dbo = new BasicDBObject();
-        dbo.put(Operator.ID, new ObjectId(id));
-        DBObject result = coll.findOne(dbo, keys);
         return MapperUtil.fromDBObject(clazz, result);
     }
     
@@ -616,27 +630,6 @@ public class BuguDao<T> {
         return MapperUtil.toList(clazz, cursor);
     }
     
-    /**
-     * This is used for the automatic lucene index maintaining, do not use this method in your application.
-     * @param query
-     * @return 
-     */
-    public List<T> findForLucene(DBObject query){
-        DBCursor cursor = coll.find(query);
-        return MapperUtil.toList(clazz, cursor);
-    }
-    
-    /**
-     * This is used for the automatic lucene index maintaining, do not use this method in your application.
-     * @param pageNum
-     * @param pageSize
-     * @return 
-     */
-    public List<T> findForLucene(int pageNum, int pageSize){
-        DBCursor cursor = coll.find().skip((pageNum-1)*pageSize).limit(pageSize);
-        return MapperUtil.toList(clazz, cursor);
-    }
-    
     public List distinct(String key){
         return coll.distinct(key);
     }
@@ -682,14 +675,6 @@ public class BuguDao<T> {
      */
     public BuguQuery<T> query(){
         return new BuguQuery<T>(coll, clazz, keys);
-    }
-
-    public EntityChangedListener getLuceneListener() {
-        return luceneListener;
-    }
-
-    public DBObject getKeys() {
-        return keys;
     }
     
 }
