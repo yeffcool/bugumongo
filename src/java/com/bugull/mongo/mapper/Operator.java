@@ -21,8 +21,10 @@ package com.bugull.mongo.mapper;
  */
 public class Operator {
     
+    //id
     public static final String ID = "_id";
     
+    //compare and conditon
     public static final String GT = "$gt";
     public static final String GTE = "$gte";
     public static final String LT = "$lt";
@@ -37,14 +39,25 @@ public class Operator {
     public static final String SIZE = "$size";
     public static final String EXISTS = "$exists";
     
+    //2d and geo
     public static final String NEAR = "$near";
     public static final String WITHIN = "$within";
     public static final String CENTER = "$center";
     public static final String BOX = "$box";
     
+    //modify
     public static final String SET = "$set";
     public static final String UNSET = "$unset";
     public static final String INC = "$inc";
     public static final String PUSH = "$push";
     public static final String PULL = "$pull";
+    
+    //aggregation
+    public static final String PROJECT = "$project";
+    public static final String MATCH = "$match";
+    public static final String LIMIT = "$limit";
+    public static final String SKIP = "$skip";
+    public static final String UNWIND = "$unwind";
+    public static final String GROUP = "$group";
+    public static final String SORT = "$sort";
 }

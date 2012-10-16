@@ -15,8 +15,10 @@
 
 package com.bugull.mongo;
 
+import com.bugull.mongo.exception.MapReduceException;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.mongodb.BasicDBObject;
+import com.mongodb.CommandResult;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -27,16 +29,19 @@ import com.mongodb.MapReduceOutput;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.log4j.Logger;
 
 /**
- * Not frequently used operation, such as mapReduce, group, max, min and sum.
+ * Aggregation and MapReduce.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 @SuppressWarnings("unchecked")
-public class AdvancedDao extends BuguDao{
+public class AdvancedDao<T> extends BuguDao<T>{
     
-    public AdvancedDao(Class<?> clazz){
+    private final static Logger logger = Logger.getLogger(AdvancedDao.class);
+    
+    public AdvancedDao(Class<T> clazz){
         super(clazz);
     }
     
@@ -49,6 +54,9 @@ public class AdvancedDao extends BuguDao{
     }
     
     public double max(String key, DBObject query){
+        if(this.count(query)==0){
+            return 0;
+        }
         double max = 0.0;
         if(this.exists(query)){
             StringBuilder map = new StringBuilder("function(){emit('");
@@ -57,7 +65,12 @@ public class AdvancedDao extends BuguDao{
             map.append(key);
             map.append("});}");
             String reduce = "function(key, values){var max=values[0].value; for(var i=1;i<values.length; i++){if(values[i].value>max){max=values[i].value;}} return {'value':max}}";
-            Iterable<DBObject> results = mapReduce(map.toString(), reduce, query);
+            Iterable<DBObject> results = null;
+            try{
+                results = mapReduce(map.toString(), reduce, query);
+            }catch(MapReduceException ex){
+                logger.error(ex.getMessage(), ex);
+            }
             DBObject result = results.iterator().next();
             DBObject dbo = (DBObject)result.get("value");
             max = Double.parseDouble(dbo.get("value").toString());
@@ -74,6 +87,9 @@ public class AdvancedDao extends BuguDao{
     }
     
     public double min(String key, DBObject query){
+        if(this.count(query)==0){
+            return 0;
+        }
         double min = 0.0;
         if(this.exists(query)){
             StringBuilder map = new StringBuilder("function(){emit('");
@@ -82,7 +98,12 @@ public class AdvancedDao extends BuguDao{
             map.append(key);
             map.append("});}");
             String reduce = "function(key, values){var min=values[0].value; for(var i=1;i<values.length; i++){if(values[i].value<min){min=values[i].value;}} return {'value':min}}";
-            Iterable<DBObject> results = mapReduce(map.toString(), reduce, query);
+            Iterable<DBObject> results = null;
+            try{
+                results = mapReduce(map.toString(), reduce, query);
+            }catch(MapReduceException ex){
+                logger.error(ex.getMessage(), ex);
+            }
             DBObject result = results.iterator().next();
             DBObject dbo = (DBObject)result.get("value");
             min = Double.parseDouble(dbo.get("value").toString());
@@ -99,56 +120,103 @@ public class AdvancedDao extends BuguDao{
     }
     
     public double sum(String key, DBObject query){
+        if(this.count(query)==0){
+            return 0;
+        }
         StringBuilder map = new StringBuilder("function(){emit('");
         map.append(key);
         map.append("', {'value':this.");
         map.append(key);
         map.append("});}");
         String reduce = "function(key, values){var sum=0; for(var i=0;i<values.length; i++){sum+=values[i].value;} return {'value':sum}}";
-        Iterable<DBObject> results = mapReduce(map.toString(), reduce, query);
+        Iterable<DBObject> results = null;
+        try{
+            results = mapReduce(map.toString(), reduce, query);
+        }catch(MapReduceException ex){
+            logger.error(ex.getMessage(), ex);
+        }
         DBObject result = results.iterator().next();
         DBObject dbo = (DBObject)result.get("value");
         return Double.parseDouble(dbo.get("value").toString());
     }
     
+    public double average(String key){
+        return average(key, new BasicDBObject());
+    }
+    
+    public double average(String key, BuguQuery query){
+        return average(key, query.getCondition());
+    }
+    
+    public double average(String key, DBObject query){
+        long count = this.count(query);
+        if(count == 0){
+            return 0;
+        }
+        double sum = this.sum(key, query);
+        return sum / count;
+    }
+    
+    @Deprecated
     public Iterable<DBObject> group(GroupCommand cmd){
         DBObject dbo = coll.group(cmd);
         return (ArrayList)dbo;
     }
     
+    @Deprecated
     public Iterable<DBObject> group(DBObject keys, DBObject query, DBObject initial, String reduce){
         DBObject dbo = coll.group(keys, query, initial, reduce);
         return (ArrayList)dbo;
     }
     
+    @Deprecated
     public Iterable<DBObject> group(DBObject keys, DBObject query, DBObject initial, String reduce, String finalize){
         DBObject dbo = coll.group(keys, query, initial, reduce, finalize);
         return (ArrayList)dbo;
     }
     
-    public Iterable<DBObject> mapReduce(MapReduceCommand cmd) {
-        return coll.mapReduce(cmd).results();
+    public Iterable<DBObject> mapReduce(MapReduceCommand cmd) throws MapReduceException {
+        MapReduceOutput output = coll.mapReduce(cmd);
+        CommandResult cr = output.getCommandResult();
+        if(! cr.ok()){
+            throw new MapReduceException(cr.getErrorMessage());
+        }
+        return output.results();
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce) {
-        return coll.mapReduce(map, reduce, null, OutputType.INLINE, null).results();
+    public Iterable<DBObject> mapReduce(String map, String reduce) throws MapReduceException {
+        MapReduceOutput output = coll.mapReduce(map, reduce, null, OutputType.INLINE, null);
+        CommandResult cr = output.getCommandResult();
+        if(! cr.ok()){
+            throw new MapReduceException(cr.getErrorMessage());
+        }
+        return output.results();
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce, BuguQuery query) {
+    public Iterable<DBObject> mapReduce(String map, String reduce, BuguQuery query) throws MapReduceException {
         return mapReduce(map, reduce, query.getCondition());
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce, DBObject query) {
-        return coll.mapReduce(map, reduce, null, OutputType.INLINE, query).results();
+    public Iterable<DBObject> mapReduce(String map, String reduce, DBObject query) throws MapReduceException {
+        MapReduceOutput output = coll.mapReduce(map, reduce, null, OutputType.INLINE, query);
+        CommandResult cr = output.getCommandResult();
+        if(! cr.ok()){
+            throw new MapReduceException(cr.getErrorMessage());
+        }
+        return output.results();
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, BuguQuery query) {
+    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, BuguQuery query) throws MapReduceException {
         return mapReduce(map, reduce, outputTarget, outputType, orderBy, query.getCondition());
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, DBObject query) {
+    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, DBObject query) throws MapReduceException {
         synchronized(outputTarget){
             MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
+            CommandResult cr = output.getCommandResult();
+            if(! cr.ok()){
+                throw new MapReduceException(cr.getErrorMessage());
+            }
             DBCollection c = output.getOutputCollection();
             DBCursor cursor = null;
             if(orderBy != null){
@@ -164,13 +232,17 @@ public class AdvancedDao extends BuguDao{
         }
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, int pageNum, int pageSize, BuguQuery query) {
+    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, int pageNum, int pageSize, BuguQuery query) throws MapReduceException {
         return mapReduce(map, reduce, outputTarget, outputType, orderBy, pageNum, pageSize, query.getCondition());
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, int pageNum, int pageSize, DBObject query) {
+    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, int pageNum, int pageSize, DBObject query) throws MapReduceException {
         synchronized(outputTarget){
             MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
+            CommandResult cr = output.getCommandResult();
+            if(! cr.ok()){
+                throw new MapReduceException(cr.getErrorMessage());
+            }
             DBCollection c = output.getOutputCollection();
             DBCursor cursor = null;
             if(orderBy != null){
@@ -184,6 +256,14 @@ public class AdvancedDao extends BuguDao{
             }
             return list;
         }
+    }
+    
+    /**
+     * Create an aggregation.
+     * @return a new BuguQuery object
+     */
+    public BuguAggregation<T> aggregate(){
+        return new BuguAggregation<T>(coll);
     }
     
 }

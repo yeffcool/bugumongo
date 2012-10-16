@@ -678,7 +678,7 @@ public class BuguDao<T> {
     
     /**
      * Create a query.
-     * @return a new Query object
+     * @return a new BuguQuery object
      */
     public BuguQuery<T> query(){
         return new BuguQuery<T>(coll, clazz, keys);
