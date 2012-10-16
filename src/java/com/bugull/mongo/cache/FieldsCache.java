@@ -16,6 +16,7 @@
 package com.bugull.mongo.cache;
 
 import com.bugull.mongo.annotations.Id;
+import com.bugull.mongo.exception.IdException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -94,7 +95,7 @@ public class FieldsCache {
      * @param clazz
      * @return 
      */
-    public Field getIdField(Class<?> clazz){
+    public Field getIdField(Class<?> clazz) throws IdException {
         Field result = null;
         Field[] fields = get(clazz);
         for(Field f : fields){
@@ -104,7 +105,7 @@ public class FieldsCache {
             }
         }
         if(result == null){
-            logger.error(clazz.getName() + " does not contain Id field.");
+            throw new IdException(clazz.getName() + " does not contain @Id field.");
         }
         return result;
     }
@@ -116,7 +117,12 @@ public class FieldsCache {
      */
     public String getIdFieldName(Class<?> clazz){
         String name = null;
-        Field f = this.getIdField(clazz);
+        Field f = null;
+        try{
+            f = this.getIdField(clazz);
+        }catch(IdException ex){
+            logger.error(ex.getMessage(), ex);
+        }
         if(f != null){
             name = f.getName();
         }

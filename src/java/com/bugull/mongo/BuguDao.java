@@ -21,6 +21,7 @@ import com.bugull.mongo.annotations.Id;
 import com.bugull.mongo.annotations.IdType;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.exception.DBConnectionException;
+import com.bugull.mongo.exception.IdException;
 import com.bugull.mongo.lucene.backend.EntityChangedListener;
 import com.bugull.mongo.lucene.backend.IndexChecker;
 import com.bugull.mongo.mapper.DBIndex;
@@ -140,7 +141,12 @@ public class BuguDao<T> {
             insert(obj);
         }
         else{
-            Field idField = FieldsCache.getInstance().getIdField(clazz);
+            Field idField = null;
+            try{
+                idField = FieldsCache.getInstance().getIdField(clazz);
+            }catch(IdException ex){
+                logger.error(ex.getMessage(), ex);
+            }
             Id idAnnotation = idField.getAnnotation(Id.class);
             if(idAnnotation.type()==IdType.USER_DEFINE){
                 if(this.exists(Operator.ID, obj.getId())){

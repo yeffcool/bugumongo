@@ -17,7 +17,9 @@ package com.bugull.mongo.mapper;
 
 import com.bugull.mongo.annotations.Id;
 import com.bugull.mongo.cache.FieldsCache;
+import com.bugull.mongo.exception.IdException;
 import java.lang.reflect.Field;
+import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 
 /**
@@ -25,6 +27,8 @@ import org.bson.types.ObjectId;
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class IdUtil {
+    
+    private final static Logger logger = Logger.getLogger(IdUtil.class);
     
     /**
      * Convert the id string to object, which matching the id data in mongoDB.
@@ -37,7 +41,12 @@ public class IdUtil {
             return null;
         }
         Object result = null;
-        Field idField = FieldsCache.getInstance().getIdField(clazz);
+        Field idField = null;
+        try{
+            idField = FieldsCache.getInstance().getIdField(clazz);
+        }catch(IdException ex){
+            logger.error(ex.getMessage(), ex);
+        }
         Id idAnnotation = idField.getAnnotation(Id.class);
         switch(idAnnotation.type()){
             case AUTO_GENERATE:
