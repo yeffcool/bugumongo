@@ -26,6 +26,12 @@ import org.bson.types.ObjectId;
  */
 public class IdUtil {
     
+    /**
+     * Convert the id string to object, which matching the id data in mongoDB.
+     * @param clazz
+     * @param id
+     * @return 
+     */
     public static Object toDbId(Class<?> clazz, String id){
         if(StringUtil.isEmpty(id)){
             return null;

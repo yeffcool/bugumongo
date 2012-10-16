@@ -73,7 +73,8 @@ public class BuguMapper {
         }
         Class<?> clazz = obj.getClass();
         String name = MapperUtil.getEntityName(clazz);
-        return new DBRef(db, name, IdUtil.toDbId(clazz, idStr));
+        Object dbId = IdUtil.toDbId(clazz, idStr);
+        return new DBRef(db, name, dbId);
     }
     
     /**
@@ -93,7 +94,8 @@ public class BuguMapper {
             logger.error(ex.getMessage(), ex);
         }
         String name = MapperUtil.getEntityName(clazz);
-        return new DBRef(db, name, IdUtil.toDbId(clazz, idStr));
+        Object dbId = IdUtil.toDbId(clazz, idStr);
+        return new DBRef(db, name, dbId);
     }
     
     /**
