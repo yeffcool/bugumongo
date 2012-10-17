@@ -22,7 +22,6 @@ import com.mongodb.CommandResult;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.GroupCommand;
 import com.mongodb.MapReduceCommand;
 import com.mongodb.MapReduceCommand.OutputType;
 import com.mongodb.MapReduceOutput;
@@ -155,24 +154,6 @@ public class AdvancedDao<T> extends BuguDao<T>{
         }
         double sum = this.sum(key, query);
         return sum / count;
-    }
-    
-    @Deprecated
-    public Iterable<DBObject> group(GroupCommand cmd){
-        DBObject dbo = coll.group(cmd);
-        return (ArrayList)dbo;
-    }
-    
-    @Deprecated
-    public Iterable<DBObject> group(DBObject keys, DBObject query, DBObject initial, String reduce){
-        DBObject dbo = coll.group(keys, query, initial, reduce);
-        return (ArrayList)dbo;
-    }
-    
-    @Deprecated
-    public Iterable<DBObject> group(DBObject keys, DBObject query, DBObject initial, String reduce, String finalize){
-        DBObject dbo = coll.group(keys, query, initial, reduce, finalize);
-        return (ArrayList)dbo;
     }
     
     public Iterable<DBObject> mapReduce(MapReduceCommand cmd) throws MapReduceException {

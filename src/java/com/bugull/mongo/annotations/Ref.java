@@ -29,4 +29,5 @@ import java.lang.annotation.Target;
 public @interface Ref {
     public String name() default Default.NAME;
     public String cascade() default Default.CASCADE;
+    public boolean manual() default false;
 }

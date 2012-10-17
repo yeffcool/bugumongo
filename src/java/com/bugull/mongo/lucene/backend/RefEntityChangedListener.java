@@ -16,7 +16,6 @@
 package com.bugull.mongo.lucene.backend;
 
 import com.bugull.mongo.BuguEntity;
-import com.bugull.mongo.BuguMapper;
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
@@ -26,6 +25,7 @@ import com.bugull.mongo.lucene.BuguIndex;
 import com.bugull.mongo.lucene.annotations.IndexRef;
 import com.bugull.mongo.lucene.annotations.IndexRefList;
 import com.bugull.mongo.mapper.InternalDao;
+import com.bugull.mongo.mapper.ReferenceUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
@@ -95,7 +95,8 @@ public class RefEntityChangedListener {
         
         if(match){
             InternalDao dao = DaoCache.getInstance().get(cls);
-            DBObject query = new BasicDBObject(fieldName, BuguMapper.toDBRef(refClass, id));
+            Object refObj = ReferenceUtil.toDbReference(cls, fieldName, refClass, id);
+            DBObject query = new BasicDBObject(fieldName, refObj);
             List<BuguEntity> list = dao.findForLucene(query);
             for(BuguEntity o : list){
                 IndexUpdateTask task = new IndexUpdateTask(o);

@@ -25,9 +25,9 @@ import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.InternalDao;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
+import com.bugull.mongo.mapper.ReferenceUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.mongodb.DBRef;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -68,7 +68,7 @@ public class RefListDecoder extends AbstractDecoder{
             Type[] types = paramType.getActualTypeArguments();
             int len = types.length;
             if(len == 1){
-                decodeList(obj, (Class)types[0]);
+                decodeListAndSet(obj, (Class)types[0]);
             }else if(len == 2){
                 decodeMap(obj, (Class)types[1]);
             }
@@ -87,9 +87,9 @@ public class RefListDecoder extends AbstractDecoder{
             for(int i=0; i<size; i++){
                 Object item = list.get(i);
                 if(item != null){
-                    DBRef dbRef = (DBRef)item;
+                    String refId = ReferenceUtil.fromDbReference(refList, item);
                     BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
-                    refObj.setId(dbRef.getId().toString());
+                    refObj.setId(refId);
                     Array.set(arr, i, refObj);
                 }else{
                     Array.set(arr, i, null);
@@ -101,8 +101,8 @@ public class RefListDecoder extends AbstractDecoder{
             for(int i=0; i<size; i++){
                 Object item = list.get(i);
                 if(item != null){
-                    DBRef dbRef = (DBRef)item;
-                    idList.add(dbRef.getId());
+                    Object refId = ReferenceUtil.toDbReference(refList, clazz, item);
+                    idList.add(refId);
                 }
             }
             DBObject in = new BasicDBObject(Operator.IN, idList);
@@ -126,23 +126,25 @@ public class RefListDecoder extends AbstractDecoder{
         FieldUtil.set(obj, field, arr);
     }
     
-    private void decodeList(Object obj, Class clazz){
+    private void decodeListAndSet(Object obj, Class clazz){
         clazz = FieldUtil.getRealType(clazz);
-        List<DBRef> list = (List<DBRef>)value;
+        List list = (List)value;
         List<BuguEntity> result = new ArrayList<BuguEntity>();
         if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_READ)==-1){
-            for(DBRef dbRef : list){
-                if(dbRef != null){
+            for(Object item : list){
+                if(item != null){
+                    String refId = ReferenceUtil.fromDbReference(refList, item);
                     BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
-                    refObj.setId(dbRef.getId().toString());
+                    refObj.setId(refId);
                     result.add(refObj);
                 }
             }
         }else{
             List<Object> idList = new ArrayList<Object>();
-            for(DBRef dbRef : list){
-                if(dbRef != null){
-                    idList.add(dbRef.getId());
+            for(Object item : list){
+                if(item != null){
+                    Object refId = ReferenceUtil.toDbReference(refList, clazz, item);
+                    idList.add(refId);
                 }
             }
             DBObject in = new BasicDBObject(Operator.IN, idList);
@@ -166,14 +168,15 @@ public class RefListDecoder extends AbstractDecoder{
     
     private void decodeMap(Object obj, Class clazz){
         clazz = FieldUtil.getRealType(clazz);
-        Map<Object, DBRef> map = (Map<Object, DBRef>)value;
+        Map map = (Map)value;
         Map<Object, BuguEntity> result = new HashMap<Object, BuguEntity>();
         if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_READ)==-1){
             for(Object key : map.keySet()){
-                DBRef dbRef = map.get(key);
-                if(dbRef != null){
+                Object item = map.get(key);
+                if(item != null){
+                    String refId = ReferenceUtil.fromDbReference(refList, item);
                     BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
-                    refObj.setId(dbRef.getId().toString());
+                    refObj.setId(refId);
                     result.put(key, refObj);
                 }else{
                     result.put(key, null);
@@ -182,9 +185,10 @@ public class RefListDecoder extends AbstractDecoder{
         }else{
             InternalDao dao = DaoCache.getInstance().get(clazz);
             for(Object key : map.keySet()){
-                DBRef dbRef = map.get(key);
-                if(dbRef != null){
-                    BuguEntity refObj = (BuguEntity)dao.findOne(dbRef.getId().toString());
+                Object item = map.get(key);
+                if(item != null){
+                    String refId = ReferenceUtil.fromDbReference(refList, item);
+                    BuguEntity refObj = (BuguEntity)dao.findOne(refId);
                     result.put(key, refObj);
                 }else{
                     result.put(key, null);

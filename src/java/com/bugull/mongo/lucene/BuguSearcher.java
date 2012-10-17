@@ -18,6 +18,7 @@ package com.bugull.mongo.lucene;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.cache.IndexSearcherCache;
+import com.bugull.mongo.exception.FieldException;
 import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.InternalDao;
 import com.bugull.mongo.mapper.MapperUtil;
@@ -178,7 +179,12 @@ public class BuguSearcher<T> {
                 String[] fields = highlighter.getFields();
                 for(String fieldName : fields){
                     if(! fieldName.contains(".")){
-                        Field field = FieldsCache.getInstance().getField(clazz, fieldName);
+                        Field field = null;
+                        try{
+                            field = FieldsCache.getInstance().getField(clazz, fieldName);
+                        }catch(FieldException ex){
+                            logger.error(ex.getMessage(), ex);
+                        }
                         Object fieldValue = FieldUtil.get(obj, field);
                         if(fieldValue != null){
                             String result = null;

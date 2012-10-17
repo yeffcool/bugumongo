@@ -18,14 +18,15 @@ package com.bugull.mongo;
 import com.bugull.mongo.annotations.Id;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.exception.DBQueryException;
+import com.bugull.mongo.exception.FieldException;
 import com.bugull.mongo.mapper.IdUtil;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
+import com.bugull.mongo.mapper.ReferenceUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.DBRef;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,13 +68,20 @@ public class BuguQuery<T> {
             append(key, op, value);
         }
         else{
-            Field f = FieldsCache.getInstance().getField(clazz, key);
+            Field f = null;
+            try{
+                f = FieldsCache.getInstance().getField(clazz, key);
+            }catch(FieldException ex){
+                logger.error(ex.getMessage(), ex);
+            }
             if(f.getAnnotation(Id.class) != null){
                 Object dbId = IdUtil.toDbId(clazz, (String)value);
                 append(Operator.ID, op, dbId);
             }
             else if(value instanceof BuguEntity){
-                append(key, op, BuguMapper.toDBRef((BuguEntity)value));
+                BuguEntity ent = (BuguEntity)value;
+                Object refObj = ReferenceUtil.toDbReference(clazz, key, ent.getClass(), ent.getId());
+                append(key, op, refObj);
             }
             else{
                 append(key, op, value);
@@ -93,12 +101,14 @@ public class BuguQuery<T> {
         return idList;
     }
     
-    private List<DBRef> toDBRefs(Object... values){
-        List<DBRef> refList = new ArrayList<DBRef>();
+    private List<Object> toReferenceList(String key, Object... values){
+        List<Object> refList = new ArrayList<Object>();
         int len = values.length;
         for(int i=0; i<len; i++){
             if(values[i] != null){
-                refList.add(BuguMapper.toDBRef((BuguEntity)values[i]));
+                BuguEntity ent = (BuguEntity)values[i];
+                Object refObj = ReferenceUtil.toDbReference(clazz, key, ent.getClass(), ent.getId());
+                refList.add(refObj);
             }
         }
         return refList;
@@ -112,12 +122,17 @@ public class BuguQuery<T> {
             append(key, op, values);
         }
         else{
-            Field f = FieldsCache.getInstance().getField(clazz, key);
+            Field f = null;
+            try{
+                f = FieldsCache.getInstance().getField(clazz, key);
+            }catch(FieldException ex){
+                logger.error(ex.getMessage(), ex);
+            }
             if(f.getAnnotation(Id.class) != null){
                 append(Operator.ID, op, toIds(values));
             }
             else if(values[0] instanceof BuguEntity){
-                append(key, op, toDBRefs(values));
+                append(key, op, toReferenceList(key, values));
             }
             else{
                 append(key, op, values);

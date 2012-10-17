@@ -16,6 +16,7 @@
 package com.bugull.mongo.cache;
 
 import com.bugull.mongo.annotations.Id;
+import com.bugull.mongo.exception.FieldException;
 import com.bugull.mongo.exception.IdException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -129,7 +130,7 @@ public class FieldsCache {
         return name;
     }
     
-    public Field getField(Class<?> clazz, String fieldName){
+    public Field getField(Class<?> clazz, String fieldName) throws FieldException {
         Field field = null;
         Field[] fields = get(clazz);
         for(Field f : fields){
@@ -139,7 +140,7 @@ public class FieldsCache {
             }
         }
         if(field == null){
-            logger.error(clazz.getName() + " does not contain field " + fieldName);
+            throw new FieldException(clazz.getName() + " does not contain field " + fieldName);
         }
         return field;
     }

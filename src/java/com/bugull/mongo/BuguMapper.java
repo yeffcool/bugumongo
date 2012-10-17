@@ -20,18 +20,15 @@ import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
-import com.bugull.mongo.exception.DBConnectionException;
+import com.bugull.mongo.exception.FieldException;
 import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.IdUtil;
 import com.bugull.mongo.mapper.InternalDao;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
-import com.bugull.mongo.mapper.StringUtil;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBObject;
-import com.mongodb.DBRef;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -54,49 +51,6 @@ import org.apache.log4j.Logger;
 public class BuguMapper {
     
     private final static Logger logger = Logger.getLogger(BuguMapper.class);
-        
-    /**
-     * Convert BuguEntity to DBRef. Useful when operate on @Ref and @RefList field.
-     * @param obj
-     * @return 
-     */
-    public static DBRef toDBRef(BuguEntity obj){
-        String idStr = obj.getId();
-        if(StringUtil.isEmpty(idStr)){
-            return null;
-        }
-        DB db = null;
-        try {
-            db = BuguConnection.getInstance().getDB();
-        } catch (DBConnectionException ex) {
-            logger.error(ex.getMessage(), ex);
-        }
-        Class<?> clazz = obj.getClass();
-        String name = MapperUtil.getEntityName(clazz);
-        Object dbId = IdUtil.toDbId(clazz, idStr);
-        return new DBRef(db, name, dbId);
-    }
-    
-    /**
-     * Create a DBRef for a type of entity, with id string. Useful when operate on @Ref and @RefList field.
-     * @param clazz
-     * @param idStr
-     * @return 
-     */
-    public static DBRef toDBRef(Class<?> clazz, String idStr){
-        if(StringUtil.isEmpty(idStr)){
-            return null;
-        }
-        DB db = null;
-        try {
-            db = BuguConnection.getInstance().getDB();
-        } catch (DBConnectionException ex) {
-            logger.error(ex.getMessage(), ex);
-        }
-        String name = MapperUtil.getEntityName(clazz);
-        Object dbId = IdUtil.toDbId(clazz, idStr);
-        return new DBRef(db, name, dbId);
-    }
     
     /**
      * Fetch out the lazy @Property, @Embed, @EmbedList field of a list
@@ -159,7 +113,12 @@ public class BuguMapper {
     }
     
     private static void fetchOneLevel(BuguEntity obj, String fieldName){
-        Field field = FieldsCache.getInstance().getField(obj.getClass(), fieldName);
+        Field field = null;
+        try{
+            field = FieldsCache.getInstance().getField(obj.getClass(), fieldName);
+        }catch(FieldException ex){
+            logger.error(ex.getMessage(), ex);
+        }
         if(field.getAnnotation(Ref.class) != null){
             fetchRef(obj, field);
         }else if(field.getAnnotation(RefList.class) != null){
@@ -168,7 +127,12 @@ public class BuguMapper {
     }
     
     private static void fetchRemainder(BuguEntity obj, String fieldName, String remainder){
-        Field field = FieldsCache.getInstance().getField(obj.getClass(), fieldName);
+        Field field = null;
+        try{
+            field = FieldsCache.getInstance().getField(obj.getClass(), fieldName);
+        }catch(FieldException ex){
+            logger.error(ex.getMessage(), ex);
+        }
         Object value = FieldUtil.get(obj, field);
         if(value == null){
             return;

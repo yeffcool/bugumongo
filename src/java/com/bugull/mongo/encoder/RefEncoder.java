@@ -16,12 +16,12 @@
 package com.bugull.mongo.encoder;
 
 import com.bugull.mongo.BuguEntity;
-import com.bugull.mongo.BuguMapper;
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.InternalDao;
+import com.bugull.mongo.mapper.ReferenceUtil;
 import com.bugull.mongo.mapper.StringUtil;
 import java.lang.reflect.Field;
 
@@ -62,7 +62,7 @@ public class RefEncoder extends AbstractEncoder{
             InternalDao dao = DaoCache.getInstance().get(clazz);
             dao.save(entity);
         }
-        return BuguMapper.toDBRef(entity);
+        return ReferenceUtil.toDbReference(ref, entity.getClass(), idStr);
     }
     
 }

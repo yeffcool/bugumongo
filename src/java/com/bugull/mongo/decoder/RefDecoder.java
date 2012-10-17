@@ -22,8 +22,8 @@ import com.bugull.mongo.cache.ConstructorCache;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.InternalDao;
+import com.bugull.mongo.mapper.ReferenceUtil;
 import com.mongodb.DBObject;
-import com.mongodb.DBRef;
 import java.lang.reflect.Field;
 
 /**
@@ -47,8 +47,7 @@ public class RefDecoder extends AbstractDecoder{
     
     @Override
     public void decode(Object obj){
-        DBRef dbRef = (DBRef)value;
-        String refId = dbRef.getId().toString();
+        String refId = ReferenceUtil.fromDbReference(ref, value);
         Class<?> clazz = FieldUtil.getRealType(field);
         BuguEntity refObj = null;
         if(ref.cascade().toUpperCase().indexOf(Default.CASCADE_READ)==-1){
