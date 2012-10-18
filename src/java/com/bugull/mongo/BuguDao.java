@@ -171,7 +171,8 @@ public class BuguDao<T> {
     }
     
     /**
-     * Drop the collection.
+     * Drop the collection. 
+     * It will automatically drop all indexes from this collection.
      */
     public void drop(){
         if(luceneListener != null || cascadeListener.hasCascade()){
@@ -185,12 +186,16 @@ public class BuguDao<T> {
         coll.dropIndexes();
     }
     
+    /**
+     * Remove an entity has id value in it.
+     * @param ent 
+     */
     public void remove(BuguEntity ent){
         remove(ent.getId());
     }
 
     /**
-     * Remove by id.
+     * Remove an entity by id.
      * @param id 
      */
     public void remove(String id){
@@ -364,10 +369,20 @@ public class BuguDao<T> {
         }
     }
     
+    /**
+     * Remove a filed(column) of an entity.
+     * @param entity the entity to operate
+     * @param key the field's name
+     */
     public void unset(BuguEntity entity, String key){
         unset(entity.getId(), key);
     }
     
+    /**
+     * Remove a filed(column) of an entity
+     * @param id the entity's id
+     * @param key the field's name
+     */
     public void unset(String id, String key){
         DBObject query = new BasicDBObject(key, 1);
         DBObject unset = new BasicDBObject(Operator.UNSET, query);
@@ -378,10 +393,20 @@ public class BuguDao<T> {
         }
     }
     
+    /**
+     * Remove a filed(column).
+     * @param query mathcing conditon
+     * @param key the field's name
+     */
     public void unset(BuguQuery query, String key){
         unset(query.getCondition(), key);
     }
     
+    /**
+     * Remove a field(column).
+     * @param query matching codition
+     * @param key the field's name
+     */
     public void unset(DBObject query, String key){
         boolean indexField = (luceneListener != null) && IndexChecker.hasIndexAnnotation(clazz, key); 
         List ids = null;
@@ -649,6 +674,10 @@ public class BuguDao<T> {
         return coll.count(query);
     }
     
+    /**
+     * Get the DBCollection object, supplied by the mongodb java driver.
+     * @return 
+     */
     public DBCollection getCollection(){
         return coll;
     }
