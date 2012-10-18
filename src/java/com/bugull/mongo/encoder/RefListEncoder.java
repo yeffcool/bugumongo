@@ -136,11 +136,7 @@ public class RefListEncoder extends AbstractEncoder{
     }
     
     private void doCascade(InternalDao dao, BuguEntity entity){
-        String idStr = entity.getId();
-        if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_CREATE)!=-1 && StringUtil.isEmpty(idStr)){
-            dao.insert(entity);
-        }
-        if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_UPDATE)!=-1 && !StringUtil.isEmpty(idStr)){
+        if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_CREATE)!=-1 || refList.cascade().toUpperCase().indexOf(Default.CASCADE_UPDATE)!=-1){
             dao.save(entity);
         }
     }

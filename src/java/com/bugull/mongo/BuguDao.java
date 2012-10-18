@@ -15,6 +15,7 @@
 
 package com.bugull.mongo;
 
+import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.EnsureIndex;
 import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.annotations.Id;
@@ -29,6 +30,7 @@ import com.bugull.mongo.mapper.EntityRemovedListener;
 import com.bugull.mongo.mapper.IdUtil;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
+import com.bugull.mongo.mapper.StringUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -69,11 +71,11 @@ public class BuguDao<T> {
         if(entity.capped() && !db.collectionExists(name)){
             DBObject options = new BasicDBObject("capped", true);
             long capSize = entity.capSize();
-            if(capSize != -1){
+            if(capSize != Default.CAP_SIZE){
                 options.put("size", capSize);
             }
             long capMax = entity.capMax();
-            if(capMax != -1){
+            if(capMax != Default.CAP_MAX){
                 options.put("max", capMax);
             }
             coll = db.createCollection(name, options);
@@ -136,9 +138,9 @@ public class BuguDao<T> {
      * Else, check the id type, to confirm do save or insert.
      * @param obj 
      */
-    public void save(BuguEntity obj){
-        if(obj.getId() == null){
-            insert(obj);
+    public void save(BuguEntity ent){
+        if(StringUtil.isEmpty(ent.getId())){
+            insert(ent);
         }
         else{
             Field idField = null;
@@ -149,69 +151,42 @@ public class BuguDao<T> {
             }
             Id idAnnotation = idField.getAnnotation(Id.class);
             if(idAnnotation.type()==IdType.USER_DEFINE){
-                if(this.exists(Operator.ID, obj.getId())){
-                    doSave(obj);
+                if(this.exists(Operator.ID, ent.getId())){
+                    doSave(ent);
                 }else{
-                    insert(obj);
+                    insert(ent);
                 }
             }
             else{
-                doSave(obj);
+                doSave(ent);
             }
         }
     }
     
-    private void doSave(BuguEntity obj){
-        coll.save(MapperUtil.toDBObject(obj));
+    private void doSave(BuguEntity ent){
+        coll.save(MapperUtil.toDBObject(ent));
         if(luceneListener != null){
-            luceneListener.entityUpdate(obj);
+            luceneListener.entityUpdate(ent);
         }
     }
     
     /**
-     * Remove all entity.
+     * Drop the collection.
      */
     public void drop(){
-        if(luceneListener == null && !cascadeListener.hasCascade()){
-            coll.drop();
-        }else{
+        if(luceneListener != null || cascadeListener.hasCascade()){
             List list = findAll();
             for(Object o : list){
                 BuguEntity entity = (BuguEntity)o;
-                removeRich(entity);
+                remove(entity);
             }
-            coll.drop();
         }
+        coll.drop();
+        coll.dropIndexes();
     }
     
-    private void removeRich(BuguEntity entity){
-        DBObject query = new BasicDBObject();
-        query.put(Operator.ID, IdUtil.toDbId(clazz, entity.getId()));
-        coll.remove(query);
-        if(luceneListener != null){
-            luceneListener.entityRemove(entity.getId());
-        }
-        if(cascadeListener.hasCascade()){
-            cascadeListener.entityRemove(entity);
-        }
-    }
-    
-    private void removeThin(String id){
-        DBObject query = new BasicDBObject();
-        query.put(Operator.ID, IdUtil.toDbId(clazz, id));
-        coll.remove(query);
-        if(luceneListener != null){
-            luceneListener.entityRemove(id);
-        }
-    }
-    
-    public void remove(BuguEntity obj){
-        if(cascadeListener.hasCascade()){
-            BuguEntity entity = (BuguEntity)findOne(obj.getId());
-            removeRich(entity);
-        }else{
-            removeThin(obj.getId());
-        }
+    public void remove(BuguEntity ent){
+        remove(ent.getId());
     }
 
     /**
@@ -221,9 +196,13 @@ public class BuguDao<T> {
     public void remove(String id){
         if(cascadeListener.hasCascade()){
             BuguEntity entity = (BuguEntity)findOne(id);
-            removeRich(entity);
-        }else{
-            removeThin(id);
+            cascadeListener.entityRemove(entity);
+        }
+        DBObject query = new BasicDBObject();
+        query.put(Operator.ID, IdUtil.toDbId(clazz, id));
+        coll.remove(query);
+        if(luceneListener != null){
+            luceneListener.entityRemove(id);
         }
     }
     
@@ -544,8 +523,7 @@ public class BuguDao<T> {
      * @return 
      */
     public boolean exists(DBObject query){
-        DBObject dbo = coll.findOne(query);
-        return dbo != null;
+        return coll.findOne(query) != null;
     }
     
     public T findOne(String id){

@@ -22,7 +22,6 @@ import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.InternalDao;
 import com.bugull.mongo.mapper.ReferenceUtil;
-import com.bugull.mongo.mapper.StringUtil;
 import java.lang.reflect.Field;
 
 /**
@@ -51,18 +50,12 @@ public class RefEncoder extends AbstractEncoder{
     @Override
     public Object encode(){
         BuguEntity entity = (BuguEntity)value;
-        String idStr = entity.getId();
-        if(ref.cascade().toUpperCase().indexOf(Default.CASCADE_CREATE)!=-1 && StringUtil.isEmpty(idStr)){
-            Class<?> clazz = FieldUtil.getRealType(field);
-            InternalDao dao = DaoCache.getInstance().get(clazz);
-            dao.insert(entity);
-        }
-        if(ref.cascade().toUpperCase().indexOf(Default.CASCADE_UPDATE)!=-1 && !StringUtil.isEmpty(idStr)){
+        if(ref.cascade().toUpperCase().indexOf(Default.CASCADE_CREATE)!=-1 || ref.cascade().toUpperCase().indexOf(Default.CASCADE_UPDATE)!=-1){
             Class<?> clazz = FieldUtil.getRealType(field);
             InternalDao dao = DaoCache.getInstance().get(clazz);
             dao.save(entity);
         }
-        return ReferenceUtil.toDbReference(ref, entity.getClass(), idStr);
+        return ReferenceUtil.toDbReference(ref, entity.getClass(), entity.getId());
     }
     
 }
