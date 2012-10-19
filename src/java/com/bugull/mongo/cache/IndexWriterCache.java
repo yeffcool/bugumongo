@@ -17,6 +17,7 @@ package com.bugull.mongo.cache;
 
 import com.bugull.mongo.lucene.BuguIndex;
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
@@ -65,7 +66,7 @@ public class IndexWriterCache {
                             conf.setRAMBufferSizeMB(bufferSizeMB);
                         }
                         writer = new IndexWriter(dir, conf);
-                    }catch(Exception ex){
+                    }catch(IOException ex){
                         logger.error("Something is wrong when create IndexWriter for " + name, ex);
                     }
                     cache.put(name, writer);
