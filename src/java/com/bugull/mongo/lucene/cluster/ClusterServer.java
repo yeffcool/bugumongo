@@ -52,7 +52,7 @@ public class ClusterServer implements Runnable {
     public void run() {
         try{
             init();
-        }catch(Exception ex){
+        }catch(IOException ex){
             logger.error("Error when init cluster server", ex);
         }
         loop();
@@ -136,7 +136,9 @@ public class ClusterServer implements Runnable {
                 HandleMessageTask task = new HandleMessageTask(message);
                 cluster.getExecutor().execute(task);
             }
-        }catch(Exception ex){
+        }catch(IOException ex){
+            logger.error("Error when handle read", ex);
+        }catch(ClassNotFoundException ex){
             logger.error("Error when handle read", ex);
         }finally{
             try{
