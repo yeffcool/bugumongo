@@ -53,28 +53,24 @@ public class AdvancedDao<T> extends BuguDao<T>{
     }
     
     public double max(String key, DBObject query){
-        if(this.count(query)==0){
+        if(!this.exists(query)){
             return 0;
         }
-        double max = 0.0;
-        if(this.exists(query)){
-            StringBuilder map = new StringBuilder("function(){emit('");
-            map.append(key);
-            map.append("', {'value':this.");
-            map.append(key);
-            map.append("});}");
-            String reduce = "function(key, values){var max=values[0].value; for(var i=1;i<values.length; i++){if(values[i].value>max){max=values[i].value;}} return {'value':max}}";
-            Iterable<DBObject> results = null;
-            try{
-                results = mapReduce(map.toString(), reduce, query);
-            }catch(MapReduceException ex){
-                logger.error(ex.getMessage(), ex);
-            }
-            DBObject result = results.iterator().next();
-            DBObject dbo = (DBObject)result.get("value");
-            max = Double.parseDouble(dbo.get("value").toString());
+        StringBuilder map = new StringBuilder("function(){emit('");
+        map.append(key);
+        map.append("', {'value':this.");
+        map.append(key);
+        map.append("});}");
+        String reduce = "function(key, values){var max=values[0].value; for(var i=1;i<values.length; i++){if(values[i].value>max){max=values[i].value;}} return {'value':max}}";
+        Iterable<DBObject> results = null;
+        try{
+            results = mapReduce(map.toString(), reduce, query);
+        }catch(MapReduceException ex){
+            logger.error(ex.getMessage(), ex);
         }
-        return max;
+        DBObject result = results.iterator().next();
+        DBObject dbo = (DBObject)result.get("value");
+        return Double.parseDouble(dbo.get("value").toString());
     }
     
     public double min(String key){
@@ -86,28 +82,24 @@ public class AdvancedDao<T> extends BuguDao<T>{
     }
     
     public double min(String key, DBObject query){
-        if(this.count(query)==0){
+        if(!this.exists(query)){
             return 0;
         }
-        double min = 0.0;
-        if(this.exists(query)){
-            StringBuilder map = new StringBuilder("function(){emit('");
-            map.append(key);
-            map.append("', {'value':this.");
-            map.append(key);
-            map.append("});}");
-            String reduce = "function(key, values){var min=values[0].value; for(var i=1;i<values.length; i++){if(values[i].value<min){min=values[i].value;}} return {'value':min}}";
-            Iterable<DBObject> results = null;
-            try{
-                results = mapReduce(map.toString(), reduce, query);
-            }catch(MapReduceException ex){
-                logger.error(ex.getMessage(), ex);
-            }
-            DBObject result = results.iterator().next();
-            DBObject dbo = (DBObject)result.get("value");
-            min = Double.parseDouble(dbo.get("value").toString());
+        StringBuilder map = new StringBuilder("function(){emit('");
+        map.append(key);
+        map.append("', {'value':this.");
+        map.append(key);
+        map.append("});}");
+        String reduce = "function(key, values){var min=values[0].value; for(var i=1;i<values.length; i++){if(values[i].value<min){min=values[i].value;}} return {'value':min}}";
+        Iterable<DBObject> results = null;
+        try{
+            results = mapReduce(map.toString(), reduce, query);
+        }catch(MapReduceException ex){
+            logger.error(ex.getMessage(), ex);
         }
-        return min;
+        DBObject result = results.iterator().next();
+        DBObject dbo = (DBObject)result.get("value");
+        return Double.parseDouble(dbo.get("value").toString());
     }
     
     public double sum(String key){
@@ -119,7 +111,7 @@ public class AdvancedDao<T> extends BuguDao<T>{
     }
     
     public double sum(String key, DBObject query){
-        if(this.count(query)==0){
+        if(!this.exists(query)){
             return 0;
         }
         StringBuilder map = new StringBuilder("function(){emit('");
