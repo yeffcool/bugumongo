@@ -16,14 +16,18 @@
 package com.bugull.mongo.lucene.backend;
 
 import com.bugull.mongo.cache.FieldsCache;
+import com.bugull.mongo.exception.FieldException;
 import com.bugull.mongo.lucene.annotations.*;
 import java.lang.reflect.Field;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class IndexChecker {
+    
+    private final static Logger logger = Logger.getLogger(IndexChecker.class);
     
     /**
      * Check a filed whether it has index annotation on it.
@@ -38,7 +42,12 @@ public class IndexChecker {
         if(index != -1){
             key = key.substring(0, index);
         }
-        Field field = FieldsCache.getInstance().getField(clazz, key);
+        Field field = null;
+        try{
+            field = FieldsCache.getInstance().getField(clazz, key);
+        }catch(FieldException ex){
+            logger.error(ex.getMessage(), ex);
+        }
         if(field.getAnnotation(IndexProperty.class)!=null
                 || field.getAnnotation(IndexEmbed.class)!=null
                 || field.getAnnotation(IndexEmbedList.class)!=null
