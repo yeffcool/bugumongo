@@ -75,7 +75,7 @@ public class IdEncoder extends AbstractEncoder{
                     InternalDao dao = DaoCache.getInstance().get(obj.getClass());
                     result = dao.getMaxId() + 1L;
                 }else{
-                    result = value.toString();
+                    result = Long.parseLong(value.toString());
                 }
                 break;
             case USER_DEFINE:
