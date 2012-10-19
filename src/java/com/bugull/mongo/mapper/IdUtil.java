@@ -33,11 +33,11 @@ public class IdUtil {
     /**
      * Convert the id string to object, which matching the id data in mongoDB.
      * @param clazz
-     * @param id
+     * @param idStr
      * @return 
      */
-    public static Object toDbId(Class<?> clazz, String id){
-        if(StringUtil.isEmpty(id)){
+    public static Object toDbId(Class<?> clazz, String idStr){
+        if(StringUtil.isEmpty(idStr)){
             return null;
         }
         Object result = null;
@@ -50,13 +50,13 @@ public class IdUtil {
         Id idAnnotation = idField.getAnnotation(Id.class);
         switch(idAnnotation.type()){
             case AUTO_GENERATE:
-                result = new ObjectId(id);
+                result = new ObjectId(idStr);
                 break;
             case AUTO_INCREASE:
-                result = Long.parseLong(id);
+                result = Long.parseLong(idStr);
                 break;
             case USER_DEFINE:
-                result = id;
+                result = idStr;
                 break;
         }
         return result;
