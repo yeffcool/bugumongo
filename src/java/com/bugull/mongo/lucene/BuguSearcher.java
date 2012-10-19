@@ -176,44 +176,10 @@ public class BuguSearcher<T> {
         //process highlighter
         if(highlighter != null){
             for(Object obj : list){
-                String[] fields = highlighter.getFields();
-                for(String fieldName : fields){
-                    if(! fieldName.contains(".")){
-                        Field field = null;
-                        try{
-                            field = FieldsCache.getInstance().getField(clazz, fieldName);
-                        }catch(FieldException ex){
-                            logger.error(ex.getMessage(), ex);
-                        }
-                        Object fieldValue = FieldUtil.get(obj, field);
-                        if(fieldValue != null){
-                            String result = null;
-                            try{
-                                result = highlighter.getResult(fieldName, fieldValue.toString());
-                            }catch(Exception ex){
-                                logger.error("Something is wrong when getting the highlighter result", ex);
-                            }
-                            if(!StringUtil.isEmpty(result)){
-                                FieldUtil.set(obj, field, result);
-                            }
-                        }
-                    }
-                }
+                highlightObject(obj);
             }
         }
         return list;
-    }
-    
-    public void close(){
-        try{
-            reader.decRef();
-        }catch(IOException ex){
-            logger.error("Something is wrong when decrease the reference of IndexReader", ex);
-        }
-    }
-    
-    public IndexSearcher getSearcher(){
-        return searcher;
     }
     
     private boolean needLazy(){
@@ -231,5 +197,43 @@ public class BuguSearcher<T> {
         }
         return lazy;
     }
-
+    
+    private void highlightObject(Object obj){
+        String[] fields = highlighter.getFields();
+        for(String fieldName : fields){
+            if(! fieldName.contains(".")){
+                Field field = null;
+                try{
+                    field = FieldsCache.getInstance().getField(clazz, fieldName);
+                }catch(FieldException ex){
+                    logger.error(ex.getMessage(), ex);
+                }
+                Object fieldValue = FieldUtil.get(obj, field);
+                if(fieldValue != null){
+                    String result = null;
+                    try{
+                        result = highlighter.getResult(fieldName, fieldValue.toString());
+                    }catch(Exception ex){
+                        logger.error("Something is wrong when getting the highlighter result", ex);
+                    }
+                    if(!StringUtil.isEmpty(result)){
+                        FieldUtil.set(obj, field, result);
+                    }
+                }
+            }
+        }
+    }
+    
+    public void close(){
+        try{
+            reader.decRef();
+        }catch(IOException ex){
+            logger.error("Something is wrong when decrease the reference of IndexReader", ex);
+        }
+    }
+    
+    public IndexSearcher getSearcher(){
+        return searcher;
+    }
+    
 }
