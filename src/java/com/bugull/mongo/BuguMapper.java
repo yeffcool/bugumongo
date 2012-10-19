@@ -20,6 +20,7 @@ import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
+import com.bugull.mongo.exception.DBConnectionException;
 import com.bugull.mongo.exception.FieldException;
 import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.FieldUtil;
@@ -27,8 +28,11 @@ import com.bugull.mongo.mapper.IdUtil;
 import com.bugull.mongo.mapper.InternalDao;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
+import com.bugull.mongo.mapper.StringUtil;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
 import com.mongodb.DBObject;
+import com.mongodb.DBRef;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -51,6 +55,51 @@ import org.apache.log4j.Logger;
 public class BuguMapper {
     
     private final static Logger logger = Logger.getLogger(BuguMapper.class);
+    
+    /**
+     * Convert BuguEntity to DBRef. Useful when operate on @Ref and @RefList field.
+     * <p>Please do not use this method anymore, it will be removed in next release.</p>
+     * @param obj
+     * @return 
+     */
+    @Deprecated
+    public static DBRef toDBRef(BuguEntity obj){
+        String idStr = obj.getId();
+        if(StringUtil.isEmpty(idStr)){
+            return null;
+        }
+        DB db = null;
+        try {
+            db = BuguConnection.getInstance().getDB();
+        } catch (DBConnectionException ex) {
+            logger.error(ex.getMessage(), ex);
+        }
+        Class<?> clazz = obj.getClass();
+        String name = MapperUtil.getEntityName(clazz);
+        return new DBRef(db, name, IdUtil.toDbId(clazz, idStr));
+    }
+    
+    /**
+     * Create a DBRef for a type of entity, with id string. Useful when operate on @Ref and @RefList field.
+     * <p>Please do not use this method anymore, it will be removed in next release.</p>
+     * @param clazz
+     * @param idStr
+     * @return 
+     */
+    @Deprecated
+    public static DBRef toDBRef(Class<?> clazz, String idStr){
+        if(StringUtil.isEmpty(idStr)){
+            return null;
+        }
+        DB db = null;
+        try {
+            db = BuguConnection.getInstance().getDB();
+        } catch (DBConnectionException ex) {
+            logger.error(ex.getMessage(), ex);
+        }
+        String name = MapperUtil.getEntityName(clazz);
+        return new DBRef(db, name, IdUtil.toDbId(clazz, idStr));
+    }
     
     /**
      * Fetch out the lazy @Property, @Embed, @EmbedList field of a list
