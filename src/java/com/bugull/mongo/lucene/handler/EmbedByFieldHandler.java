@@ -15,7 +15,7 @@
 
 package com.bugull.mongo.lucene.handler;
 
-import com.bugull.mongo.lucene.annotations.IndexRefBy;
+import com.bugull.mongo.lucene.annotations.IndexEmbedBy;
 import java.lang.reflect.Field;
 import java.util.List;
 import org.apache.lucene.document.Document;
@@ -24,34 +24,34 @@ import org.apache.lucene.document.Document;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class RefByFieldHandler extends ByFieldHandler{
+public class EmbedByFieldHandler extends ByFieldHandler {
     
-    private Class<?> refBy;
+    private Class<?> embedBy;
     
-    public RefByFieldHandler(Class<?> refBy, Object obj, Field field, String prefix){
+    public EmbedByFieldHandler(Class<?> embedBy, Object obj, Field field, String prefix){
         super(obj, field, prefix);
-        this.refBy = refBy;
+        this.embedBy = embedBy;
     }
 
     @Override
     public void handle(Document doc){
-        IndexRefBy irb = field.getAnnotation(IndexRefBy.class);
-        Class<?>[] cls = irb.value();
+        IndexEmbedBy ieb = field.getAnnotation(IndexEmbedBy.class);
+        Class<?>[] cls = ieb.value();
         int len = cls.length;
         for(int i=0; i<len; i++){
-            if(cls[i].equals(refBy)){
+            if(cls[i].equals(embedBy)){
                 boolean analyze = false;
-                boolean[] as = irb.analyze();
+                boolean[] as = ieb.analyze();
                 if(as.length > 0){
                     analyze = as[i];
                 }
                 boolean store = false;
-                boolean[] ss = irb.store();
+                boolean[] ss = ieb.store();
                 if(ss.length > 0){
                     store = ss[i];
                 }
                 float boost = 1.0f;
-                float[] bs = irb.boost();
+                float[] bs = ieb.boost();
                 if(bs.length > 0){
                     boost = bs[i];
                 }
@@ -64,5 +64,5 @@ public class RefByFieldHandler extends ByFieldHandler{
             }
         }
     }
-    
+
 }

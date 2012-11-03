@@ -22,10 +22,13 @@ import java.lang.annotation.Target;
 
 /**
  *
- * @author Frank Wen (xbwen@hotmail.com)
+ * @author Frank Wen(xbwen@hotmail.com)
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface IndexRefList {
-    
+public @interface IndexEmbedBy {
+    public Class<?>[] value();
+    public boolean[] analyze() default {};
+    public boolean[] store() default {};
+    public float[] boost() default {};
 }

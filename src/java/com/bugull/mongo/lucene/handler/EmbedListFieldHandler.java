@@ -16,7 +16,7 @@
 package com.bugull.mongo.lucene.handler;
 
 import com.bugull.mongo.cache.FieldsCache;
-import com.bugull.mongo.lucene.annotations.IndexProperty;
+import com.bugull.mongo.lucene.annotations.IndexEmbedBy;
 import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.FieldUtil;
 import java.lang.reflect.Array;
@@ -82,9 +82,9 @@ public class EmbedListFieldHandler extends AbstractFieldHandler{
         if(list!=null && list.size()>0){
             Field[] fields = FieldsCache.getInstance().get(clazz);
             for(Field f : fields){
-                IndexProperty ip = f.getAnnotation(IndexProperty.class);
-                if(ip != null){
-                    FieldHandler handler = new ListPropertyFieldHandler(list, f, prefix);
+                IndexEmbedBy ieb = f.getAnnotation(IndexEmbedBy.class);
+                if(ieb != null){
+                    FieldHandler handler = new EmbedByFieldHandler(obj.getClass(), list, f, prefix);
                     handler.handle(doc);
                 }
             }

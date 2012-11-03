@@ -15,7 +15,8 @@
 
 package com.bugull.mongo.lucene.handler;
 
-import com.bugull.mongo.lucene.backend.IndexCreator;
+import com.bugull.mongo.cache.FieldsCache;
+import com.bugull.mongo.lucene.annotations.IndexEmbedBy;
 import com.bugull.mongo.mapper.FieldUtil;
 import java.lang.reflect.Field;
 import org.apache.lucene.document.Document;
@@ -33,9 +34,17 @@ public class EmbedFieldHandler extends AbstractFieldHandler{
     @Override
     public void handle(Document doc){
         Object embedObj = FieldUtil.get(obj, field);
-        if(embedObj != null){
-            IndexCreator creator = new IndexCreator(embedObj, prefix);
-            creator.create(doc);
+        if(embedObj == null){
+            return;
+        }
+        Class<?> clazz = FieldUtil.getRealType(field);
+        Field[] fields = FieldsCache.getInstance().get(clazz);
+        for(Field f : fields){
+            IndexEmbedBy ieb = f.getAnnotation(IndexEmbedBy.class);
+            if(ieb != null){
+                FieldHandler handler = new EmbedByFieldHandler(obj.getClass(), embedObj, f, prefix);
+                handler.handle(doc);
+            }
         }
     }
     
