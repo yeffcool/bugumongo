@@ -21,6 +21,9 @@ import com.bugull.mongo.mapper.FieldUtil;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
@@ -117,6 +120,17 @@ public class PropertyFieldHandler extends AbstractFieldHandler{
             StringBuilder sb = new StringBuilder();
             for(Object o : coll){
                 sb.append(o).append(JOIN);
+            }
+            f = new Field(fieldName, sb.toString(),
+                    store ? Field.Store.YES : Field.Store.NO,
+                    analyze ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
+        }
+        else if(DataType.isMap(type)){
+            Map map = (Map)objValue;
+            StringBuilder sb = new StringBuilder();
+            Set<Entry> set = map.entrySet();
+            for(Entry entry : set){
+                sb.append(entry.getValue()).append(JOIN);
             }
             f = new Field(fieldName, sb.toString(),
                     store ? Field.Store.YES : Field.Store.NO,

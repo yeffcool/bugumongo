@@ -222,7 +222,7 @@ public class PropertyDecoder extends AbstractDecoder{
             field.set(obj, ts);
         }
         else{
-            field.set(obj, value);  //Date, List, Integer, Long, Float, Double and so on
+            field.set(obj, value);  //List, Map, Date, Integer, Long, Float, Double and so on
         }
     }
     
