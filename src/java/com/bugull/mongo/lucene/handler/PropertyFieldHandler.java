@@ -33,6 +33,7 @@ import org.apache.lucene.document.NumericField;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
+@SuppressWarnings("unchecked")
 public class PropertyFieldHandler extends AbstractFieldHandler{
         
     public PropertyFieldHandler(Object obj, java.lang.reflect.Field field, String prefix){

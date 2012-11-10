@@ -35,7 +35,6 @@ import org.apache.log4j.Logger;
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
-@SuppressWarnings("unchecked")
 public class AdvancedDao<T> extends BuguDao<T>{
     
     private final static Logger logger = Logger.getLogger(AdvancedDao.class);
