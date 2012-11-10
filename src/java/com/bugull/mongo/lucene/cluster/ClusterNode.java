@@ -22,7 +22,7 @@ import java.nio.channels.SocketChannel;
 import org.apache.log4j.Logger;
 
 /**
- * Presents a node in clustering environment.
+ * Presents a lucene node in clustering environment.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */

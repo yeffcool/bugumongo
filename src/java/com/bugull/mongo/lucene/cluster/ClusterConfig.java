@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Configure the clustering environment.
+ * Configure the lucene clustering environment.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
@@ -74,7 +74,7 @@ public class ClusterConfig {
     }
 
     /**
-     * send a message to all the brother nodes.
+     * Send a message to all the clustering nodes.
      * @param message 
      */
     public synchronized void sendMessage(ClusterMessage message) {
@@ -135,6 +135,10 @@ public class ClusterConfig {
         }
     }
     
+    /**
+     * Check if the current server is a lucene clustering node.
+     * @return 
+     */
     public boolean isSelfNode(){
         return selfNode;
     }

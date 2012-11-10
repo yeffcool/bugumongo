@@ -16,7 +16,7 @@
 package com.bugull.mongo.lucene.cluster;
 
 /**
- * Send message to a brother node.
+ * Send message to a lucene cluster node.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
