@@ -92,7 +92,6 @@ public class RefEntityChangedListener {
                 }
             }
         }
-        
         if(match){
             InternalDao dao = DaoCache.getInstance().get(cls);
             Object refObj = ReferenceUtil.toDbReference(cls, fieldName, refClass, id);

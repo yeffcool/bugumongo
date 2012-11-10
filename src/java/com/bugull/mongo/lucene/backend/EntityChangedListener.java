@@ -69,8 +69,10 @@ public class EntityChangedListener {
         IndexFilterChecker checker = new IndexFilterChecker(obj);
         if(checker.needIndex()){
             //insert to local index
-            IndexInsertTask task = new IndexInsertTask(obj);
-            BuguIndex.getInstance().getExecutor().execute(task);
+            if(cluster == null || cluster.isSelfNode()){
+                IndexInsertTask task = new IndexInsertTask(obj);
+                BuguIndex.getInstance().getExecutor().execute(task);
+            }
             //insert to remote cluster index
             if(cluster != null){
                 EntityMessage message = MessageFactory.createInsertMessage(obj);
@@ -79,58 +81,59 @@ public class EntityChangedListener {
         }
     }
     
-    public void entityUpdate(BuguEntity obj){
-        IndexFilterChecker checker = new IndexFilterChecker(obj);
+    public void entityUpdate(BuguEntity ent){
+        IndexFilterChecker checker = new IndexFilterChecker(ent);
         if(checker.needIndex()){
             //update local index
-            IndexUpdateTask task = new IndexUpdateTask(obj);
-            BuguIndex.getInstance().getExecutor().execute(task);
+            if(cluster == null || cluster.isSelfNode()){
+                IndexUpdateTask task = new IndexUpdateTask(ent);
+                BuguIndex.getInstance().getExecutor().execute(task);
+            }
             //update remote cluster index
             if(cluster != null){
-                EntityMessage message = MessageFactory.createUpdateMessage(obj);
+                EntityMessage message = MessageFactory.createUpdateMessage(ent);
                 cluster.sendMessage(message);
             }
         }
         else{
-            //remove from local index
-            IndexRemoveTask task = new IndexRemoveTask(clazz, obj.getId());
-            BuguIndex.getInstance().getExecutor().execute(task);
-            //remove from remote cluster index
-            if(cluster != null){
-                ClassIdMessage message = MessageFactory.createRemoveMessage(clazz, obj.getId());
-                cluster.sendMessage(message);
-            }
+            processRemove(ent.getId());
         }
         //for @IndexRefBy
         if(refListener != null && !onlyIdRefBy){
-            //update local index
-            refListener.entityChange(clazz, obj.getId());
-            //update remote cluster index
-            if(cluster != null){
-                ClassIdMessage message = MessageFactory.createRefByMessage(clazz, obj.getId());
-                cluster.sendMessage(message);
-            }
+            processRefBy(ent.getId());
         }
     }
     
     public void entityRemove(String id){
+        processRemove(id);
+        //for @IndexRefBy
+        if(refListener != null){
+            processRefBy(id);
+        }
+    }
+    
+    private void processRemove(String id){
         //remove from local index
-        IndexRemoveTask task = new IndexRemoveTask(clazz, id);
-        BuguIndex.getInstance().getExecutor().execute(task);
+        if(cluster == null || cluster.isSelfNode()){
+            IndexRemoveTask task = new IndexRemoveTask(clazz, id);
+            BuguIndex.getInstance().getExecutor().execute(task);
+        }
         //remove from remote cluster index
         if(cluster != null){
             ClassIdMessage message = MessageFactory.createRemoveMessage(clazz, id);
             cluster.sendMessage(message);
         }
-        //for @IndexRefBy
-        if(refListener != null){
-            //update local index
+    }
+    
+    private void processRefBy(String id){
+        //update local index
+        if(cluster == null || cluster.isSelfNode()){
             refListener.entityChange(clazz, id);
-            //update remote cluster index
-            if(cluster != null){
-                ClassIdMessage message = MessageFactory.createRefByMessage(clazz, id);
-                cluster.sendMessage(message);
-            }
+        }
+        //update remote cluster index
+        if(cluster != null){
+            ClassIdMessage message = MessageFactory.createRefByMessage(clazz, id);
+            cluster.sendMessage(message);
         }
     }
 

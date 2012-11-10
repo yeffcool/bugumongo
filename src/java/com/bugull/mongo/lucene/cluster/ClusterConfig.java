@@ -31,6 +31,7 @@ public class ClusterConfig {
     private final static int DEFAULT_PORT = 9200;
     private int serverPort = DEFAULT_PORT;
     
+    private boolean selfNode;
     private List<String> localAddresses;
     private Map<String, ClusterNode> clusterNodes;
     
@@ -62,7 +63,11 @@ public class ClusterConfig {
     }
     
     public void addNode(String host, int port){
-        if(! localAddresses.contains(host)){
+        if(localAddresses.contains(host)){
+            selfNode = true;
+        }
+        else{
+            selfNode = false;
             ClusterNode node = new ClusterNode(host, port);
             clusterNodes.put(host, node);
         }
@@ -128,6 +133,10 @@ public class ClusterConfig {
         if(serverExecutor != null){
             serverExecutor.shutdown();
         }
+    }
+    
+    public boolean isSelfNode(){
+        return selfNode;
     }
 
 }
