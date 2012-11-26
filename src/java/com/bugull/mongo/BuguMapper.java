@@ -58,11 +58,9 @@ public class BuguMapper {
     
     /**
      * Convert BuguEntity to DBRef. Useful when operate on @Ref and @RefList field.
-     * <p>Please do not use this method anymore, it will be removed in next release.</p>
      * @param obj
      * @return 
      */
-    @Deprecated
     public static DBRef toDBRef(BuguEntity obj){
         String idStr = obj.getId();
         if(StringUtil.isEmpty(idStr)){
@@ -81,12 +79,10 @@ public class BuguMapper {
     
     /**
      * Create a DBRef for a type of entity, with id string. Useful when operate on @Ref and @RefList field.
-     * <p>Please do not use this method anymore, it will be removed in next release.</p>
      * @param clazz
      * @param idStr
      * @return 
      */
-    @Deprecated
     public static DBRef toDBRef(Class<?> clazz, String idStr){
         if(StringUtil.isEmpty(idStr)){
             return null;
