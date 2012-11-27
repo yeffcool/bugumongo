@@ -18,6 +18,7 @@ package com.bugull.mongo.lucene.backend;
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.IndexWriterCache;
+import com.bugull.mongo.lucene.BuguIndex;
 import com.bugull.mongo.mapper.InternalDao;
 import com.bugull.mongo.mapper.MapperUtil;
 import java.io.IOException;
@@ -49,6 +50,12 @@ public class IndexRebuildTask implements Runnable{
 
     @Override
     public void run() {
+        BuguIndex index = BuguIndex.getInstance();
+        if(index.isRebuilding()){
+            logger.error("Another rebuilding task is running");
+            return;
+        }
+        index.setRebuilding(true);
         logger.info("Index rebuilding start...");
         try{
             writer.deleteAll();
@@ -70,7 +77,8 @@ public class IndexRebuildTask implements Runnable{
             List list = dao.findForLucene(++pages, remainder);
             process(list);
         }
-        logger.info("Index rebuilding finish!!!");
+        index.setRebuilding(false);
+        logger.info("Index rebuilding finish.");
     }
     
     private void process(List list){

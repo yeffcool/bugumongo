@@ -58,6 +58,7 @@ public class BuguIndex {
     private long period = 30L * 1000L;  //in default, reopen index per 30 seconds
     
     private boolean reopening = false;
+    private boolean rebuilding = false;
     
     private BuguIndex(){
         
@@ -163,6 +164,14 @@ public class BuguIndex {
 
     public void setReopening(boolean reopening) {
         this.reopening = reopening;
+    }
+
+    public boolean isRebuilding() {
+        return rebuilding;
+    }
+
+    public void setRebuilding(boolean rebuilding) {
+        this.rebuilding = rebuilding;
     }
 
     public ClusterConfig getClusterConfig() {
