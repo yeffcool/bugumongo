@@ -74,7 +74,7 @@ public class IndexRebuildTask implements Runnable{
         }
         //process the remainder
         if(remainder > 0){
-            List list = dao.findForLucene(++pages, remainder);
+            List list = dao.findForLucene(++pages, batchSize);
             process(list);
         }
         index.setRebuilding(false);
