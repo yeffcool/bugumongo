@@ -182,52 +182,48 @@ public class AdvancedDao<T> extends BuguDao<T>{
         return mapReduce(map, reduce, outputTarget, outputType, orderBy, query.getCondition());
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, DBObject query) throws MapReduceException {
-        synchronized(outputTarget){
-            MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
-            CommandResult cr = output.getCommandResult();
-            if(! cr.ok()){
-                throw new MapReduceException(cr.getErrorMessage());
-            }
-            DBCollection c = output.getOutputCollection();
-            DBCursor cursor = null;
-            if(orderBy != null){
-                cursor = c.find().sort(MapperUtil.getSort(orderBy));
-            }else{
-                cursor = c.find();
-            }
-            List<DBObject> list = new ArrayList<DBObject>();
-            for(Iterator<DBObject> it = cursor.iterator(); it.hasNext(); ){
-                list.add(it.next());
-            }
-            return list;
+    public synchronized Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, DBObject query) throws MapReduceException {
+        MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
+        CommandResult cr = output.getCommandResult();
+        if(! cr.ok()){
+            throw new MapReduceException(cr.getErrorMessage());
         }
+        DBCollection c = output.getOutputCollection();
+        DBCursor cursor = null;
+        if(orderBy != null){
+            cursor = c.find().sort(MapperUtil.getSort(orderBy));
+        }else{
+            cursor = c.find();
+        }
+        List<DBObject> list = new ArrayList<DBObject>();
+        for(Iterator<DBObject> it = cursor.iterator(); it.hasNext(); ){
+            list.add(it.next());
+        }
+        return list;
     }
     
     public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, int pageNum, int pageSize, BuguQuery query) throws MapReduceException {
         return mapReduce(map, reduce, outputTarget, outputType, orderBy, pageNum, pageSize, query.getCondition());
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, int pageNum, int pageSize, DBObject query) throws MapReduceException {
-        synchronized(outputTarget){
-            MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
-            CommandResult cr = output.getCommandResult();
-            if(! cr.ok()){
-                throw new MapReduceException(cr.getErrorMessage());
-            }
-            DBCollection c = output.getOutputCollection();
-            DBCursor cursor = null;
-            if(orderBy != null){
-                cursor = c.find().sort(MapperUtil.getSort(orderBy)).skip((pageNum-1)*pageSize).limit(pageSize);
-            }else{
-                cursor = c.find().skip((pageNum-1)*pageSize).limit(pageSize);
-            }
-            List<DBObject> list = new ArrayList<DBObject>();
-            for(Iterator<DBObject> it = cursor.iterator(); it.hasNext(); ){
-                list.add(it.next());
-            }
-            return list;
+    public synchronized Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, int pageNum, int pageSize, DBObject query) throws MapReduceException {
+        MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
+        CommandResult cr = output.getCommandResult();
+        if(! cr.ok()){
+            throw new MapReduceException(cr.getErrorMessage());
         }
+        DBCollection c = output.getOutputCollection();
+        DBCursor cursor = null;
+        if(orderBy != null){
+            cursor = c.find().sort(MapperUtil.getSort(orderBy)).skip((pageNum-1)*pageSize).limit(pageSize);
+        }else{
+            cursor = c.find().skip((pageNum-1)*pageSize).limit(pageSize);
+        }
+        List<DBObject> list = new ArrayList<DBObject>();
+        for(Iterator<DBObject> it = cursor.iterator(); it.hasNext(); ){
+            list.add(it.next());
+        }
+        return list;
     }
     
     /**
