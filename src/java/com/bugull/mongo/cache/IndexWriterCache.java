@@ -16,6 +16,8 @@
 package com.bugull.mongo.cache;
 
 import com.bugull.mongo.lucene.BuguIndex;
+import com.bugull.mongo.lucene.directory.DirectoryType;
+import com.bugull.mongo.lucene.directory.MongoDirectory;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -57,15 +59,19 @@ public class IndexWriterCache {
                     writer = cache.get(name);
                 }else{
                     BuguIndex index = BuguIndex.getInstance();
-                    String path = index.getDirectoryPath();
+                    IndexWriterConfig conf = new IndexWriterConfig(index.getVersion(), index.getAnalyzer());
+                    double bufferSizeMB = index.getBufferSizeMB();
+                    conf.setRAMBufferSizeMB(bufferSizeMB);
+                    Directory directory = null;
+                    DirectoryType type = index.getDirectoryType();
                     try{
-                        Directory dir = FSDirectory.open(new File(path + "/" + name));
-                        IndexWriterConfig conf = new IndexWriterConfig(index.getVersion(), index.getAnalyzer());
-                        double bufferSizeMB = index.getBufferSizeMB();
-                        if(bufferSizeMB > 0.0){
-                            conf.setRAMBufferSizeMB(bufferSizeMB);
+                        if(type == DirectoryType.FS){
+                            String path = index.getDirectoryPath();
+                            directory = FSDirectory.open(new File(path + "/" + name));
+                        }else if(type == DirectoryType.MONGO){
+                            directory = new MongoDirectory(name);
                         }
-                        writer = new IndexWriter(dir, conf);
+                        writer = new IndexWriter(directory, conf);
                     }catch(IOException ex){
                         logger.error("Something is wrong when create IndexWriter for " + name, ex);
                     }

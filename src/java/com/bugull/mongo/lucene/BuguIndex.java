@@ -18,6 +18,7 @@ package com.bugull.mongo.lucene;
 import com.bugull.mongo.cache.IndexWriterCache;
 import com.bugull.mongo.lucene.backend.IndexReopenTask;
 import com.bugull.mongo.lucene.cluster.ClusterConfig;
+import com.bugull.mongo.lucene.directory.DirectoryType;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -45,9 +46,11 @@ public class BuguIndex {
     
     private static BuguIndex instance;
     
-    private double bufferSizeMB = 0.0;
+    private double bufferSizeMB = 16;
     private Version version = Version.LUCENE_35;
     private Analyzer analyzer = new StandardAnalyzer(version);
+    
+    private DirectoryType directoryType = DirectoryType.FS;
     private String directoryPath;
     private ClusterConfig clusterConfig;  //used in clustering environment
     
@@ -180,6 +183,14 @@ public class BuguIndex {
 
     public void setClusterConfig(ClusterConfig clusterConfig) {
         this.clusterConfig = clusterConfig;
+    }
+
+    public DirectoryType getDirectoryType() {
+        return directoryType;
+    }
+
+    public void setDirectoryType(DirectoryType directoryType) {
+        this.directoryType = directoryType;
     }
     
 }
