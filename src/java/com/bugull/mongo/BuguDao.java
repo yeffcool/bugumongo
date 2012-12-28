@@ -118,15 +118,15 @@ public class BuguDao<T> {
      * Insert a list of entity to mongoDB.
      * @param list 
      */
-    public void insert(List<BuguEntity> list){
+    public void insert(List<T> list){
         if(luceneListener != null){
-            for(BuguEntity obj : list){
-                insert(obj);
+            for(T o : list){
+                insert((BuguEntity)o);
             }
         }else{
             List<DBObject> dboList = new ArrayList<DBObject>();
-            for(BuguEntity obj : list){
-                dboList.add(MapperUtil.toDBObject(obj));
+            for(T o : list){
+                dboList.add(MapperUtil.toDBObject(o));
             }
             coll.insert(dboList);
         }
