@@ -73,7 +73,12 @@ public class IdEncoder extends AbstractEncoder{
             case AUTO_INCREASE:
                 if(value == null){
                     InternalDao dao = DaoCache.getInstance().get(obj.getClass());
-                    result = dao.getMaxId() + 1L;
+                    long max = dao.getMaxId();
+                    if(max == 0){
+                        result = id.start();
+                    }else{
+                        result = max + 1L;
+                    }
                 }else{
                     result = Long.parseLong(value.toString());
                 }

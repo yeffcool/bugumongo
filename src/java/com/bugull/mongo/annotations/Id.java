@@ -28,4 +28,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Id {
     public IdType type() default IdType.AUTO_GENERATE;
+    public long start() default 1L;
 }
