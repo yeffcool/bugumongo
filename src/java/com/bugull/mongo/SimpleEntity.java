@@ -17,14 +17,13 @@ package com.bugull.mongo;
 
 import com.bugull.mongo.annotations.Id;
 import com.bugull.mongo.mapper.StringUtil;
-import java.util.Date;
 import org.bson.types.ObjectId;
 
 /**
  * A simple implementation of BuguEntity. 
  * SimpleEntity is convenient for use: <br/>
  * 1. It contains the id field, and getId(), setId() method.<br/>
- * 2. It contains getCreateTime() method, telling when the document is inserted into mongoDB.<br/>
+ * 2. It contains getTimestamp() method, telling when the document is inserted into mongoDB.<br/>
  * 3. It implements equals(), hashCode(), and toString() method. <br/>
  * 
  * @author Frank Wen(xbwen@hotmail.com)
@@ -45,15 +44,15 @@ public abstract class SimpleEntity implements BuguEntity {
     }
     
     /**
-     * Get the time when the document is created.
+     * Get the time when the document is created, in milliseconds.
      * @return 
      */
-    public Date getCreateTime() {
+    public long getTimestamp() {
         if(StringUtil.isEmpty(id)){
-            return null;
+            return 0;
         }
         ObjectId oid = new ObjectId(id);
-        return new Date(oid.getTime());
+        return oid.getTime();
     }
     
     @Override

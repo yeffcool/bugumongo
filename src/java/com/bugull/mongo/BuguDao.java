@@ -102,15 +102,16 @@ public class BuguDao<T> {
     
     /**
      * Insert an entity to mongoDB.
-     * @param obj 
+     * @param t 
      */
-    public void insert(BuguEntity obj){
-        DBObject dbo = MapperUtil.toDBObject(obj);
+    public void insert(T t){
+        DBObject dbo = MapperUtil.toDBObject(t);
         coll.insert(dbo);
         String id = dbo.get(Operator.ID).toString();
-        obj.setId(id);
+        BuguEntity ent = (BuguEntity)t;
+        ent.setId(id);
         if(luceneListener != null){
-            luceneListener.entityInsert(obj);
+            luceneListener.entityInsert(ent);
         }
     }
     
@@ -120,13 +121,13 @@ public class BuguDao<T> {
      */
     public void insert(List<T> list){
         if(luceneListener != null){
-            for(T o : list){
-                insert((BuguEntity)o);
+            for(T t : list){
+                insert(t);
             }
         }else{
             List<DBObject> dboList = new ArrayList<DBObject>();
-            for(T o : list){
-                dboList.add(MapperUtil.toDBObject(o));
+            for(T t : list){
+                dboList.add(MapperUtil.toDBObject(t));
             }
             coll.insert(dboList);
         }
@@ -136,11 +137,12 @@ public class BuguDao<T> {
      * Save an entity to mongoDB. 
      * If no id in it, then insert the entity.
      * Else, check the id type, to confirm do save or insert.
-     * @param obj 
+     * @param t 
      */
-    public void save(BuguEntity ent){
+    public void save(T t){
+        BuguEntity ent = (BuguEntity)t;
         if(StringUtil.isEmpty(ent.getId())){
-            insert(ent);
+            insert(t);
         }
         else{
             Field idField = null;
@@ -154,7 +156,7 @@ public class BuguDao<T> {
                 if(this.exists(Operator.ID, ent.getId())){
                     doSave(ent);
                 }else{
-                    insert(ent);
+                    insert(t);
                 }
             }
             else{
@@ -176,10 +178,9 @@ public class BuguDao<T> {
      */
     public void drop(){
         if(luceneListener != null || cascadeListener.hasCascade()){
-            List list = findAll();
-            for(Object o : list){
-                BuguEntity entity = (BuguEntity)o;
-                remove(entity);
+            List<T> list = findAll();
+            for(T t : list){
+                remove(t);
             }
         }
         coll.drop();
@@ -188,9 +189,10 @@ public class BuguDao<T> {
     
     /**
      * Remove an entity has id value in it.
-     * @param ent 
+     * @param t 
      */
-    public void remove(BuguEntity ent){
+    public void remove(T t){
+        BuguEntity ent = (BuguEntity)t;
         remove(ent.getId());
     }
 
@@ -279,21 +281,23 @@ public class BuguDao<T> {
     
     /**
      * Update an entity, with new key/value pairs.
-     * @param obj the entity needs to be updated
+     * @param t the entity needs to be updated
      * @param values the new key/value pairs
      */
-    public void set(BuguEntity obj, Map values){
+    public void set(T t, Map values){
         DBObject dbo = new BasicDBObject(values);
-        update(obj.getId(), new BasicDBObject(Operator.SET, dbo));
+        BuguEntity ent = (BuguEntity)t;
+        update(ent.getId(), new BasicDBObject(Operator.SET, dbo));
     }
     
     /**
      * Update an entity, with new key/value pairs.
-     * @param obj the entity needs to be updated
+     * @param t the entity needs to be updated
      * @param dbo the new key/value pairs.
      */
-    public void set(BuguEntity obj, DBObject dbo){
-        update(obj.getId(), new BasicDBObject(Operator.SET, dbo));
+    public void set(T t, DBObject dbo){
+        BuguEntity ent = (BuguEntity)t;
+        update(ent.getId(), new BasicDBObject(Operator.SET, dbo));
     }
     
     /**
@@ -345,12 +349,13 @@ public class BuguDao<T> {
     
     /**
      * Update a field's value of an entity.
-     * @param obj the entity needs to update
+     * @param t the entity needs to update
      * @param key the field's name
      * @param value the field's new value
      */
-    public void set(BuguEntity obj, String key, Object value){
-        set(obj.getId(), key, value);
+    public void set(T t, String key, Object value){
+        BuguEntity ent = (BuguEntity)t;
+        set(ent.getId(), key, value);
     }
     
     /**
@@ -371,11 +376,12 @@ public class BuguDao<T> {
     
     /**
      * Remove a filed(column) of an entity.
-     * @param entity the entity to operate
+     * @param t the entity to operate
      * @param key the field's name
      */
-    public void unset(BuguEntity entity, String key){
-        unset(entity.getId(), key);
+    public void unset(T t, String key){
+        BuguEntity ent = (BuguEntity)t;
+        unset(ent.getId(), key);
     }
     
     /**
@@ -425,12 +431,13 @@ public class BuguDao<T> {
     
     /**
      * Increase a numeric field of an entity.
-     * @param obj the entity needs to update
+     * @param t the entity needs to update
      * @param key the field's name
      * @param value the numeric value to be added. It can be positive or negative integer, long, float, double
      */
-    public void inc(BuguEntity obj, String key, Object value){
-        inc(obj.getId(), key, value);
+    public void inc(T t, String key, Object value){
+        BuguEntity ent = (BuguEntity)t;
+        inc(ent.getId(), key, value);
     }
     
     /**
@@ -482,12 +489,13 @@ public class BuguDao<T> {
     
     /**
      * Add an element to an entity's array/list/set field.
-     * @param obj the entity needs to update
+     * @param t the entity needs to update
      * @param key the field's name
      * @param value the element to be added
      */
-    public void push(BuguEntity obj, String key, Object value){
-        push(obj.getId(), key, value);
+    public void push(T t, String key, Object value){
+        BuguEntity ent = (BuguEntity)t;
+        push(ent.getId(), key, value);
     }
     
     /**
@@ -508,12 +516,13 @@ public class BuguDao<T> {
     
     /**
      * Remove an element of an entity's array/list/set field.
-     * @param obj the entity needs to update
+     * @param t the entity needs to update
      * @param key the field's name
      * @param value the element to be removed
      */
-    public void pull(BuguEntity obj, String key, Object value){
-        pull(obj.getId(), key, value);
+    public void pull(T t, String key, Object value){
+        BuguEntity ent = (BuguEntity)t;
+        pull(ent.getId(), key, value);
     }
     
     /**

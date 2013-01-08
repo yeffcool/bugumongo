@@ -19,7 +19,8 @@ import java.io.*;
 import java.nio.ByteBuffer;
 
 /**
- *
+ * Convert between Java Object and ByteBuffer.
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class BufferUtil {

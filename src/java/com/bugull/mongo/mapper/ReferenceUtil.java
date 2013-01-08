@@ -42,7 +42,7 @@ public class ReferenceUtil {
             return null;
         }
         Object result = null;
-        if(ref.manual()){
+        if(ref.reduced()){
             result = toManualRef(clazz, idStr);
         }else{
             result = toDBRef(clazz, idStr);
@@ -55,7 +55,7 @@ public class ReferenceUtil {
             return null;
         }
         Object result = null;
-        if(refList.manual()){
+        if(refList.reduced()){
             result = toManualRef(clazz, idStr);
         }else{
             result = toDBRef(clazz, idStr);
@@ -100,7 +100,7 @@ public class ReferenceUtil {
     
     public static String fromDbReference(Ref ref, Object value){
         String result = null;
-        if(ref.manual()){
+        if(ref.reduced()){
             result = value.toString();
         }else{
             DBRef dbRef = (DBRef)value;
@@ -111,7 +111,7 @@ public class ReferenceUtil {
     
     public static String fromDbReference(RefList refList, Object value){
         String result = null;
-        if(refList.manual()){
+        if(refList.reduced()){
             result = value.toString();
         }else{
             DBRef dbRef = (DBRef)value;

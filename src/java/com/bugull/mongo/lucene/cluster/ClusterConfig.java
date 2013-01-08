@@ -42,7 +42,7 @@ public class ClusterConfig {
     private ClusterServer server;
     
     private int bufferSize = 1024;  //1K
-    private int maxEntitySize = 4*1024*1024;  //4M
+    private int maxEntitySize = 1*1024*1024;  //1M
     
     public ClusterConfig(){
         clusterNodes = new ConcurrentHashMap<String, ClusterNode>();

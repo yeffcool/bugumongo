@@ -30,5 +30,5 @@ public @interface RefList {
     public String name() default Default.NAME;
     public String cascade() default Default.CASCADE;
     public String sort() default Default.SORT;
-    public boolean manual() default false;
+    public boolean reduced() default false;
 }

@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
  * A server accept socket request from brother nodes in clustering environment.
  * <p>
  * The server is written in NIO. Data is received via ByteBuffer with small size(default 1k). 
- * All the small buffers totally combine a large buffer(default 4M), 
+ * All the small buffers totally combine a large buffer(default 1M), 
  * then deserialized to a ClusterMessage object.
  * </p>
  * 
