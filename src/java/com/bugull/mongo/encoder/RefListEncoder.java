@@ -23,7 +23,6 @@ import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.InternalDao;
 import com.bugull.mongo.mapper.ReferenceUtil;
-import com.bugull.mongo.mapper.StringUtil;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;

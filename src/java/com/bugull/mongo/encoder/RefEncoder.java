@@ -28,6 +28,7 @@ import java.lang.reflect.Field;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
+@SuppressWarnings("unchecked")
 public class RefEncoder extends AbstractEncoder{
     
     private Ref ref;
