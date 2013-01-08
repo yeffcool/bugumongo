@@ -18,8 +18,8 @@ package com.bugull.mongo;
 import com.bugull.mongo.exception.DBConnectionException;
 import com.bugull.mongo.mapper.CascadeDeleteExecutor;
 import com.mongodb.DB;
-import com.mongodb.Mongo;
-import com.mongodb.MongoOptions;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
 import com.mongodb.ReadPreference;
 import com.mongodb.ServerAddress;
 import java.net.UnknownHostException;
@@ -44,11 +44,11 @@ public class BuguConnection {
     private int port;
     private List<ServerAddress> replicaSet;
     private ReadPreference readPreference;
-    private MongoOptions options;
+    private MongoClientOptions options;
     private String database;
     private String username;
     private String password;
-    private Mongo mongo;
+    private MongoClient mc;
     private DB db;
     
     private BuguConnection(){
@@ -107,23 +107,23 @@ public class BuguConnection {
         if(host != null && port != 0){
             ServerAddress sa = new ServerAddress(host, port);
             if(options != null){
-                mongo = new Mongo(sa, options);
+                mc = new MongoClient(sa, options);
             }else{
-                mongo = new Mongo(sa);
+                mc = new MongoClient(sa);
             }
         }
         else if(replicaSet != null){
             if(options != null){
-                mongo = new Mongo(replicaSet, options);
+                mc = new MongoClient(replicaSet, options);
             }else{
-                mongo = new Mongo(replicaSet);
+                mc = new MongoClient(replicaSet);
             }
             if(readPreference != null){
-                mongo.setReadPreference(readPreference);
+                mc.setReadPreference(readPreference);
             }
         }
-        if(mongo != null){
-            db = mongo.getDB(database);
+        if(mc != null){
+            db = mc.getDB(database);
         }else{
             throw new DBConnectionException("Can not get database instance! Please ensure connected to mongoDB correctly.");
         }
@@ -134,8 +134,8 @@ public class BuguConnection {
         if(executor != null){
             executor.shutdown();
         }
-        if(mongo != null){
-            mongo.close();
+        if(mc != null){
+            mc.close();
         }
     }
     
@@ -174,7 +174,7 @@ public class BuguConnection {
         return this;
     }
 
-    public BuguConnection setOptions(MongoOptions options) {
+    public BuguConnection setOptions(MongoClientOptions options) {
         this.options = options;
         return this;
     }
