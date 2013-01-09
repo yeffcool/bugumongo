@@ -49,7 +49,7 @@ public abstract class SimpleEntity implements BuguEntity {
      */
     public long getTimestamp() {
         if(StringUtil.isEmpty(id)){
-            return 0;
+            return -1;
         }
         ObjectId oid = new ObjectId(id);
         return oid.getTime();
