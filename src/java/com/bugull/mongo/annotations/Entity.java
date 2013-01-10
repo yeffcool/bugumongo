@@ -29,6 +29,6 @@ import java.lang.annotation.Target;
 public @interface Entity {
     public String name() default Default.NAME;
     public boolean capped() default false;
-    public long capSize() default -1;
-    public long capMax() default -1;
+    public long capSize() default Default.CAP_SIZE;
+    public long capMax() default Default.CAP_MAX;
 }

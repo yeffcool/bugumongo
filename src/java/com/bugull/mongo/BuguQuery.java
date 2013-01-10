@@ -74,7 +74,7 @@ public class BuguQuery<T> {
             }catch(FieldException ex){
                 logger.error(ex.getMessage(), ex);
             }
-            if(f.getAnnotation(Id.class) != null){
+            if(f.getAnnotation(Id.class)!=null){
                 Object dbId = IdUtil.toDbId(clazz, (String)value);
                 append(Operator.ID, op, dbId);
             }

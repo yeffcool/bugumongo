@@ -15,7 +15,12 @@
 
 package com.bugull.mongo.cache;
 
+import com.bugull.mongo.annotations.Embed;
+import com.bugull.mongo.annotations.EmbedList;
 import com.bugull.mongo.annotations.Id;
+import com.bugull.mongo.annotations.Property;
+import com.bugull.mongo.annotations.Ref;
+import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.exception.FieldException;
 import com.bugull.mongo.exception.IdException;
 import java.lang.reflect.Field;
@@ -130,6 +135,13 @@ public class FieldsCache {
         return name;
     }
     
+    /**
+     * Get the field by field name.
+     * @param clazz
+     * @param fieldName
+     * @return
+     * @throws FieldException 
+     */
     public Field getField(Class<?> clazz, String fieldName) throws FieldException {
         Field field = null;
         Field[] fields = get(clazz);
@@ -140,7 +152,36 @@ public class FieldsCache {
             }
         }
         if(field == null){
-            throw new FieldException(clazz.getName() + " does not contain field " + fieldName);
+            for(Field f : fields){
+                Property property = f.getAnnotation(Property.class);
+                if(property != null && property.name().equals(fieldName)){
+                    field = f;
+                    break;
+                }
+                Embed embed = f.getAnnotation(Embed.class);
+                if(embed != null && embed.name().equals(fieldName)){
+                    field = f;
+                    break;
+                }
+                EmbedList el = f.getAnnotation(EmbedList.class);
+                if(el != null && el.name().equals(fieldName)){
+                    field = f;
+                    break;
+                }
+                Ref ref = f.getAnnotation(Ref.class);
+                if(ref != null && ref.name().equals(fieldName)){
+                    field = f;
+                    break;
+                }
+                RefList rl = f.getAnnotation((RefList.class));
+                if(rl != null && rl.name().equals(fieldName)){
+                    field = f;
+                    break;
+                }
+            }
+        }
+        if(field == null){
+            throw new FieldException("Field '" + fieldName + "' does not exists!");
         }
         return field;
     }
