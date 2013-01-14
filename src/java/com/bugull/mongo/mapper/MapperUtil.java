@@ -19,11 +19,7 @@ import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Embed;
 import com.bugull.mongo.annotations.EmbedList;
 import com.bugull.mongo.annotations.Entity;
-import com.bugull.mongo.annotations.Id;
-import com.bugull.mongo.annotations.Ignore;
 import com.bugull.mongo.annotations.Property;
-import com.bugull.mongo.annotations.Ref;
-import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.ConstructorCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.decoder.Decoder;
@@ -163,69 +159,43 @@ public class MapperUtil {
     }
     
     /**
-     * Get the non-lazy fields
+     * Get the lazy fields
      * @param clazz
      * @return 
      */
     public static DBObject getKeyFields(Class<?> clazz){
         DBObject keys = new BasicDBObject();
         Field[] fields = FieldsCache.getInstance().get(clazz);
+        String fieldName = null;
         for(Field field : fields){
-            if(field.getAnnotation(Id.class) != null){
-                continue;
-            }
-            if(field.getAnnotation(Ignore.class) != null){
-                continue;
-            }
-            String fieldName = field.getName();
-            Embed embed = field.getAnnotation(Embed.class);
-            if(embed!=null && !embed.lazy()){
-                String name = embed.name();
-                if(!name.equals(Default.NAME)){
-                    fieldName = name;
-                }
-                keys.put(fieldName, 1);
-                continue;
-            }
-            EmbedList embedList = field.getAnnotation(EmbedList.class);
-            if(embedList!=null && !embedList.lazy()){
-                String name = embedList.name();
-                if(!name.equals(Default.NAME)){
-                    fieldName = name;
-                }
-                keys.put(fieldName, 1);
-                continue;
-            }
-            Ref ref = field.getAnnotation(Ref.class);
-            if(ref!=null){
-                String name = ref.name();
-                if(!name.equals(Default.NAME)){
-                    fieldName = name;
-                }
-                keys.put(fieldName, 1);
-                continue;
-            }
-            RefList refList = field.getAnnotation(RefList.class);
-            if(refList!=null){
-                String name = refList.name();
-                if(!name.equals(Default.NAME)){
-                    fieldName = name;
-                }
-                keys.put(fieldName, 1);
-                continue;
-            }
+            fieldName = field.getName();
             Property property = field.getAnnotation(Property.class);
-            if(property!=null){
+            if(property!=null && property.lazy()){
                 String name = property.name();
                 if(!name.equals(Default.NAME)){
                     fieldName = name;
                 }
-                if(!property.lazy()){
-                    keys.put(fieldName, 1);
-                }
+                keys.put(fieldName, 0);
                 continue;
             }
-            keys.put(fieldName, 1);
+            Embed embed = field.getAnnotation(Embed.class);
+            if(embed!=null && embed.lazy()){
+                String name = embed.name();
+                if(!name.equals(Default.NAME)){
+                    fieldName = name;
+                }
+                keys.put(fieldName, 0);
+                continue;
+            }
+            EmbedList embedList = field.getAnnotation(EmbedList.class);
+            if(embedList!=null && embedList.lazy()){
+                String name = embedList.name();
+                if(!name.equals(Default.NAME)){
+                    fieldName = name;
+                }
+                keys.put(fieldName, 0);
+                continue;
+            }
         }
         return keys;
     }
