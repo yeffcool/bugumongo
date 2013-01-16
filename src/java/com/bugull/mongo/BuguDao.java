@@ -284,6 +284,7 @@ public class BuguDao<T> {
      * @param t the entity needs to be updated
      * @param values the new key/value pairs
      */
+    @Deprecated
     public void set(T t, Map values){
         DBObject dbo = new BasicDBObject(values);
         BuguEntity ent = (BuguEntity)t;
@@ -305,6 +306,7 @@ public class BuguDao<T> {
      * @param id the entity's id
      * @param values the new key/value pairs
      */
+    @Deprecated
     public void set(String id, Map values){
         DBObject dbo = new BasicDBObject(values);
         update(id, new BasicDBObject(Operator.SET, dbo));
@@ -324,6 +326,7 @@ public class BuguDao<T> {
      * @param query the query condition
      * @param values the new key/value pairs
      */
+    @Deprecated
     public void set(BuguQuery query, Map values){
         set(query.getCondition(), new BasicDBObject(values));
     }
