@@ -30,14 +30,16 @@ public class Operator {
     public static final String LT = "$lt";
     public static final String LTE = "$lte";
     public static final String NE = "$ne";
-    public static final String AND = "$and";
-    public static final String OR = "$or";
     public static final String IN = "$in";
     public static final String NIN = "$nin";
     public static final String MOD = "$mod";
     public static final String ALL = "$all";
     public static final String SIZE = "$size";
     public static final String EXISTS = "$exists";
+    public static final String WHERE = "$where";
+    
+    public static final String AND = "$and";
+    public static final String OR = "$or";
     
     //2d and geo
     public static final String NEAR = "$near";

@@ -256,6 +256,11 @@ public class BuguQuery<T> {
         return this;
     }
     
+    public BuguQuery<T> where(String whereStr){
+        append(Operator.WHERE, null, whereStr);
+        return this;
+    }
+    
     public BuguQuery<T> withinCenter(String key, double x, double y, double radius){
         DBObject dbo = new BasicDBObject(Operator.CENTER, new Object[]{new Double[]{x, y}, radius});
         append(key, Operator.WITHIN, dbo);
