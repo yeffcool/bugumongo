@@ -34,6 +34,7 @@ public class Operator {
     public static final String NIN = "$nin";
     public static final String MOD = "$mod";
     public static final String ALL = "$all";
+    public static final String SLICE = "$slice";
     public static final String SIZE = "$size";
     public static final String EXISTS = "$exists";
     public static final String WHERE = "$where";

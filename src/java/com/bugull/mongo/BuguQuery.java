@@ -225,6 +225,18 @@ public class BuguQuery<T> {
         return this;
     }
     
+    public BuguQuery<T> slice(String key, long num){
+        DBObject dbo = new BasicDBObject(Operator.SLICE, num);
+        keys.put(key, dbo);
+        return this;
+    }
+    
+    public BuguQuery<T> slice(String key, long begin, long length){
+        DBObject dbo = new BasicDBObject(Operator.SLICE, new Long[]{begin, length});
+        keys.put(key, dbo);
+        return this;
+    }
+    
     /**
      * Note: the regex string must in Java style, not JavaScript style.
      * @param key
