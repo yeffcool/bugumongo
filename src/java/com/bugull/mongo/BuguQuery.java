@@ -46,6 +46,7 @@ public class BuguQuery<T> {
     private DBCollection coll;
     private Class<T> clazz;
     private DBObject keys;
+    private DBObject slices;
     
     private String orderBy;
     private DBObject condition;
@@ -56,6 +57,7 @@ public class BuguQuery<T> {
         this.coll = coll;
         this.clazz = clazz;
         this.keys = keys;
+        slices = new BasicDBObject();
         condition = new BasicDBObject();
     }
     
@@ -227,12 +229,14 @@ public class BuguQuery<T> {
     
     public BuguQuery<T> slice(String key, long num){
         DBObject dbo = new BasicDBObject(Operator.SLICE, num);
+        slices.put(key, dbo);
         keys.put(key, dbo);
         return this;
     }
     
     public BuguQuery<T> slice(String key, long begin, long length){
         DBObject dbo = new BasicDBObject(Operator.SLICE, new Long[]{begin, length});
+        slices.put(key, dbo);
         keys.put(key, dbo);
         return this;
     }
@@ -322,7 +326,7 @@ public class BuguQuery<T> {
         }catch(DBQueryException ex){
             logger.error(ex.getMessage(), ex);
         }
-        DBObject dbo = coll.findOne(condition);
+        DBObject dbo = coll.findOne(condition, slices);
         return MapperUtil.fromDBObject(clazz, dbo);
     }
     
