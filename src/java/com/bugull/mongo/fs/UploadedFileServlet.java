@@ -69,6 +69,7 @@ public class UploadedFileServlet extends HttpServlet {
         if(f != null){
             String ext = StringUtil.getExtention(filename);
             response.setContentType(getContentType(ext));
+            response.setContentLength((int)f.getLength());
             if(needCache(ext)){
                 String modifiedSince = request.getHeader("If-Modified-Since");
                 DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
