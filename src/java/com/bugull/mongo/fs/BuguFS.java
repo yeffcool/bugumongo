@@ -202,34 +202,41 @@ public class BuguFS {
         return toFileList(cursor);
     }
     
+    @Deprecated
     public List<GridFSDBFile> findByFolder(String folderName){
         DBObject query = new BasicDBObject(FOLDER, folderName);
         return find(query);
     }
     
+    @Deprecated
     public List<GridFSDBFile> findByFolder(String folderName, int pageNum, int pageSize){
         DBObject query = new BasicDBObject(FOLDER, folderName);
         return find(query, pageNum, pageSize);
     }
     
+    @Deprecated
     public List<GridFSDBFile> findByFolder(String folderName, DBObject orderBy){
         DBObject query = new BasicDBObject(FOLDER, folderName);
         return find(query, orderBy);
     }
     
+    @Deprecated
     public List<GridFSDBFile> findByFolder(String folderName, String orderBy){
         return findByFolder(folderName, MapperUtil.getSort(orderBy));
     }
     
+    @Deprecated
     public List<GridFSDBFile> findByFolder(String folderName, String orderBy, int pageNum, int pageSize){
         return findByFolder(folderName, MapperUtil.getSort(orderBy), pageNum, pageSize);
     }
     
+    @Deprecated
     public List<GridFSDBFile> findByFolder(String folderName, DBObject orderBy, int pageNum, int pageSize){
         DBObject query = new BasicDBObject(FOLDER, folderName);
         return find(query, orderBy, pageNum, pageSize);
     }
     
+    @Deprecated
     public List findAllFolder(){
         return files.distinct(FOLDER);
     }
@@ -249,6 +256,7 @@ public class BuguFS {
         files.save(dbo);
     }
     
+    @Deprecated
     public void renameFolder(String oldName, String newName){
         DBObject query = new BasicDBObject(FOLDER, oldName);
         DBObject dbo = new BasicDBObject(FOLDER, newName);
@@ -279,6 +287,7 @@ public class BuguFS {
         fs.remove(query);
     }
     
+    @Deprecated
     public void removeFolder(String folderName){
         DBObject query = new BasicDBObject(FOLDER, folderName);
         fs.remove(query);

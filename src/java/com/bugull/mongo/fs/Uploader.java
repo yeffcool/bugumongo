@@ -87,6 +87,7 @@ public class Uploader {
         this.chunkSize = chunkSize;
     }
     
+    @Deprecated
     public void setFolder(String folder){
         this.folder = folder;
     }
