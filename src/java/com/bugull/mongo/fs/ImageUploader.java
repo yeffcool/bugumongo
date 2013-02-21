@@ -202,7 +202,7 @@ public class ImageUploader extends Uploader{
             logger.error("Can not encode the JPEGImageEncoder", ex);
         }
         BuguFS fs = new BuguFS(bucketName, chunkSize);
-        fs.save(baos.toByteArray(), filename, folder, params);
+        fs.save(baos.toByteArray(), filename, params);
         try{
             baos.close();
         }catch(IOException ex){

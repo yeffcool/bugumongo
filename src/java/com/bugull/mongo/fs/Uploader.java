@@ -42,7 +42,6 @@ public class Uploader {
     protected String bucketName = BuguFS.DEFAULT_BUCKET;
     protected long chunkSize = BuguFS.DEFAULT_CHUNKSIZE;
     protected String filename;
-    protected String folder;
     protected Map<String, Object> params;
     
     public Uploader(File file, String originalName){
@@ -87,11 +86,6 @@ public class Uploader {
         this.chunkSize = chunkSize;
     }
     
-    @Deprecated
-    public void setFolder(String folder){
-        this.folder = folder;
-    }
-    
     public void setAttribute(String key, Object value){
         if(params == null){
             params = new HashMap<String, Object>();
@@ -124,7 +118,7 @@ public class Uploader {
     
     protected void saveInputStream(){
         BuguFS fs = new BuguFS(bucketName, chunkSize);
-        fs.save(input, filename, folder, params);
+        fs.save(input, filename, params);
         try{
             input.close();
         }catch(IOException ex){

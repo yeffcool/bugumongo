@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -58,7 +57,6 @@ public class BuguFS {
     public final static long DEFAULT_CHUNKSIZE = 256L * 1024L;  //256KB
     
     public final static String BUCKET = "bucket";
-    public final static String FOLDER = "folder";
     public final static String FILENAME = "filename";
     public final static String LENGTH = "length";
     public final static String UPLOADDATE = "uploadDate";
@@ -97,18 +95,14 @@ public class BuguFS {
     }
     
     public void save(File file){
-        save(file, file.getName(), null, null);
+        save(file, file.getName(), null);
     }
     
     public void save(File file, String filename){
-        save(file, filename, null, null);
+        save(file, filename, null);
     }
     
-    public void save(File file, String filename, String folderName){
-        save(file, filename, folderName, null);
-    }
-    
-    public void save(File file, String filename, String folderName, Map<String, Object> params){
+    public void save(File file, String filename, Map<String, Object> params){
         GridFSInputFile f = null;
         try{
             f = fs.createFile(file);
@@ -117,49 +111,35 @@ public class BuguFS {
         }
         f.setChunkSize(chunkSize);
         f.setFilename(filename);
-        setParams(f, folderName, params);
+        setParams(f, params);
         f.save();
     }
     
     public void save(InputStream is, String filename){
-        save(is, filename, null, null);
+        save(is, filename, null);
     }
     
-    public void save(InputStream is, String filename, String folderName){
-        save(is, filename, folderName, null);
-    }
-    
-    public void save(InputStream is, String filename, String folderName, Map<String, Object> params){
+    public void save(InputStream is, String filename, Map<String, Object> params){
         GridFSInputFile f = fs.createFile(is);
         f.setChunkSize(chunkSize);
         f.setFilename(filename);
-        setParams(f, folderName, params);
+        setParams(f, params);
         f.save();
     }
     
     public void save(byte[] data, String filename){
-        save(data, filename, null, null);
+        save(data, filename, null);
     }
     
-    public void save(byte[] data, String filename, String folderName){
-        save(data, filename, folderName, null);
-    }
-    
-    public void save(byte[] data, String filename, String folderName, Map<String, Object> params){
+    public void save(byte[] data, String filename, Map<String, Object> params){
         GridFSInputFile f = fs.createFile(data);
         f.setChunkSize(chunkSize);
         f.setFilename(filename);
-        setParams(f, folderName, params);
+        setParams(f, params);
         f.save();
     }
     
-    private void setParams(GridFSInputFile f, String folderName, Map<String, Object> params){
-        if(folderName != null){
-            if(params == null){
-                params = new HashMap<String, Object>();
-            }
-            params.put(FOLDER, folderName);
-        }
+    private void setParams(GridFSInputFile f, Map<String, Object> params){
         if(params != null){
             for(Entry<String, Object> entry : params.entrySet()){
                 f.put(entry.getKey(), entry.getValue());
@@ -202,45 +182,6 @@ public class BuguFS {
         return toFileList(cursor);
     }
     
-    @Deprecated
-    public List<GridFSDBFile> findByFolder(String folderName){
-        DBObject query = new BasicDBObject(FOLDER, folderName);
-        return find(query);
-    }
-    
-    @Deprecated
-    public List<GridFSDBFile> findByFolder(String folderName, int pageNum, int pageSize){
-        DBObject query = new BasicDBObject(FOLDER, folderName);
-        return find(query, pageNum, pageSize);
-    }
-    
-    @Deprecated
-    public List<GridFSDBFile> findByFolder(String folderName, DBObject orderBy){
-        DBObject query = new BasicDBObject(FOLDER, folderName);
-        return find(query, orderBy);
-    }
-    
-    @Deprecated
-    public List<GridFSDBFile> findByFolder(String folderName, String orderBy){
-        return findByFolder(folderName, MapperUtil.getSort(orderBy));
-    }
-    
-    @Deprecated
-    public List<GridFSDBFile> findByFolder(String folderName, String orderBy, int pageNum, int pageSize){
-        return findByFolder(folderName, MapperUtil.getSort(orderBy), pageNum, pageSize);
-    }
-    
-    @Deprecated
-    public List<GridFSDBFile> findByFolder(String folderName, DBObject orderBy, int pageNum, int pageSize){
-        DBObject query = new BasicDBObject(FOLDER, folderName);
-        return find(query, orderBy, pageNum, pageSize);
-    }
-    
-    @Deprecated
-    public List findAllFolder(){
-        return files.distinct(FOLDER);
-    }
-    
     public void rename(String oldName, String newName){
         DBObject query = new BasicDBObject(FILENAME, oldName);
         DBObject dbo = files.findOne(query);
@@ -256,40 +197,11 @@ public class BuguFS {
         files.save(dbo);
     }
     
-    @Deprecated
-    public void renameFolder(String oldName, String newName){
-        DBObject query = new BasicDBObject(FOLDER, oldName);
-        DBObject dbo = new BasicDBObject(FOLDER, newName);
-        DBObject set = new BasicDBObject(Operator.SET, dbo);
-        files.updateMulti(query, set);
-    }
-    
-    public void move(String filename, String folderName){
-        DBObject query = new BasicDBObject(FILENAME, filename);
-        DBObject dbo = files.findOne(query);
-        dbo.put(FOLDER, folderName);
-        files.save(dbo);
-    }
-    
-    public void move(GridFSDBFile file, String folderName){
-        ObjectId id = (ObjectId)file.getId();
-        DBObject query = new BasicDBObject(Operator.ID, id);
-        DBObject dbo = files.findOne(query);
-        dbo.put(FOLDER, folderName);
-        files.save(dbo);
-    }
-    
     public void remove(String filename){
         fs.remove(filename);
     }
     
     public void remove(DBObject query){
-        fs.remove(query);
-    }
-    
-    @Deprecated
-    public void removeFolder(String folderName){
-        DBObject query = new BasicDBObject(FOLDER, folderName);
         fs.remove(query);
     }
     

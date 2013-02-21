@@ -30,6 +30,7 @@ import com.bugull.mongo.mapper.EntityRemovedListener;
 import com.bugull.mongo.mapper.IdUtil;
 import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
+import com.bugull.mongo.mapper.ReferenceUtil;
 import com.bugull.mongo.mapper.StringUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -39,7 +40,6 @@ import com.mongodb.DBObject;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.apache.log4j.Logger;
 
 /**
@@ -240,6 +240,10 @@ public class BuguDao<T> {
      * @param value the condition value
      */
     public void remove(String key, Object value){
+        if(value instanceof BuguEntity){
+            BuguEntity be = (BuguEntity)value;
+            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }
         remove(new BasicDBObject(key, value));
     }
     
@@ -282,18 +286,6 @@ public class BuguDao<T> {
     /**
      * Update an entity, with new key/value pairs.
      * @param t the entity needs to be updated
-     * @param values the new key/value pairs
-     */
-    @Deprecated
-    public void set(T t, Map values){
-        DBObject dbo = new BasicDBObject(values);
-        BuguEntity ent = (BuguEntity)t;
-        update(ent.getId(), new BasicDBObject(Operator.SET, dbo));
-    }
-    
-    /**
-     * Update an entity, with new key/value pairs.
-     * @param t the entity needs to be updated
      * @param dbo the new key/value pairs.
      */
     public void set(T t, DBObject dbo){
@@ -304,31 +296,10 @@ public class BuguDao<T> {
     /**
      * Update an entity, with new key/value pairs.
      * @param id the entity's id
-     * @param values the new key/value pairs
-     */
-    @Deprecated
-    public void set(String id, Map values){
-        DBObject dbo = new BasicDBObject(values);
-        update(id, new BasicDBObject(Operator.SET, dbo));
-    }
-    
-    /**
-     * Update an entity, with new key/value pairs.
-     * @param id the entity's id
      * @param dbo the new key/value pairs
      */
     public void set(String id, DBObject dbo){
         update(id, new BasicDBObject(Operator.SET, dbo));
-    }
-    
-    /**
-     * Update some entities, with new key/value pairs.
-     * @param query the query condition
-     * @param values the new key/value pairs
-     */
-    @Deprecated
-    public void set(BuguQuery query, Map values){
-        set(query.getCondition(), new BasicDBObject(values));
     }
     
     /**
@@ -368,6 +339,10 @@ public class BuguDao<T> {
      * @param value the field's new value
      */
     public void set(String id, String key, Object value){
+        if(value instanceof BuguEntity){
+            BuguEntity be = (BuguEntity)value;
+            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }
         DBObject query = new BasicDBObject(key, value);
         DBObject set = new BasicDBObject(Operator.SET, query);
         if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, key)){
@@ -508,6 +483,10 @@ public class BuguDao<T> {
      * @param value the element to be addes
      */
     public void push(String id, String key, Object value){
+        if(value instanceof BuguEntity){
+            BuguEntity be = (BuguEntity)value;
+            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }
         DBObject query = new BasicDBObject(key, value);
         DBObject push = new BasicDBObject(Operator.PUSH, query);
         if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, key)){
@@ -535,6 +514,10 @@ public class BuguDao<T> {
      * @param value the element to be removed
      */
     public void pull(String id, String key, Object value){
+        if(value instanceof BuguEntity){
+            BuguEntity be = (BuguEntity)value;
+            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }
         DBObject query = new BasicDBObject(key, value);
         DBObject pull = new BasicDBObject(Operator.PULL, query);
         if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, key)){
@@ -551,6 +534,10 @@ public class BuguDao<T> {
      * @return 
      */
     public boolean exists(String key, Object value){
+        if(value instanceof BuguEntity){
+            BuguEntity be = (BuguEntity)value;
+            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }
         return exists(new BasicDBObject(key, value));
     }
     
@@ -571,6 +558,10 @@ public class BuguDao<T> {
     }
     
     public T findOne(String key, Object value){
+        if(value instanceof BuguEntity){
+            BuguEntity be = (BuguEntity)value;
+            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }
         return findOne(new BasicDBObject(key, value));
     }
     
@@ -608,6 +599,10 @@ public class BuguDao<T> {
     }
     
     public List<T> find(String key, Object value){
+        if(value instanceof BuguEntity){
+            BuguEntity be = (BuguEntity)value;
+            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }
         return find(new BasicDBObject(key, value));
     }
 
@@ -617,6 +612,10 @@ public class BuguDao<T> {
     }
     
     public List<T> find(String key, Object value, String orderBy){
+        if(value instanceof BuguEntity){
+            BuguEntity be = (BuguEntity)value;
+            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }
         return find(new BasicDBObject(key, value), MapperUtil.getSort(orderBy));
     }
     
@@ -630,6 +629,10 @@ public class BuguDao<T> {
     }
     
     public List<T> find(String key, Object value, int pageNum, int pageSize){
+        if(value instanceof BuguEntity){
+            BuguEntity be = (BuguEntity)value;
+            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }
         return find(new BasicDBObject(key, value), pageNum, pageSize);
     }
 
@@ -639,6 +642,10 @@ public class BuguDao<T> {
     }
     
     public List<T> find(String key, Object value, String orderBy, int pageNum, int pageSize){
+        if(value instanceof BuguEntity){
+            BuguEntity be = (BuguEntity)value;
+            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }
         return find(new BasicDBObject(key, value), MapperUtil.getSort(orderBy), pageNum, pageSize);
     }
     
@@ -674,6 +681,10 @@ public class BuguDao<T> {
      * @return 
      */
     public long count(String key, Object value){
+        if(value instanceof BuguEntity){
+            BuguEntity be = (BuguEntity)value;
+            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }
         return count(new BasicDBObject(key, value));
     }
 

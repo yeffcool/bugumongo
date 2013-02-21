@@ -57,10 +57,11 @@ public class BuguMapper {
     private final static Logger logger = Logger.getLogger(BuguMapper.class);
     
     /**
-     * Convert BuguEntity to DBRef. Useful when operate on @Ref and @RefList field.
+     * @deprecated BuguDao and BuguQuery can convert by itself now. This method is not used any more.
      * @param obj
      * @return 
      */
+    @Deprecated
     public static DBRef toDBRef(BuguEntity obj){
         String idStr = obj.getId();
         if(StringUtil.isEmpty(idStr)){
@@ -78,11 +79,12 @@ public class BuguMapper {
     }
     
     /**
-     * Create a DBRef for a type of entity, with id string. Useful when operate on @Ref and @RefList field.
+     * @deprecated BuguDao and BuguQuery can convert by itself now. This method is not used any more.
      * @param clazz
      * @param idStr
      * @return 
      */
+    @Deprecated
     public static DBRef toDBRef(Class<?> clazz, String idStr){
         if(StringUtil.isEmpty(idStr)){
             return null;
