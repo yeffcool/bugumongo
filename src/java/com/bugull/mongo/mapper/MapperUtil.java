@@ -101,6 +101,9 @@ public class MapperUtil {
             String[] kv = s.split(":");
             String k = kv[0].trim();
             String v = kv[1].trim();
+            if(k.equals("id")){
+                k = Operator.ID;
+            }
             sort.put(k, Integer.parseInt(v));
         }
         return sort;
