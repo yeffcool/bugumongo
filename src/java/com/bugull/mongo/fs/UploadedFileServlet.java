@@ -134,7 +134,7 @@ public class UploadedFileServlet extends HttpServlet {
             InputStream is = f.getInputStream();
             is.skip(begin);
             int read = -1;
-            int bufferSize = (int)fs.getChunkSize();
+            int bufferSize = (int)f.getChunkSize();
             byte[] buffer = new byte[bufferSize];
             int remain = contentLength;
             int readSize = Math.min(bufferSize, remain);
