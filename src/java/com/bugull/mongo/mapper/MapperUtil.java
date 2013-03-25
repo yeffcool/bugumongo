@@ -122,8 +122,12 @@ public class MapperUtil {
                 String[] kv = s.split(":");
                 String k = kv[0].trim();
                 String v = kv[1].trim();
-                if(v.equalsIgnoreCase("2d")){
+                //note: the following check order can't be changed!
+                if(v.equalsIgnoreCase("2d") || v.equalsIgnoreCase("text")){
                     keys.put(k, v);
+                }
+                else if(k.equalsIgnoreCase("expireAfterSeconds")){
+                    keys.put(k, Integer.parseInt(v));
                 }
                 else if(v.equals("1") || v.equals("-1")){
                     keys.put(k, Integer.parseInt(v));
@@ -133,9 +137,6 @@ public class MapperUtil {
                 }
                 else if(k.equalsIgnoreCase("name")){
                     options.put(k, v);
-                }
-                else if(k.equalsIgnoreCase("expireAfterSeconds")){
-                    keys.put(k, Integer.parseInt(v));
                 }
             }
             DBIndex dbi = new DBIndex();
