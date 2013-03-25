@@ -184,11 +184,11 @@ public class UploadedFileServlet extends HttpServlet {
         else if(ext.equals("jpeg") || ext.equals("png") || ext.equals("gif") || ext.equals("bmp")){
             type = "image/" + ext;
         }
-        else if(ext.equals("html") || ext.equals("htm")){
-            type = "text/html";
-        }
         else if(ext.equals("swf")){
             type = "application/x-shockwave-flash";
+        }
+        else if(ext.equals("flv")){
+            type = "video/x-flv";
         }
         else if(ext.equals("mp3")){
             type = "audio/x-mpeg";
@@ -196,8 +196,14 @@ public class UploadedFileServlet extends HttpServlet {
         else if(ext.equals("mp4")){
             type = "video/mp4";
         }
+        else if(ext.equals("3gp")){
+            type = "video/3gpp";
+        }
         else if(ext.equals("pdf")){
             type = "application/pdf";
+        }
+        else if(ext.equals("html") || ext.equals("htm")){
+            type = "text/html";
         }
         else{
             type = "application/octet-stream";
