@@ -15,11 +15,14 @@
 
 package com.bugull.mongo.fs;
 
+import com.bugull.mongo.mapper.StreamUtil;
 import com.bugull.mongo.mapper.StringUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFSDBFile;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -66,10 +69,18 @@ public class UploadedFileServlet extends HttpServlet {
         }
         BuguFS fs = new BuguFS(bucketName);
         GridFSDBFile f = fs.findOne(query);
-        if(f != null){
-            String ext = StringUtil.getExtention(filename);
-            response.setContentType(getContentType(ext));
-            response.setContentLength((int)f.getLength());
+        if(f == null){
+            return;
+        }
+        OutputStream os = response.getOutputStream();
+        int fileLength = (int)f.getLength();
+        String ext = StringUtil.getExtention(filename);
+        response.setContentType(getContentType(ext));
+        String range = request.getHeader("Range");
+        //normal http request, no "range" in header.
+        if(StringUtil.isEmpty(range)){
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setContentLength(fileLength);
             if(needCache(ext)){
                 String modifiedSince = request.getHeader("If-Modified-Since");
                 DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
@@ -99,8 +110,45 @@ public class UploadedFileServlet extends HttpServlet {
                 response.setHeader("Cache-Control","no-cache");
                 response.setDateHeader("Expires", 0);
             }
-            f.writeTo(response.getOutputStream());
+            f.writeTo(os);
         }
+        //has "range" in header
+        else{
+            range = range.substring("bytes=".length());
+            if(StringUtil.isEmpty(range)){
+                return;
+            }
+            int begin = 0;
+            int end = fileLength - 1;
+            String[] rangeArray = range.split("-");
+            if(rangeArray.length == 1){
+                begin = Integer.parseInt(rangeArray[0]);
+            }else if(rangeArray.length == 2){
+                begin = Integer.parseInt(rangeArray[0]);
+                end = Integer.parseInt(rangeArray[1]);
+            }
+            response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+            int contentLength = end - begin + 1;
+            response.setContentLength(contentLength);
+            response.setHeader("Content-Range", "bytes " + begin + "-" + end + "/" + contentLength);
+            InputStream is = f.getInputStream();
+            is.skip(begin);
+            int read = -1;
+            int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+            int remain = contentLength;
+            int readSize = Math.min(bufferSize, remain);
+            while( (read = is.read(buffer, 0, readSize)) != -1 ){
+                os.write(buffer, 0, read);
+                remain -= read;
+                if(remain <= 0){
+                    break;
+                }
+                readSize = Math.min(bufferSize, remain);
+            }
+            StreamUtil.safeClose(is);
+        }
+        StreamUtil.safeClose(os);
     }
     
     /**

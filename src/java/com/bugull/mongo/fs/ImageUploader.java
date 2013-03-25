@@ -15,6 +15,7 @@
 
 package com.bugull.mongo.fs;
 
+import com.bugull.mongo.mapper.StreamUtil;
 import com.bugull.mongo.mapper.StringUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -182,9 +183,10 @@ public class ImageUploader extends Uploader{
         BufferedImage bi = null;
         try {
             bi = ImageIO.read(is);
-            is.close();
         } catch (IOException ex) {
             logger.error("Can not read the InputStream", ex);
+        } finally {
+            StreamUtil.safeClose(is);
         }
         return bi;
     }
@@ -203,11 +205,7 @@ public class ImageUploader extends Uploader{
         }
         BuguFS fs = new BuguFS(bucketName, chunkSize);
         fs.save(baos.toByteArray(), filename, params);
-        try{
-            baos.close();
-        }catch(IOException ex){
-            logger.error("Can not close the ByteArrayOutputStream", ex);
-        }
+        StreamUtil.safeClose(baos);
     }
     
     /**
