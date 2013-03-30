@@ -103,7 +103,8 @@ public class BuguDao<T> {
     
     /**
      * Insert an entity to mongoDB.
-     * @param t 
+     * @param t
+     * @return 
      */
     public WriteResult insert(T t){
         DBObject dbo = MapperUtil.toDBObject(t);
@@ -120,6 +121,7 @@ public class BuguDao<T> {
     /**
      * Insert a list of entity to mongoDB.
      * @param list 
+     * @return 
      */
     public WriteResult insert(List<T> list){
         List<DBObject> dboList = new ArrayList<DBObject>();
@@ -146,6 +148,7 @@ public class BuguDao<T> {
      * If no id in it, then insert the entity.
      * Else, check the id type, to confirm do save or insert.
      * @param t 
+     * @return 
      */
     public WriteResult save(T t){
         WriteResult wr = null;
@@ -201,6 +204,7 @@ public class BuguDao<T> {
     /**
      * Remove an entity has id value in it.
      * @param t 
+     * @return 
      */
     public WriteResult remove(T t){
         BuguEntity ent = (BuguEntity)t;
@@ -210,6 +214,7 @@ public class BuguDao<T> {
     /**
      * Remove an entity by id.
      * @param id 
+     * @return 
      */
     public WriteResult remove(String id){
         if(cascadeListener.hasCascade()){
@@ -227,6 +232,7 @@ public class BuguDao<T> {
     /**
      * Remove by array of id.
      * @param ids 
+     * @return 
      */
     public WriteResult remove(String... ids){
         int len = ids.length;
@@ -254,6 +260,7 @@ public class BuguDao<T> {
      * Remove entity by condition.
      * @param key the condition field
      * @param value the condition value
+     * @return 
      */
     public WriteResult remove(String key, Object value){
         if(value instanceof BuguEntity){
@@ -266,6 +273,7 @@ public class BuguDao<T> {
     /**
      * Remove by condition.
      * @param query 
+     * @return 
      */
     public WriteResult remove(BuguQuery query){
         return remove(query.getCondition());
@@ -274,6 +282,7 @@ public class BuguDao<T> {
     /**
      * Remove by condition.
      * @param query 
+     * @return 
      */
     public WriteResult remove(DBObject query){
         List<T> list = this.find(query);
@@ -309,6 +318,7 @@ public class BuguDao<T> {
      * Update an entity, with new key/value pairs.
      * @param t the entity needs to be updated
      * @param dbo the new key/value pairs.
+     * @return 
      */
     public WriteResult set(T t, DBObject dbo){
         BuguEntity ent = (BuguEntity)t;
@@ -319,6 +329,7 @@ public class BuguDao<T> {
      * Update an entity, with new key/value pairs.
      * @param id the entity's id
      * @param dbo the new key/value pairs
+     * @return 
      */
     public WriteResult set(String id, DBObject dbo){
         return update(id, new BasicDBObject(Operator.SET, dbo));
@@ -328,6 +339,7 @@ public class BuguDao<T> {
      * Update some entities, with new key/value pairs.
      * @param query the query condition
      * @param dbo the new key/value pairs
+     * @return 
      */
     public WriteResult set(DBObject query, DBObject dbo){
         List ids = null;
@@ -349,6 +361,7 @@ public class BuguDao<T> {
      * @param t the entity needs to update
      * @param key the field's name
      * @param value the field's new value
+     * @return 
      */
     public WriteResult set(T t, String key, Object value){
         BuguEntity ent = (BuguEntity)t;
@@ -360,6 +373,7 @@ public class BuguDao<T> {
      * @param id the entity's id
      * @param key the field's name
      * @param value the field's new value
+     * @return 
      */
     public WriteResult set(String id, String key, Object value){
         if(value instanceof BuguEntity){
@@ -379,6 +393,7 @@ public class BuguDao<T> {
      * Remove a filed(column) of an entity.
      * @param t the entity to operate
      * @param key the field's name
+     * @return 
      */
     public WriteResult unset(T t, String key){
         BuguEntity ent = (BuguEntity)t;
@@ -389,6 +404,7 @@ public class BuguDao<T> {
      * Remove a filed(column) of an entity
      * @param id the entity's id
      * @param key the field's name
+     * @return 
      */
     public WriteResult unset(String id, String key){
         DBObject query = new BasicDBObject(key, 1);
@@ -404,6 +420,7 @@ public class BuguDao<T> {
      * Remove a filed(column).
      * @param query mathcing conditon
      * @param key the field's name
+     * @return 
      */
     public WriteResult unset(BuguQuery query, String key){
         return unset(query.getCondition(), key);
@@ -413,6 +430,7 @@ public class BuguDao<T> {
      * Remove a field(column).
      * @param query matching codition
      * @param key the field's name
+     * @return 
      */
     public WriteResult unset(DBObject query, String key){
         boolean indexField = (luceneListener != null) && IndexChecker.hasIndexAnnotation(clazz, key); 
@@ -435,7 +453,8 @@ public class BuguDao<T> {
      * Increase a numeric field of an entity.
      * @param t the entity needs to update
      * @param key the field's name
-     * @param value the numeric value to be added. It can be positive or negative integer, long, float, double
+     * @param value the numeric value to be added. It can be positive or negative integer, long, float, double.
+     * @return 
      */
     public WriteResult inc(T t, String key, Object value){
         BuguEntity ent = (BuguEntity)t;
@@ -446,7 +465,8 @@ public class BuguDao<T> {
      * Increase a numeric field of an entity.
      * @param id the entity's id
      * @param key the field's name
-     * @param value the numeric value to be added. It can be positive or negative integer, long, float, double
+     * @param value the numeric value to be added. It can be positive or negative integer, long, float, double.
+     * @return 
      */
     public WriteResult inc(String id, String key, Object value){
         DBObject query = new BasicDBObject(key, value);
@@ -462,7 +482,8 @@ public class BuguDao<T> {
      * Increase a numberic field of some entities.
      * @param query the query condition
      * @param key the field's name
-     * @param value the numeric value to be added. It can be positive or negative integer, long, float, double
+     * @param value the numeric value to be added. It can be positive or negative integer, long, float, double.
+     * @return 
      */
     public WriteResult inc(BuguQuery query, String key, Object value){
         return inc(query.getCondition(), key, value);
@@ -472,7 +493,8 @@ public class BuguDao<T> {
      * Increase a numberic field of some entities.
      * @param query the query condition
      * @param key the field's name
-     * @param value the numeric value to be added. It can be positive or negative integer, long, float, double
+     * @param value the numeric value to be added. It can be positive or negative integer, long, float, double.
+     * @return 
      */
     public WriteResult inc(DBObject query, String key, Object value){
         List ids = null;
@@ -495,6 +517,7 @@ public class BuguDao<T> {
      * @param t the entity needs to update
      * @param key the field's name
      * @param value the element to be added
+     * @return 
      */
     public WriteResult push(T t, String key, Object value){
         BuguEntity ent = (BuguEntity)t;
@@ -506,6 +529,7 @@ public class BuguDao<T> {
      * @param id the entity's id
      * @param key the field's name
      * @param value the element to be addes
+     * @return 
      */
     public WriteResult push(String id, String key, Object value){
         if(value instanceof BuguEntity){
@@ -526,6 +550,7 @@ public class BuguDao<T> {
      * @param t the entity needs to update
      * @param key the field's name
      * @param value the element to be removed
+     * @return 
      */
     public WriteResult pull(T t, String key, Object value){
         BuguEntity ent = (BuguEntity)t;
@@ -537,6 +562,7 @@ public class BuguDao<T> {
      * @param id the entity's id
      * @param key the field's name
      * @param value the element to be removed
+     * @return 
      */
     public WriteResult pull(String id, String key, Object value){
         if(value instanceof BuguEntity){
