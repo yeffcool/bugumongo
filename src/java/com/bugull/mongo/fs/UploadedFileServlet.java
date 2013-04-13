@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +46,19 @@ public class UploadedFileServlet extends HttpServlet {
     private final static Logger logger = Logger.getLogger(UploadedFileServlet.class);
     
     private final static String SLASH = "/";
+    
+    private String allowBucket;
+    private String forbidBucket;
+    
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        allowBucket = config.getInitParameter("allowBucket");
+        forbidBucket = config.getInitParameter("forbidBucket");
+        if(!StringUtil.isEmpty(allowBucket) && !StringUtil.isEmpty(forbidBucket)){
+            throw new ServletException("You can set only one param between allowBucket and forbidBucket.");
+        }
+    }
     
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String url = request.getRequestURI();
@@ -66,6 +80,13 @@ public class UploadedFileServlet extends HttpServlet {
                     query.put(arr[i], arr[i+1]);
                 }
             }
+        }
+        //check if the bucket is allowed to access by this servlet
+        if(!StringUtil.isEmpty(allowBucket) && !allowBucket.equalsIgnoreCase(bucketName)){
+            return;
+        }
+        if(!StringUtil.isEmpty(forbidBucket) && forbidBucket.equalsIgnoreCase(bucketName)){
+            return;
         }
         BuguFS fs = new BuguFS(bucketName);
         GridFSDBFile f = fs.findOne(query);

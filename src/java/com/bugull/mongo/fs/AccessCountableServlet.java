@@ -32,6 +32,7 @@ public class AccessCountableServlet extends UploadedFileServlet{
     
     @Override
     public void init(ServletConfig config) throws ServletException {
+        super.init(config);
         resourceName = config.getInitParameter("resourceName");
     }
     
