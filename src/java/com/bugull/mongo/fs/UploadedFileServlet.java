@@ -46,7 +46,7 @@ public class UploadedFileServlet extends HttpServlet {
     
     private final static String SLASH = "/";
     
-    private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String url = request.getRequestURI();
         int second = url.indexOf(SLASH, 1);
         url = url.substring(second);
@@ -213,11 +213,6 @@ public class UploadedFileServlet extends HttpServlet {
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         processRequest(request, response);
     }
     
