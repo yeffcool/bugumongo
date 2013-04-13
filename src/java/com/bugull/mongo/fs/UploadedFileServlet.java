@@ -212,7 +212,7 @@ public class UploadedFileServlet extends HttpServlet {
             type = "video/x-flv";
         }
         else if(ext.equals("mp3")){
-            type = "audio/x-mpeg";
+            type = "audio/mpeg";
         }
         else if(ext.equals("mp4")){
             type = "video/mp4";
