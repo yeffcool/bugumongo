@@ -197,8 +197,8 @@ public class UploadedFileServlet extends HttpServlet {
         if(StringUtil.isEmpty(ext)){
             return "application/octet-stream";
         }
-        String type = null;
         ext = ext.toLowerCase();
+        String type = "application/octet-stream";
         if(ext.equals("jpg")){
             type = "image/jpeg";
         }
@@ -225,9 +225,6 @@ public class UploadedFileServlet extends HttpServlet {
         }
         else if(ext.equals("html") || ext.equals("htm")){
             type = "text/html";
-        }
-        else{
-            type = "application/octet-stream";
         }
         return type;
     }
