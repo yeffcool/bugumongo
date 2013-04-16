@@ -15,6 +15,7 @@
 
 package com.bugull.mongo.fs;
 
+import com.bugull.mongo.mapper.StringUtil;
 import java.io.IOException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -22,28 +23,51 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Accessing file in GridFS by this servlet is countable.
+ * Total threads accessing file in GridFS by this servlet is restricted.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class AccessCountableServlet extends UploadedFileServlet{
+public class AccessRestrictedServlet extends UploadedFileServlet {
+    
+    private static final String DEFAULT_RESOURCE_NAME = "bugu";
+    private static final String DEFAULT_MAX_ACCESS = "20";
+    private static final String DEFAULT_REDIRECT_TO = "/";
     
     private String resourceName;
+    private int maxAccess;
+    private String redirectTo;
     
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         resourceName = config.getInitParameter("resourceName");
+        if(StringUtil.isEmpty(resourceName)){
+            resourceName = DEFAULT_RESOURCE_NAME;
+        }
+        String strMaxAccess = config.getInitParameter("maxAccess");
+        if(StringUtil.isEmpty(strMaxAccess)){
+            strMaxAccess = DEFAULT_MAX_ACCESS;
+        }
+        maxAccess = Integer.parseInt(strMaxAccess);
+        redirectTo = config.getInitParameter("redirectTo");
+        if(StringUtil.isEmpty(redirectTo)){
+            redirectTo = DEFAULT_REDIRECT_TO;
+        }
     }
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         AccessCount ac = AccessCount.getInstance();
-        ac.increaseCount(resourceName);
-        try{
-            processRequest(request, response);
-        }finally{
-            ac.descreaseCount(resourceName);
+        if(ac.getCount(resourceName) > maxAccess){
+            response.sendRedirect(redirectTo);
+        }
+        else{
+            ac.increaseCount(resourceName);
+            try{
+                processRequest(request, response);
+            }finally{
+                ac.descreaseCount(resourceName);
+            }
         }
     }
 
