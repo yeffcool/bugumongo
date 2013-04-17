@@ -29,6 +29,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
@@ -117,6 +118,10 @@ public class BuguQuery<T> {
     }
     
     private void appendIn(String key, String op, Object... values){
+        if(values[0] instanceof Collection){
+            Collection coll = (Collection)values[0];
+            values = coll.toArray();
+        }
         if(key.equals(Operator.ID)){
             append(key, op, toIds(values));
         }
