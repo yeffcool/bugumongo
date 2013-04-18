@@ -29,7 +29,6 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
@@ -118,10 +117,6 @@ public class BuguQuery<T> {
     }
     
     private void appendIn(String key, String op, Object... values){
-        if(values[0] instanceof Collection){
-            Collection coll = (Collection)values[0];
-            values = coll.toArray();
-        }
         if(key.equals(Operator.ID)){
             append(key, op, toIds(values));
         }
@@ -217,14 +212,35 @@ public class BuguQuery<T> {
         return this;
     }
     
+    public BuguQuery<T> in(String key, List list){
+        if(list==null || list.isEmpty()){
+            return this;
+        }
+        return in(key, list.toArray());
+    }
+    
     public BuguQuery<T> in(String key, Object... values){
         appendIn(key, Operator.IN, values);
         return this;
     }
     
+    public BuguQuery<T> notIn(String key, List list){
+        if(list==null || list.isEmpty()){
+            return this;
+        }
+        return notIn(key, list.toArray());
+    }
+    
     public BuguQuery<T> notIn(String key, Object... values){
         appendIn(key, Operator.NIN, values);
         return this;
+    }
+    
+    public BuguQuery<T> all(String key, List list){
+        if(list==null || list.isEmpty()){
+            return this;
+        }
+        return all(key, list.toArray());
     }
     
     public BuguQuery<T> all(String key, Object... values){
