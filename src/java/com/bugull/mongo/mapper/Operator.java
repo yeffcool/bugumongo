@@ -16,10 +16,11 @@
 package com.bugull.mongo.mapper;
 
 /**
- *
+ * mongoDB operation constant.
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class Operator {
+public final class Operator {
     
     //id
     public static final String ID = "_id";
