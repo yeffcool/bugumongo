@@ -85,11 +85,11 @@ public class BuguIndex {
         try{
             if(executor != null){
                 executor.shutdown();
-                executor.awaitTermination(2, TimeUnit.SECONDS);
+                executor.awaitTermination(5, TimeUnit.SECONDS);
             }
             if(scheduler != null){
                 scheduler.shutdown();
-                scheduler.awaitTermination(1, TimeUnit.SECONDS);
+                scheduler.awaitTermination(5, TimeUnit.SECONDS);
             }
             if(clusterConfig != null){
                 clusterConfig.invalidate();

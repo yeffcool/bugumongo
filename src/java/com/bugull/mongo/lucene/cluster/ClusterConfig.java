@@ -128,13 +128,13 @@ public class ClusterConfig {
         //shutdown the thread pool
         if(executor != null){
             executor.shutdown();
-            executor.awaitTermination(2, TimeUnit.SECONDS);
+            executor.awaitTermination(5, TimeUnit.SECONDS);
         }
         //shutdown the server
         server.close();
         if(serverExecutor != null){
             serverExecutor.shutdown();
-            serverExecutor.awaitTermination(1, TimeUnit.SECONDS);
+            serverExecutor.awaitTermination(5, TimeUnit.SECONDS);
         }
     }
     
