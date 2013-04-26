@@ -82,15 +82,22 @@ public class BuguIndex {
     }
     
     public void close(){
-        if(executor != null){
-            executor.shutdown();
+        try{
+            if(executor != null){
+                executor.shutdown();
+                executor.awaitTermination(2, TimeUnit.SECONDS);
+            }
+            if(scheduler != null){
+                scheduler.shutdown();
+                scheduler.awaitTermination(1, TimeUnit.SECONDS);
+            }
+            if(clusterConfig != null){
+                clusterConfig.invalidate();
+            }
+        }catch(InterruptedException ex){
+            logger.error(ex.getMessage(), ex);
         }
-        if(scheduler != null){
-            scheduler.shutdown();
-        }
-        if(clusterConfig != null){
-            clusterConfig.invalidate();
-        }
+        
         Map<String, IndexWriter>  map = IndexWriterCache.getInstance().getAll();
         for(IndexWriter writer : map.values()){
             if(writer != null){
