@@ -57,7 +57,7 @@ public class BuguIndex {
     private int threadPoolSize = 10;  //default thread pool size is 10
     
     private ScheduledExecutorService scheduler;  //scheduler to reopen index
-    private long period = 30L * 1000L;  //in default, reopen index per 30 seconds
+    private long period = 30L * 1000L;  //by default, reopen index per 30 seconds
     
     private boolean reopening = false;
     private boolean rebuilding = false;
