@@ -128,7 +128,7 @@ public class MapperUtil {
                     keys.put(k, v);
                 }
                 else if(k.equalsIgnoreCase("expireAfterSeconds")){
-                    keys.put(k, Integer.parseInt(v));
+                    options.put(k, Integer.parseInt(v));
                 }
                 else if(v.equals("1") || v.equals("-1")){
                     keys.put(k, Integer.parseInt(v));
