@@ -187,4 +187,16 @@ public class FieldsCache {
         return field;
     }
     
+    public boolean isEmbedListField(Class<?> clazz, String fieldName){
+        boolean result = false;
+        Field[] fields = get(clazz);
+        for(Field f : fields){
+            if(f.getName().equals(fieldName) && (f.getAnnotation(EmbedList.class)!=null)){
+                result = true;
+                break;
+            }
+        }
+        return result;
+    }
+    
 }

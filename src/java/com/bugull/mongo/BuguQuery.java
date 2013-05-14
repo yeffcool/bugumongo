@@ -16,6 +16,8 @@
 
 package com.bugull.mongo;
 
+import com.bugull.mongo.annotations.Embed;
+import com.bugull.mongo.annotations.EmbedList;
 import com.bugull.mongo.annotations.Id;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.exception.DBQueryException;
@@ -63,11 +65,7 @@ public class BuguQuery<T> {
     }
     
     private void appendEquals(String key, String op, Object value){
-        if(key.equals(Operator.ID)){
-            Object dbId = IdUtil.toDbId(clazz, (String)value);
-            append(key, op, dbId);
-        }
-        else if(key.indexOf(".")!=-1){
+        if(key.indexOf(".")!=-1){
             append(key, op, value);
         }
         else{
@@ -85,6 +83,9 @@ public class BuguQuery<T> {
                 BuguEntity ent = (BuguEntity)value;
                 Object refObj = ReferenceUtil.toDbReference(clazz, key, ent.getClass(), ent.getId());
                 append(key, op, refObj);
+            }
+            else if((f.getAnnotation(Embed.class)!=null) || (f.getAnnotation(EmbedList.class)!=null)){
+                append(key, op, MapperUtil.toDBObject(value));
             }
             else{
                 append(key, op, value);

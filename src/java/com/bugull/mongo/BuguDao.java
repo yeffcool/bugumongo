@@ -315,25 +315,14 @@ public class BuguDao<T> {
         return coll.update(query, dbo);
     }
     
-    /**
-     * Update an entity, with new key/value pairs.
-     * @param t the entity needs to be updated
-     * @param dbo the new key/value pairs.
-     * @return 
-     */
-    public WriteResult set(T t, DBObject dbo){
-        BuguEntity ent = (BuguEntity)t;
-        return update(ent.getId(), new BasicDBObject(Operator.SET, dbo));
-    }
     
-    /**
-     * Update an entity, with new key/value pairs.
-     * @param id the entity's id
-     * @param dbo the new key/value pairs
-     * @return 
-     */
-    public WriteResult set(String id, DBObject dbo){
-        return update(id, new BasicDBObject(Operator.SET, dbo));
+    public WriteResult set(DBObject query, String key, Object value){
+        if(value instanceof BuguEntity){
+            BuguEntity be = (BuguEntity)value;
+            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }
+        DBObject dbo = new BasicDBObject(key, value);
+        return set(query, dbo);
     }
     
     /**
@@ -536,6 +525,8 @@ public class BuguDao<T> {
         if(value instanceof BuguEntity){
             BuguEntity be = (BuguEntity)value;
             value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }else if(FieldsCache.getInstance().isEmbedListField(clazz, key)){
+            value = MapperUtil.toDBObject(value);
         }
         DBObject query = new BasicDBObject(key, value);
         DBObject push = new BasicDBObject(Operator.PUSH, query);
@@ -569,6 +560,8 @@ public class BuguDao<T> {
         if(value instanceof BuguEntity){
             BuguEntity be = (BuguEntity)value;
             value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }else if(FieldsCache.getInstance().isEmbedListField(clazz, key)){
+            value = MapperUtil.toDBObject(value);
         }
         DBObject query = new BasicDBObject(key, value);
         DBObject pull = new BasicDBObject(Operator.PULL, query);
