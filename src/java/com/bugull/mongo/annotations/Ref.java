@@ -31,4 +31,5 @@ public @interface Ref {
     public String name() default Default.NAME;
     public String cascade() default Default.CASCADE;
     public boolean reduced() default false;
+    public Class<?> impl() default Default.class;
 }

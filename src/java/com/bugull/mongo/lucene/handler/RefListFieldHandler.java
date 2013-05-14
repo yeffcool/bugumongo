@@ -107,7 +107,7 @@ public class RefListFieldHandler extends AbstractFieldHandler{
                 return;
             }
         }
-        clazz = FieldUtil.getRealType(clazz);
+        clazz = FieldUtil.getRealType(clazz, field);
         InternalDao dao = DaoCache.getInstance().get(clazz);
         DBObject in = new BasicDBObject(Operator.IN, idList);
         DBObject query = new BasicDBObject(Operator.ID, in);

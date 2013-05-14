@@ -71,7 +71,7 @@ public class RefListEncoder extends AbstractEncoder{
     }
     
     private Object encodeArray(Class<?> clazz){
-        clazz = FieldUtil.getRealType(clazz);
+        clazz = FieldUtil.getRealType(clazz, field);
         InternalDao dao = DaoCache.getInstance().get(clazz);
         int len = Array.getLength(value);
         List<Object> result = new ArrayList<Object>();
@@ -91,7 +91,7 @@ public class RefListEncoder extends AbstractEncoder{
         if(DataType.isList(type)){
             List<BuguEntity> list = (List<BuguEntity>)value;
             List<Object> result = new ArrayList<Object>();
-            Class<?> cls = FieldUtil.getRealType((Class)types[0]);
+            Class<?> cls = FieldUtil.getRealType((Class)types[0], field);
             InternalDao dao = DaoCache.getInstance().get(cls);
             for(BuguEntity entity : list){
                 if(entity != null){
@@ -104,7 +104,7 @@ public class RefListEncoder extends AbstractEncoder{
         else if(DataType.isSet(type)){
             Set<BuguEntity> set = (Set<BuguEntity>)value;
             Set<Object> result = new HashSet<Object>();
-            Class<?> cls = FieldUtil.getRealType((Class)types[0]);
+            Class<?> cls = FieldUtil.getRealType((Class)types[0], field);
             InternalDao dao = DaoCache.getInstance().get(cls);
             for(BuguEntity entity : set){
                 if(entity != null){
@@ -117,7 +117,7 @@ public class RefListEncoder extends AbstractEncoder{
         else if(DataType.isMap(type)){
             Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
             Map<Object, Object> result = new HashMap<Object, Object>();
-            Class<?> cls = FieldUtil.getRealType((Class)types[1]);
+            Class<?> cls = FieldUtil.getRealType((Class)types[1], field);
             InternalDao dao = DaoCache.getInstance().get(cls);
             for(Entry<Object, BuguEntity> entry : map.entrySet()){
                 BuguEntity entity = entry.getValue();

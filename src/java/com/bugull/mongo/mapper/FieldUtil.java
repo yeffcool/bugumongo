@@ -16,8 +16,10 @@
 
 package com.bugull.mongo.mapper;
 
+import com.bugull.mongo.annotations.Default;
+import com.bugull.mongo.annotations.Ref;
+import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.FieldsCache;
-import com.bugull.mongo.face.BuguFace;
 import java.lang.reflect.Field;
 import org.apache.log4j.Logger;
 
@@ -71,15 +73,21 @@ public class FieldUtil {
     
     public static Class<?> getRealType(Field field){
         Class<?> clazz = field.getType();
-        return getRealType(clazz);
+        return getRealType(clazz, field);
     }
     
-    public static Class<?> getRealType(Class<?> clazz){
-        Class cls = clazz;
+    public static Class<?> getRealType(Class<?> clazz, Field field){
+        Class<?> cls = clazz;
         if(clazz.isInterface()){
-            cls = BuguFace.getIntance().getImplementation(clazz);
-            if(cls == null){
-                logger.error("The implementation of interface " + clazz.toString() + " is not specified.");
+            Ref ref = field.getAnnotation(Ref.class);
+            if(ref!=null && ref.impl()!=Default.class){
+                cls = ref.impl();
+            }
+            else{
+                RefList refList = field.getAnnotation(RefList.class);
+                if(refList!=null && refList.impl()!=Default.class){
+                    cls = ref.impl();
+                }
             }
         }
         return cls;

@@ -38,7 +38,7 @@ public class EmbedFieldHandler extends AbstractFieldHandler{
         if(embedObj == null){
             return;
         }
-        Class<?> clazz = FieldUtil.getRealType(field);
+        Class<?> clazz = field.getClass();
         Field[] fields = FieldsCache.getInstance().get(clazz);
         for(Field f : fields){
             IndexEmbedBy ieb = f.getAnnotation(IndexEmbedBy.class);

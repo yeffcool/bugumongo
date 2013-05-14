@@ -191,7 +191,7 @@ public class FieldsCache {
         boolean result = false;
         Field[] fields = get(clazz);
         for(Field f : fields){
-            if(f.getName().equals(fieldName) && (f.getAnnotation(EmbedList.class)!=null)){
+            if(f.getName().equals(fieldName) && f.getAnnotation(EmbedList.class)!=null){
                 result = true;
                 break;
             }
