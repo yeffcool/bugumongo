@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import org.apache.log4j.Logger;
 
 /**
@@ -105,8 +106,17 @@ public class Uploader {
     
     protected void processFilename(){
         if(rename){
+            long time = System.nanoTime();
+            String timeStr = String.valueOf(time);
+            String subStr = timeStr.substring(0, timeStr.length()-2);
             StringBuilder sb = new StringBuilder();
-            sb.append(System.nanoTime());
+            sb.append(subStr);
+            int r = new Random().nextInt(100);
+            if(r<10){
+                sb.append("0").append(r);
+            }else{
+                sb.append(r);
+            }
             String ext = StringUtil.getExtention(originalName);
             if(!StringUtil.isEmpty(ext)){
                 sb.append(".").append(ext);
