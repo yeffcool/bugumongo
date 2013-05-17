@@ -280,12 +280,7 @@ public class BuguDao<T> {
         return remove(query.getCondition());
     }
     
-    /**
-     * Remove by condition.
-     * @param query 
-     * @return 
-     */
-    public WriteResult remove(DBObject query){
+    private WriteResult remove(DBObject query){
         List<T> list = this.find(query);
         if(cascadeListener.hasCascade()){
             for(T t : list){
@@ -316,13 +311,13 @@ public class BuguDao<T> {
     }
     
     
-    public WriteResult set(DBObject query, String key, Object value){
+    public WriteResult set(BuguQuery query, String key, Object value){
         if(value instanceof BuguEntity){
             BuguEntity be = (BuguEntity)value;
             value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
         }
         DBObject dbo = new BasicDBObject(key, value);
-        return set(query, dbo);
+        return set(query.getCondition(), dbo);
     }
     
     /**
@@ -416,13 +411,7 @@ public class BuguDao<T> {
         return unset(query.getCondition(), key);
     }
     
-    /**
-     * Remove a field(column).
-     * @param query matching codition
-     * @param key the field's name
-     * @return 
-     */
-    public WriteResult unset(DBObject query, String key){
+    private WriteResult unset(DBObject query, String key){
         boolean indexField = (luceneListener != null) && IndexChecker.hasIndexAnnotation(clazz, key); 
         List ids = null;
         if(indexField){
@@ -583,15 +572,7 @@ public class BuguDao<T> {
             BuguEntity be = (BuguEntity)value;
             value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
         }
-        return exists(new BasicDBObject(key, value));
-    }
-    
-    /**
-     * Check if any entity match the condition
-     * @param query the condition
-     * @return 
-     */
-    public boolean exists(DBObject query){
+        DBObject query = new BasicDBObject(key, value);
         return coll.findOne(query) != null;
     }
     

@@ -52,7 +52,7 @@ public class AdvancedDao<T> extends BuguDao<T>{
         return max(key, query.getCondition());
     }
     
-    public double max(String key, DBObject query){
+    private double max(String key, DBObject query){
         if(!this.exists(query)){
             return 0;
         }
@@ -81,7 +81,7 @@ public class AdvancedDao<T> extends BuguDao<T>{
         return min(key, query.getCondition());
     }
     
-    public double min(String key, DBObject query){
+    private double min(String key, DBObject query){
         if(!this.exists(query)){
             return 0;
         }
@@ -110,7 +110,7 @@ public class AdvancedDao<T> extends BuguDao<T>{
         return sum(key, query.getCondition());
     }
     
-    public double sum(String key, DBObject query){
+    private double sum(String key, DBObject query){
         if(!this.exists(query)){
             return 0;
         }
@@ -139,7 +139,7 @@ public class AdvancedDao<T> extends BuguDao<T>{
         return average(key, query.getCondition());
     }
     
-    public double average(String key, DBObject query){
+    private double average(String key, DBObject query){
         long count = this.count(query);
         if(count == 0){
             return 0;
@@ -170,7 +170,7 @@ public class AdvancedDao<T> extends BuguDao<T>{
         return mapReduce(map, reduce, query.getCondition());
     }
     
-    public Iterable<DBObject> mapReduce(String map, String reduce, DBObject query) throws MapReduceException {
+    private Iterable<DBObject> mapReduce(String map, String reduce, DBObject query) throws MapReduceException {
         MapReduceOutput output = coll.mapReduce(map, reduce, null, OutputType.INLINE, query);
         CommandResult cr = output.getCommandResult();
         if(! cr.ok()){
@@ -183,7 +183,7 @@ public class AdvancedDao<T> extends BuguDao<T>{
         return mapReduce(map, reduce, outputTarget, outputType, orderBy, query.getCondition());
     }
     
-    public synchronized Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, DBObject query) throws MapReduceException {
+    private synchronized Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, DBObject query) throws MapReduceException {
         MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
         CommandResult cr = output.getCommandResult();
         if(! cr.ok()){
@@ -207,7 +207,7 @@ public class AdvancedDao<T> extends BuguDao<T>{
         return mapReduce(map, reduce, outputTarget, outputType, orderBy, pageNum, pageSize, query.getCondition());
     }
     
-    public synchronized Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, int pageNum, int pageSize, DBObject query) throws MapReduceException {
+    private synchronized Iterable<DBObject> mapReduce(String map, String reduce, String outputTarget, MapReduceCommand.OutputType outputType, String orderBy, int pageNum, int pageSize, DBObject query) throws MapReduceException {
         MapReduceOutput output = coll.mapReduce(map, reduce, outputTarget, outputType, query);
         CommandResult cr = output.getCommandResult();
         if(! cr.ok()){
@@ -233,6 +233,15 @@ public class AdvancedDao<T> extends BuguDao<T>{
      */
     public BuguAggregation<T> aggregate(){
         return new BuguAggregation<T>(coll);
+    }
+    
+    /**
+     * Check if any entity match the condition
+     * @param query the condition
+     * @return 
+     */
+    private boolean exists(DBObject query){
+        return coll.findOne(query) != null;
     }
     
 }
