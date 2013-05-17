@@ -50,9 +50,12 @@ public class BuguQuery<T> {
     private Class<T> clazz;
     private DBObject keys;
     private DBObject slices;
+    private DBObject fields;
+    
+    private boolean fieldsSpecified = false;
     
     private String orderBy;
-    private DBObject condition;
+    private DBObject condition = new BasicDBObject();
     private int pageNumber = 0;  //default value is zero
     private int pageSize = 0;  //default value is zero
     
@@ -60,8 +63,6 @@ public class BuguQuery<T> {
         this.coll = coll;
         this.clazz = clazz;
         this.keys = keys;
-        slices = new BasicDBObject();
-        condition = new BasicDBObject();
     }
     
     private void appendEquals(String key, String op, Object value){
@@ -250,20 +251,6 @@ public class BuguQuery<T> {
         return this;
     }
     
-    public BuguQuery<T> slice(String key, long num){
-        DBObject dbo = new BasicDBObject(Operator.SLICE, num);
-        slices.put(key, dbo);
-        keys.put(key, dbo);
-        return this;
-    }
-    
-    public BuguQuery<T> slice(String key, long begin, long length){
-        DBObject dbo = new BasicDBObject(Operator.SLICE, new Long[]{begin, length});
-        slices.put(key, dbo);
-        keys.put(key, dbo);
-        return this;
-    }
-    
     /**
      * Note: the regex string must in Java style, not JavaScript style.
      * @param key
@@ -322,6 +309,51 @@ public class BuguQuery<T> {
         return this;
     }
     
+    public BuguQuery<T> slice(String key, long num){
+        DBObject dbo = new BasicDBObject(Operator.SLICE, num);
+        return addSlice(key, dbo);
+    }
+    
+    public BuguQuery<T> slice(String key, long begin, long length){
+        DBObject dbo = new BasicDBObject(Operator.SLICE, new Long[]{begin, length});
+        return addSlice(key, dbo);
+    }
+    
+    private BuguQuery<T> addSlice(String key, DBObject dbo){
+        if(slices == null){
+            slices = new BasicDBObject();
+        }
+        slices.put(key, dbo);
+        keys.put(key, dbo);
+        if(fields == null){
+            fields = new BasicDBObject();
+        }
+        fields.put(key, dbo);
+        return this;
+    }
+    
+    public BuguQuery<T> returnFields(String... fieldNames){
+        return specifyFields(1, fieldNames);
+    }
+    
+    public BuguQuery<T> excludeFields(String... fieldNames){
+        return specifyFields(0, fieldNames);
+    }
+    
+    private BuguQuery<T> specifyFields(int value, String... fieldNames){
+        if(fields == null){
+            fields = new BasicDBObject();
+        }
+        for(String field : fieldNames){
+            //do not replace the $slice, if has set
+            if(fields.get(field)==null){
+                fields.put(field, value);
+            }
+        }
+        fieldsSpecified = true;
+        return this;
+    }
+    
     public BuguQuery<T> sort(String orderBy){
         this.orderBy = orderBy;
         return this;
@@ -349,12 +381,24 @@ public class BuguQuery<T> {
         }catch(DBQueryException ex){
             logger.error(ex.getMessage(), ex);
         }
-        DBObject dbo = coll.findOne(condition, slices);
+        DBObject dbo = null;
+        if(fieldsSpecified){
+            dbo = coll.findOne(condition, fields);
+        }else if(slices != null){
+            dbo = coll.findOne(condition, slices);
+        }else{
+            dbo = coll.findOne(condition);
+        }
         return MapperUtil.fromDBObject(clazz, dbo);
     }
     
     public List<T> results(){
-        DBCursor cursor = coll.find(condition, keys);
+        DBCursor cursor = null;
+        if(fieldsSpecified){
+            cursor = coll.find(condition, fields);
+        }else{
+            cursor = coll.find(condition, keys);
+        }
         if(orderBy != null){
             cursor.sort(MapperUtil.getSort(orderBy));
         }
