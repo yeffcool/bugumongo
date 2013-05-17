@@ -336,7 +336,7 @@ public class BuguQuery<T> {
         return specifyFields(1, fieldNames);
     }
     
-    public BuguQuery<T> excludeFields(String... fieldNames){
+    public BuguQuery<T> notReturnFields(String... fieldNames){
         return specifyFields(0, fieldNames);
     }
     
