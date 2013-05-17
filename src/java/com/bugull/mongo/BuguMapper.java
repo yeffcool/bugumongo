@@ -44,7 +44,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 /**
- * The utility class for ODM(Object Document Mapping).
+ * The utility class for ODM(Object Document Mapping), mainly fetch lazy and cascade data.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
