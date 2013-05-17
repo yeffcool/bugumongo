@@ -94,6 +94,11 @@ public class MapperUtil {
         return list;
     }
     
+    /**
+     * convert order string to DBObject.
+     * @param orderBy
+     * @return 
+     */
     public static DBObject getSort(String orderBy){
         DBObject sort = new BasicDBObject();
         orderBy = orderBy.replaceAll("[{}'']", "");
@@ -110,6 +115,11 @@ public class MapperUtil {
         return sort;
     }
     
+    /**
+     * options for ensureIndex().
+     * @param index
+     * @return 
+     */
     public static List<DBIndex> getDBIndex(String index){
         List<DBIndex> list = new ArrayList<DBIndex>();
         index = index.replaceAll("\\}[^{^}]+\\{", "};{");
