@@ -187,6 +187,12 @@ public class FieldsCache {
         return field;
     }
     
+    /**
+     * check if the field is annotated by @EmbedList
+     * @param clazz
+     * @param fieldName
+     * @return 
+     */
     public boolean isEmbedListField(Class<?> clazz, String fieldName){
         boolean result = false;
         Field[] fields = get(clazz);
