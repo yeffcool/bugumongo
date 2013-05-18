@@ -47,9 +47,9 @@ public class BuguQuery<T> {
     private DBCollection coll;
     private Class<T> clazz;
     private DBObject keys;
+    
     private DBObject slices;
     private DBObject fields;
-    
     private boolean fieldsSpecified = false;
     
     private String orderBy;
