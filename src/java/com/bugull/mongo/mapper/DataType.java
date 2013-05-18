@@ -96,7 +96,10 @@ public class DataType {
      * @return 
      */
     public static boolean isList(Class type){
-        return type.equals(java.util.List.class) || type.equals(java.util.ArrayList.class) || type.equals(java.util.LinkedList.class);
+        return type.equals(java.util.List.class) 
+                || type.equals(java.util.ArrayList.class) 
+                || type.equals(java.util.LinkedList.class) 
+                || type.equals(java.util.Vector.class);
     }
     
     /**
@@ -105,7 +108,9 @@ public class DataType {
      * @return 
      */
     public static boolean isSet(Class type){
-        return type.equals(java.util.Set.class) || type.equals(java.util.HashSet.class) || type.equals(java.util.TreeSet.class);
+        return type.equals(java.util.Set.class) 
+                || type.equals(java.util.HashSet.class) 
+                || type.equals(java.util.TreeSet.class);
     }
     
     /**
@@ -114,7 +119,10 @@ public class DataType {
      * @return 
      */
     public static boolean isMap(Class type){
-        return type.equals(java.util.Map.class) || type.equals(java.util.HashMap.class) || type.equals(java.util.TreeMap.class);
+        return type.equals(java.util.Map.class) 
+                || type.equals(java.util.HashMap.class) 
+                || type.equals(java.util.TreeMap.class) 
+                || type.equals(java.util.Hashtable.class);
     }
     
 }
