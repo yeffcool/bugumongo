@@ -166,25 +166,25 @@ public class BuguQuery<T> {
         return this;
     }
     
-    public BuguQuery<T> or(BuguQuery... qs){
+    public BuguQuery<T> or(BuguQuery... querys){
         List list = (List)condition.get(Operator.OR);
         if(list == null){
             list = new ArrayList();
             condition.put(Operator.OR, list);
         }
-        for(BuguQuery q : qs){
+        for(BuguQuery q : querys){
             list.add(q.getCondition());
         }
         return this;
     }
     
-    public BuguQuery<T> and(BuguQuery... qs){
+    public BuguQuery<T> and(BuguQuery... querys){
         List list = (List)condition.get(Operator.AND);
         if(list == null){
             list = new ArrayList();
             condition.put(Operator.AND, list);
         }
-        for(BuguQuery q : qs){
+        for(BuguQuery q : querys){
             list.add(q.getCondition());
         }
         return this;
