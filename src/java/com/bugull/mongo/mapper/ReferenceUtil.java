@@ -34,7 +34,7 @@ import org.bson.types.ObjectId;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class ReferenceUtil {
+public final class ReferenceUtil {
     
     private final static Logger logger = Logger.getLogger(ReferenceUtil.class);
     

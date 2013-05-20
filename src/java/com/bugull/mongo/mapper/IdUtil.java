@@ -27,7 +27,7 @@ import org.bson.types.ObjectId;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class IdUtil {
+public final class IdUtil {
     
     private final static Logger logger = Logger.getLogger(IdUtil.class);
     

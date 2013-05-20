@@ -39,7 +39,7 @@ import java.util.List;
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class MapperUtil {
+public final class MapperUtil {
     
     /**
      * Convert a DBObject to entity object

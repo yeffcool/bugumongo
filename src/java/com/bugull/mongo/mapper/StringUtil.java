@@ -19,11 +19,9 @@ package com.bugull.mongo.mapper;
 /**
  * Utility class for String.
  * 
- * <p>Thanks to wendal1985</p>
- * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class StringUtil {
+public final class StringUtil {
     
     /**
      * Check if a string is empty

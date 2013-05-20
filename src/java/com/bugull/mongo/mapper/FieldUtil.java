@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class FieldUtil {
+public final class FieldUtil {
     
     private final static Logger logger = Logger.getLogger(FieldUtil.class);
     

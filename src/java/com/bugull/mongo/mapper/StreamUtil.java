@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class StreamUtil {
+public final class StreamUtil {
     
     private final static Logger logger = Logger.getLogger(StreamUtil.class);
     

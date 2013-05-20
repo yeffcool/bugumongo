@@ -20,7 +20,7 @@ package com.bugull.mongo.mapper;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class DataType {
+public final class DataType {
     
     public static boolean isString(Class type){
         return type.equals(String.class);
