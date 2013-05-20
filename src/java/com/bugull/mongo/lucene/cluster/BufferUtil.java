@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class BufferUtil {
+public final class BufferUtil {
     
     /**
      * Convert a serializable object to buffer.
