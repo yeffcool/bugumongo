@@ -23,7 +23,7 @@ import com.bugull.mongo.BuguEntity;
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class MessageFactory {
+public final class MessageFactory {
     
     public static EntityMessage createInsertMessage(BuguEntity entity){
         EntityMessage message = new EntityMessage();

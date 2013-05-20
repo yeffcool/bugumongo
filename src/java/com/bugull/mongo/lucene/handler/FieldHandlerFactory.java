@@ -28,7 +28,7 @@ import java.lang.reflect.Field;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class FieldHandlerFactory {
+public final class FieldHandlerFactory {
     
     private final static String DOT = ".";
     

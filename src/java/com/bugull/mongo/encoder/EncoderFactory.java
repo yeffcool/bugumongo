@@ -28,7 +28,7 @@ import java.lang.reflect.Field;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class EncoderFactory {
+public final class EncoderFactory {
     
     public static Encoder create(Object obj, Field field){
         Encoder encoder = null;

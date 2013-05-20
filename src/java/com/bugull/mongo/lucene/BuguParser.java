@@ -34,7 +34,7 @@ import org.apache.lucene.search.TermQuery;
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class BuguParser {
+public final class BuguParser {
     
     private final static Logger logger = Logger.getLogger(BuguParser.class);
     

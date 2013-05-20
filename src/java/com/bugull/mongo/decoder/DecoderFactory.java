@@ -29,7 +29,7 @@ import java.lang.reflect.Field;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class DecoderFactory {
+public final class DecoderFactory {
     
     public static Decoder create(Field field, DBObject dbo){
         Decoder decoder = null;
