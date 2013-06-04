@@ -121,11 +121,6 @@ public final class ReferenceUtil {
         return result;
     }
     
-    public static Object toDbReference(RefList refList, Class<?> clazz, Object value){
-        String idStr = fromDbReference(refList, value);
-        return toDbReference(refList, clazz, idStr);
-    }
-    
     public static Object toDbReference(Class<?> clazz, String fieldName, Class<?> refClass, String idStr){
         Object result = null;
         Field refField = null;

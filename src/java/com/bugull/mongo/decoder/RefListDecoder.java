@@ -17,6 +17,7 @@
 package com.bugull.mongo.decoder;
 
 import com.bugull.mongo.BuguEntity;
+import com.bugull.mongo.BuguQuery;
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.ConstructorCache;
@@ -24,10 +25,8 @@ import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.mapper.DataType;
 import com.bugull.mongo.mapper.FieldUtil;
 import com.bugull.mongo.mapper.InternalDao;
-import com.bugull.mongo.mapper.MapperUtil;
 import com.bugull.mongo.mapper.Operator;
 import com.bugull.mongo.mapper.ReferenceUtil;
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -98,24 +97,21 @@ public class RefListDecoder extends AbstractDecoder{
             }
         }
         else{
-            List<Object> idList = new ArrayList<Object>();
+            List<String> idList = new ArrayList<String>();
             for(int i=0; i<size; i++){
                 Object item = list.get(i);
                 if(item != null){
-                    Object refId = ReferenceUtil.toDbReference(refList, clazz, item);
+                    String refId = ReferenceUtil.fromDbReference(refList, item);
                     idList.add(refId);
                 }
             }
-            DBObject in = new BasicDBObject(Operator.IN, idList);
-            DBObject query = new BasicDBObject(Operator.ID, in);
             InternalDao dao = DaoCache.getInstance().get(clazz);
+            BuguQuery query = dao.query().in(Operator.ID, idList);
             String sort = refList.sort();
-            List<BuguEntity> entityList = null;
-            if(sort.equals(Default.SORT)){
-                entityList = dao.find(query);
-            }else{
-                entityList = dao.find(query, MapperUtil.getSort(sort));
+            if(!sort.equals(Default.SORT)){
+                query.sort(sort);
             }
+            List<BuguEntity> entityList = query.results();
             if(entityList.size() != size){
                 size = entityList.size();
                 arr = Array.newInstance(clazz, size);
@@ -141,22 +137,20 @@ public class RefListDecoder extends AbstractDecoder{
                 }
             }
         }else{
-            List<Object> idList = new ArrayList<Object>();
+            List<String> idList = new ArrayList<String>();
             for(Object item : list){
                 if(item != null){
-                    Object refId = ReferenceUtil.toDbReference(refList, clazz, item);
+                    String refId = ReferenceUtil.fromDbReference(refList, item);
                     idList.add(refId);
                 }
             }
-            DBObject in = new BasicDBObject(Operator.IN, idList);
-            DBObject query = new BasicDBObject(Operator.ID, in);
             InternalDao dao = DaoCache.getInstance().get(clazz);
+            BuguQuery query = dao.query().in(Operator.ID, idList);
             String sort = refList.sort();
-            if(sort.equals(Default.SORT)){
-                result = dao.find(query);
-            }else{
-                result = dao.find(query, MapperUtil.getSort(sort));
+            if(!sort.equals(Default.SORT)){
+                query.sort(sort);
             }
+            result = query.results();
         }
         Class type = field.getType();
         if(DataType.isList(type)){
