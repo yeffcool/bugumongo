@@ -19,6 +19,7 @@ package com.bugull.mongo.cache;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
@@ -36,10 +37,10 @@ public class IndexSearcherCache {
     
     private static IndexSearcherCache instance = new IndexSearcherCache();
     
-    private Map<String, IndexSearcher> cache;
+    private final ConcurrentMap<String, IndexSearcher> cache = new ConcurrentHashMap<String, IndexSearcher>();
     
     private IndexSearcherCache(){
-        cache = new ConcurrentHashMap<String, IndexSearcher>();
+        
     }
     
     public static IndexSearcherCache getInstance(){
@@ -47,26 +48,25 @@ public class IndexSearcherCache {
     }
     
     public IndexSearcher get(String name){
-        IndexSearcher searcher = null;
-        if(cache.containsKey(name)){
+        IndexSearcher searcher = cache.get(name);
+        if(searcher != null){
+            return searcher;
+        }
+        
+        synchronized(this){
             searcher = cache.get(name);
-        }else{
-            synchronized(this){
-                if(cache.containsKey(name)){
-                    searcher = cache.get(name);
-                }else{
-                    IndexWriter writer = IndexWriterCache.getInstance().get(name);
-                    IndexReader reader = null;
-                    try {
-                        reader = IndexReader.open(writer, true);
-                    } catch (CorruptIndexException ex) {
-                        logger.error("Something is wrong when open lucene IndexWriter", ex);
-                    } catch (IOException ex) {
-                        logger.error("Something is wrong when open lucene IndexWriter", ex);
-                    }
-                    searcher = new IndexSearcher(reader);
-                    cache.put(name, searcher);
+            if(searcher == null){
+                IndexWriter writer = IndexWriterCache.getInstance().get(name);
+                IndexReader reader = null;
+                try {
+                    reader = IndexReader.open(writer, true);
+                } catch (CorruptIndexException ex) {
+                    logger.error("Something is wrong when open lucene IndexWriter", ex);
+                } catch (IOException ex) {
+                    logger.error("Something is wrong when open lucene IndexWriter", ex);
                 }
+                searcher = new IndexSearcher(reader);
+                cache.put(name, searcher);
             }
         }
         return searcher;

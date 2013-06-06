@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class HostAddressUtil {
+public final class HostAddressUtil {
     
     private final static Logger logger = Logger.getLogger(HostAddressUtil.class);
     

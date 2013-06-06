@@ -18,6 +18,7 @@ package com.bugull.mongo.fs;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Count the number of threads that accessing file in GridFS.
@@ -28,7 +29,7 @@ public class AccessCount {
     
     private static AccessCount instance = new AccessCount();
     
-    private Map<String, Integer> map = new ConcurrentHashMap<String, Integer>();
+    private final ConcurrentMap<String, Integer> map = new ConcurrentHashMap<String, Integer>();
     
     private AccessCount(){
         
@@ -40,8 +41,9 @@ public class AccessCount {
     
     public int getCount(String resourceName){
         int count = 0;
-        if(map.containsKey(resourceName)){
-            count = map.get(resourceName);
+        Integer v = map.get(resourceName);
+        if(v != null){
+            count = v;
         }
         return count;
     }

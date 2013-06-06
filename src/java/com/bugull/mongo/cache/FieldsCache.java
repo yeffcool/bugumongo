@@ -28,8 +28,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.apache.log4j.Logger;
 
 /**
@@ -43,10 +43,10 @@ public class FieldsCache {
     
     private static FieldsCache instance = new FieldsCache();
     
-    private Map<String, Field[]> cache;
+    private final ConcurrentMap<String, Field[]> cache = new ConcurrentHashMap<String, Field[]>();
     
     private FieldsCache(){
-        cache = new ConcurrentHashMap<String, Field[]>();
+        
     }
     
     public static FieldsCache getInstance(){
@@ -86,15 +86,19 @@ public class FieldsCache {
     }
     
     public Field[] get(Class<?> clazz){
-        Field[] fields = null;
         String name = clazz.getName();
-        if(cache.containsKey(name)){
-            fields = cache.get(name);
-        }else{
-            fields = getAllFields(clazz);
-            cache.put(name, fields);
+        Field[] fields = cache.get(name);
+        if(fields != null){
+            return fields;
         }
-        return fields;
+        
+        fields = getAllFields(clazz);
+        Field[] temp = cache.putIfAbsent(name, fields);
+        if(temp != null){
+            return temp;
+        }else{
+            return fields;
+        }
     }
     
     /**

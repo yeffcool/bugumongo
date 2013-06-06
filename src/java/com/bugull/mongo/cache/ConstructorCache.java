@@ -18,8 +18,8 @@ package com.bugull.mongo.cache;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.apache.log4j.Logger;
 
 /**
@@ -34,10 +34,10 @@ public class ConstructorCache {
     
     private static ConstructorCache instance = new ConstructorCache();
     
-    private Map<String, Constructor<?>> cache;
+    private final ConcurrentMap<String, Constructor<?>> cache = new ConcurrentHashMap<String, Constructor<?>>();
     
     private ConstructorCache(){
-        cache = new ConcurrentHashMap<String, Constructor<?>>();
+        
     }
     
     public static ConstructorCache getInstance(){
@@ -45,22 +45,26 @@ public class ConstructorCache {
     }
     
     private <T> Constructor<T> get(Class<T> clazz){
-        Constructor<T> cons = null;
         String name = clazz.getName();
-        if(cache.containsKey(name)){
-            cons = (Constructor<T>) cache.get(name);
-        }else{
-            Class[] types = null;
-            try {
-                cons = clazz.getConstructor(types);
-            } catch (NoSuchMethodException ex) {
-                logger.error("Something is wrong when getting the constructor", ex);
-            } catch (SecurityException ex) {
-                logger.error("Something is wrong when getting the constructor", ex);
-            }
-            cache.put(name, cons);
+        Constructor<?> cons = cache.get(name);
+        if(cons != null){
+            return (Constructor<T>)cons;
         }
-        return cons;
+        
+        Class[] types = null;
+        try {
+            cons = clazz.getConstructor(types);
+        } catch (NoSuchMethodException ex) {
+            logger.error("Something is wrong when getting the constructor", ex);
+        } catch (SecurityException ex) {
+            logger.error("Something is wrong when getting the constructor", ex);
+        }
+        Constructor<?> temp = cache.putIfAbsent(name, cons);
+        if(temp != null){
+            return (Constructor<T>)temp;
+        }else{
+            return (Constructor<T>)cons;
+        }
     }
     
     public <T> T create(Class<T> clazz){

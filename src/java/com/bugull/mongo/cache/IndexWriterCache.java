@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -38,10 +39,10 @@ public class IndexWriterCache {
     
     private static IndexWriterCache instance = new IndexWriterCache();
     
-    private Map<String, IndexWriter> cache;
+    private final ConcurrentMap<String, IndexWriter> cache = new ConcurrentHashMap<String, IndexWriter>();
     
     private IndexWriterCache(){
-        cache = new ConcurrentHashMap<String, IndexWriter>();
+        
     }
     
     public static IndexWriterCache getInstance(){
@@ -49,27 +50,26 @@ public class IndexWriterCache {
     }
     
     public IndexWriter get(String name){
-        IndexWriter writer = null;
-        if(cache.containsKey(name)){
+        IndexWriter writer = cache.get(name);
+        if(writer != null){
+            return writer;
+        }
+        
+        synchronized(this){
             writer = cache.get(name);
-        }else{
-            synchronized(this){
-                if(cache.containsKey(name)){
-                    writer = cache.get(name);
-                }else{
-                    BuguIndex index = BuguIndex.getInstance();
-                    IndexWriterConfig conf = new IndexWriterConfig(index.getVersion(), index.getAnalyzer());
-                    double bufferSizeMB = index.getBufferSizeMB();
-                    conf.setRAMBufferSizeMB(bufferSizeMB);
-                    try{
-                        String path = index.getDirectoryPath();
-                        Directory directory = FSDirectory.open(new File(path + "/" + name));
-                        writer = new IndexWriter(directory, conf);
-                    }catch(IOException ex){
-                        logger.error("Something is wrong when create IndexWriter for " + name, ex);
-                    }
-                    cache.put(name, writer);
+            if(writer == null){
+                BuguIndex index = BuguIndex.getInstance();
+                IndexWriterConfig conf = new IndexWriterConfig(index.getVersion(), index.getAnalyzer());
+                double bufferSizeMB = index.getBufferSizeMB();
+                conf.setRAMBufferSizeMB(bufferSizeMB);
+                try{
+                    String path = index.getDirectoryPath();
+                    Directory directory = FSDirectory.open(new File(path + "/" + name));
+                    writer = new IndexWriter(directory, conf);
+                }catch(IOException ex){
+                    logger.error("Something is wrong when create IndexWriter for " + name, ex);
                 }
+                cache.put(name, writer);
             }
         }
         return writer;

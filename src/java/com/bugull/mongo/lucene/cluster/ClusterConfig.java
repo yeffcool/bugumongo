@@ -17,8 +17,8 @@
 package com.bugull.mongo.lucene.cluster;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -35,7 +35,7 @@ public class ClusterConfig {
     
     private boolean selfNode;
     private List<String> localAddresses;
-    private Map<String, ClusterNode> clusterNodes;
+    private ConcurrentMap<String, ClusterNode> clusterNodes;
     
     private ExecutorService executor;  //thread pool to send/receive message to/from brother nodes 
     private int threadPoolSize = 10;  //default thread pool size is 10

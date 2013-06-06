@@ -17,8 +17,8 @@
 package com.bugull.mongo.cache;
 
 import com.bugull.mongo.mapper.InternalDao;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Cache(Map) contains dao instance.
@@ -30,10 +30,10 @@ public class DaoCache {
     
     private static DaoCache instance = new DaoCache();
     
-    private Map<String, InternalDao<?>> cache;
+    private final ConcurrentMap<String, InternalDao<?>> cache = new ConcurrentHashMap<String, InternalDao<?>>();
     
     private DaoCache(){
-        cache = new ConcurrentHashMap<String, InternalDao<?>>();
+        
     }
     
     public static DaoCache getInstance(){
@@ -41,15 +41,19 @@ public class DaoCache {
     }
     
     public <T> InternalDao<T> get(Class<T> clazz){
-        InternalDao<T> dao = null;
         String name = clazz.getName();
-        if(cache.containsKey(name)){
-            dao = (InternalDao<T>) cache.get(name);
-        }else{
-            dao = new InternalDao<T>(clazz);
-            cache.put(name, dao);
+        InternalDao<?> dao = cache.get(name);
+        if(dao != null){
+            return (InternalDao<T>)dao;
         }
-        return dao;
+        
+        dao = new InternalDao<T>(clazz);
+        InternalDao<?> temp = cache.putIfAbsent(name, dao);
+        if(temp != null){
+            return (InternalDao<T>)temp;
+        }else{
+            return (InternalDao<T>)dao;
+        }
     }
     
 }
