@@ -91,7 +91,7 @@ public final class DataType {
     }
     
     /**
-     * Only List, ArrayList, LinkedList are supported now.
+     * Only List, ArrayList, LinkedList, Vector are supported now.
      * @param type
      * @return 
      */
@@ -114,7 +114,7 @@ public final class DataType {
     }
     
     /**
-     * Only Map, HashMap, TreeMap are supported now.
+     * Only Map, HashMap, TreeMap, Hashtable are supported now.
      * @param type
      * @return 
      */

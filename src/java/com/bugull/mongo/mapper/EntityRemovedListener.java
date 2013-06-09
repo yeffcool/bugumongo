@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * for cascade delete
+ * Listener for cascade delete
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
