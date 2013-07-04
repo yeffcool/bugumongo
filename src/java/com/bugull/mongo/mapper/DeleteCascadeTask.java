@@ -17,14 +17,14 @@
 package com.bugull.mongo.mapper;
 
 import com.bugull.mongo.BuguEntity;
+import com.bugull.mongo.BuguQuery;
 import com.bugull.mongo.cache.DaoCache;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,8 +61,7 @@ public class DeleteCascadeTask implements Runnable{
         if(value != null){
             Class<?> type = f.getType();
             InternalDao dao = DaoCache.getInstance().get(type);
-            BuguEntity obj = (BuguEntity)value;
-            dao.remove(obj.getId());
+            dao.remove(value);
         }
     }
     
@@ -71,7 +70,7 @@ public class DeleteCascadeTask implements Runnable{
         if(value == null){
             return;
         }
-        List<Object> idList = null;
+        List<String> idList = null;
         Class<?> clazz = null;
         Class<?> type = f.getType();
         if(type.isArray()){
@@ -93,33 +92,30 @@ public class DeleteCascadeTask implements Runnable{
             return;
         }
         InternalDao dao = DaoCache.getInstance().get(clazz);
-        DBObject in = new BasicDBObject(Operator.IN, idList);
-        DBObject query = new BasicDBObject(Operator.ID, in);
+        BuguQuery query = dao.query().in(Operator.ID, idList);
         dao.remove(query);
     }
     
-    private List<Object> getArrayIds(Object value){
+    private List<String> getArrayIds(Object value){
         int len = Array.getLength(value);
-        List<Object> idList = new ArrayList<Object>();
+        List<String> idList = new ArrayList<String>();
         for(int i=0; i<len; i++){
             Object item = Array.get(value, i);
             if(item != null){
                 BuguEntity ent = (BuguEntity)item;
-                Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
-                idList.add(dbId);
+                idList.add(ent.getId());
             }
         }
         return idList;
     }
     
-    private List<Object> getListIds(Object value, Class type){
-        List<Object> idList = new ArrayList<Object>();
+    private List<String> getListIds(Object value, Class type){
+        List<String> idList = new ArrayList<String>();
         if(DataType.isList(type)){
             List<BuguEntity> list = (List<BuguEntity>)value;
             for(BuguEntity ent : list){
                 if(ent != null){
-                    Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
-                    idList.add(dbId);
+                    idList.add(ent.getId());
                 }
             }
         }
@@ -127,23 +123,20 @@ public class DeleteCascadeTask implements Runnable{
             Set<BuguEntity> set = (Set<BuguEntity>)value;
             for(BuguEntity ent : set){
                 if(ent != null){
-                    Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
-                    idList.add(dbId);
+                    idList.add(ent.getId());
                 }
             }
         }
         return idList;
     }
     
-    private List<Object> getMapIds(Object value){
+    private List<String> getMapIds(Object value){
         Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
-        Set<Object> keys = map.keySet();
-        List<Object> idList = new ArrayList<Object>();
-        for(Object key : keys){
-            BuguEntity ent = map.get(key);
+        Collection<BuguEntity> values = map.values();
+        List<String> idList = new ArrayList<String>();
+        for(BuguEntity ent : values){
             if(ent != null){
-                Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
-                idList.add(dbId);
+                idList.add(ent.getId());
             }
         }
         return idList;
