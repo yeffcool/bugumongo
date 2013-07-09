@@ -21,7 +21,7 @@ package com.bugull.mongo.annotations;
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class Default {
+public final class Default {
     
     public final static String NAME = "";
     
