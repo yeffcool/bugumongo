@@ -16,12 +16,12 @@
 
 package com.bugull.mongo.fs;
 
+import com.bugull.mongo.mapper.StreamUtil;
 import com.bugull.mongo.mapper.StringUtil;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -108,6 +108,7 @@ public class Uploader {
         if(rename){
             long time = System.nanoTime();
             String timeStr = String.valueOf(time);
+            //the nano time's last 2 bits is 00, replace it with random number
             String subStr = timeStr.substring(0, timeStr.length()-2);
             StringBuilder sb = new StringBuilder();
             sb.append(subStr);
@@ -130,11 +131,7 @@ public class Uploader {
     protected void saveInputStream(){
         BuguFS fs = new BuguFS(bucketName, chunkSize);
         fs.save(input, filename, params);
-        try{
-            input.close();
-        }catch(IOException ex){
-            logger.error("Can not close the InputStream", ex);
-        }
+        StreamUtil.safeClose(input);
     }
     
 }
