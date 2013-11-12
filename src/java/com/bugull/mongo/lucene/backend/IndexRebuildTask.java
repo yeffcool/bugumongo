@@ -41,23 +41,25 @@ public class IndexRebuildTask implements Runnable{
     private IndexWriter writer;
     private int batchSize;
     
+    private String entityName;
+    
     public IndexRebuildTask(Class<?> clazz, int batchSize){
         this.clazz = clazz;
         this.batchSize = batchSize;
-        String name = MapperUtil.getEntityName(clazz);
+        entityName = MapperUtil.getEntityName(clazz);
         IndexWriterCache cache = IndexWriterCache.getInstance();
-        writer = cache.get(name);
+        writer = cache.get(entityName);
     }
 
     @Override
     public void run() {
         BuguIndex index = BuguIndex.getInstance();
-        if(index.isRebuilding()){
-            logger.error("Another rebuilding task is running");
+        if(index.isRebuilding(entityName)){
+            logger.error("Another rebuilding task is running on: " + entityName);
             return;
         }
-        index.setRebuilding(true);
-        logger.info("Index rebuilding start...");
+        index.setRebuilding(entityName, true);
+        logger.info("Index rebuilding start on: " + entityName);
         try{
             writer.deleteAll();
         }catch(IOException ex){
@@ -78,8 +80,8 @@ public class IndexRebuildTask implements Runnable{
             List list = dao.findForLucene(++pages, batchSize);
             process(list);
         }
-        index.setRebuilding(false);
-        logger.info("Index rebuilding finish.");
+        index.setRebuilding(entityName, false);
+        logger.info("Index rebuilding finish on: " + entityName);
     }
     
     private void process(List list){

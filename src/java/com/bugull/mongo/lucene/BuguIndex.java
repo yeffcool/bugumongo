@@ -20,7 +20,10 @@ import com.bugull.mongo.cache.IndexWriterCache;
 import com.bugull.mongo.lucene.backend.IndexReopenTask;
 import com.bugull.mongo.lucene.cluster.ClusterConfig;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -60,7 +63,7 @@ public class BuguIndex {
     private long period = 30L * 1000L;  //by default, reopen index per 30 seconds
     
     private boolean reopening = false;
-    private boolean rebuilding = false;
+    private Set<String> rebuildingSet = Collections.synchronizedSet(new HashSet<String>());
     
     private BuguIndex(){
         
@@ -175,12 +178,16 @@ public class BuguIndex {
         this.reopening = reopening;
     }
 
-    public boolean isRebuilding() {
-        return rebuilding;
+    public boolean isRebuilding(String entityName) {
+        return rebuildingSet.contains(entityName);
     }
 
-    public void setRebuilding(boolean rebuilding) {
-        this.rebuilding = rebuilding;
+    public void setRebuilding(String entityName, boolean rebuilding) {
+        if(rebuilding){
+            rebuildingSet.add(entityName);
+        }else{
+            rebuildingSet.remove(entityName);
+        }
     }
 
     public ClusterConfig getClusterConfig() {

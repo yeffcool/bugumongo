@@ -89,36 +89,29 @@ public class BuguQuery<T> {
         }
     }
     
-    private List<Object> toIds(Object... values){
-        List<Object> idList = new ArrayList<Object>();
-        int len = values.length;
-        for(int i=0; i<len; i++){
-            if(values[i] != null){
-                Object dbId = IdUtil.toDbId(clazz, (String)values[i]);
-                idList.add(dbId);
+    private void appendThan(String key, String op, Object value){
+        if(key.indexOf(".")!=-1){
+            append(key, op, value);
+        }
+        else{
+            Field f = null;
+            try{
+                f = FieldsCache.getInstance().getField(clazz, key);
+            }catch(FieldException ex){
+                logger.error(ex.getMessage(), ex);
+            }
+            if(f.getAnnotation(Id.class)!=null){
+                Object dbId = IdUtil.toDbId(clazz, (String)value);
+                append(Operator.ID, op, dbId);
+            }
+            else{
+                append(key, op, value);
             }
         }
-        return idList;
-    }
-    
-    private List<Object> toReferenceList(String key, Object... values){
-        List<Object> refList = new ArrayList<Object>();
-        int len = values.length;
-        for(int i=0; i<len; i++){
-            if(values[i] != null){
-                BuguEntity ent = (BuguEntity)values[i];
-                Object refObj = ReferenceUtil.toDbReference(clazz, key, ent.getClass(), ent.getId());
-                refList.add(refObj);
-            }
-        }
-        return refList;
     }
     
     private void appendIn(String key, String op, Object... values){
-        if(key.equals(Operator.ID)){
-            append(key, op, toIds(values));
-        }
-        else if(key.indexOf(".")!=-1){
+        if(key.indexOf(".")!=-1){
             append(key, op, values);
         }
         else{
@@ -156,6 +149,31 @@ public class BuguQuery<T> {
         }
     }
     
+    private List<Object> toIds(Object... values){
+        List<Object> idList = new ArrayList<Object>();
+        int len = values.length;
+        for(int i=0; i<len; i++){
+            if(values[i] != null){
+                Object dbId = IdUtil.toDbId(clazz, (String)values[i]);
+                idList.add(dbId);
+            }
+        }
+        return idList;
+    }
+    
+    private List<Object> toReferenceList(String key, Object... values){
+        List<Object> refList = new ArrayList<Object>();
+        int len = values.length;
+        for(int i=0; i<len; i++){
+            if(values[i] != null){
+                BuguEntity ent = (BuguEntity)values[i];
+                Object refObj = ReferenceUtil.toDbReference(clazz, key, ent.getClass(), ent.getId());
+                refList.add(refObj);
+            }
+        }
+        return refList;
+    }
+    
     public BuguQuery<T> is(String key, Object value){
         appendEquals(key, null, value);
         return this;
@@ -191,22 +209,22 @@ public class BuguQuery<T> {
     }
     
     public BuguQuery<T> greaterThan(String key, Object value){
-        append(key, Operator.GT, value);
+        appendThan(key, Operator.GT, value);
         return this;
     }
     
     public BuguQuery<T> greaterThanEquals(String key, Object value){
-        append(key, Operator.GTE, value);
+        appendThan(key, Operator.GTE, value);
         return this;
     }
     
     public BuguQuery<T> lessThan(String key, Object value){
-        append(key, Operator.LT, value);
+        appendThan(key, Operator.LT, value);
         return this;
     }
     
     public BuguQuery<T> lessThanEquals(String key, Object value){
-        append(key, Operator.LTE, value);
+        appendThan(key, Operator.LTE, value);
         return this;
     }
     

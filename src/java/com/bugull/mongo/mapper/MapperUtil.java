@@ -94,6 +94,12 @@ public final class MapperUtil {
         return list;
     }
     
+    public static String toJsonString(Object obj){
+        DBObject dbo = toDBObject(obj);
+        BasicDBObject bdbo = (BasicDBObject)dbo;
+        return bdbo.toString();
+    }
+    
     /**
      * convert order string to DBObject.
      * @param orderBy
@@ -107,7 +113,7 @@ public final class MapperUtil {
             String[] kv = s.split(":");
             String k = kv[0].trim();
             String v = kv[1].trim();
-            if(k.equals("id")){
+            if(k.equals("id")){  //it's not strict here, but can solve most cases.
                 k = Operator.ID;
             }
             sort.put(k, Integer.parseInt(v));

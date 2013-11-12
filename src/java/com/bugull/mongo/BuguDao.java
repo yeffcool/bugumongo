@@ -42,6 +42,7 @@ import com.mongodb.WriteResult;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.log4j.Logger;
 
 /**
@@ -310,23 +311,27 @@ public class BuguDao<T> {
         return coll.update(query, dbo);
     }
     
-    
+    /**
+     * Update some entities, with new key/value pairs.
+     * Notice: @EmbedList and @RefList fields is not supported yet.
+     * @param query the query condition
+     * @param key the field's name
+     * @param value the field's new value
+     * @return 
+     */
     public WriteResult set(BuguQuery query, String key, Object value){
         if(value instanceof BuguEntity){
             BuguEntity be = (BuguEntity)value;
             value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }else if(!(value instanceof DBObject) && 
+                FieldsCache.getInstance().isEmbedField(clazz, key)){
+            value = MapperUtil.toDBObject(value);
         }
         DBObject dbo = new BasicDBObject(key, value);
         return set(query.getCondition(), dbo);
     }
     
-    /**
-     * Update some entities, with new key/value pairs.
-     * @param query the query condition
-     * @param dbo the new key/value pairs
-     * @return 
-     */
-    public WriteResult set(DBObject query, DBObject dbo){
+    private WriteResult set(DBObject query, DBObject dbo){
         List ids = null;
         if(luceneListener != null){
             ids = coll.distinct(Operator.ID, query);
@@ -343,6 +348,7 @@ public class BuguDao<T> {
     
     /**
      * Update a field's value of an entity.
+     * Notice: @EmbedList and @RefList fields is not supported yet.
      * @param t the entity needs to update
      * @param key the field's name
      * @param value the field's new value
@@ -355,6 +361,7 @@ public class BuguDao<T> {
     
     /**
      * Update a field's value of an entity.
+     * Notice: @EmbedList and @RefList fields is not supported yet.
      * @param id the entity's id
      * @param key the field's name
      * @param value the field's new value
@@ -364,6 +371,9 @@ public class BuguDao<T> {
         if(value instanceof BuguEntity){
             BuguEntity be = (BuguEntity)value;
             value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }else if(!(value instanceof DBObject) && 
+                FieldsCache.getInstance().isEmbedField(clazz, key)){
+            value = MapperUtil.toDBObject(value);
         }
         DBObject query = new BasicDBObject(key, value);
         DBObject set = new BasicDBObject(Operator.SET, query);
@@ -372,6 +382,18 @@ public class BuguDao<T> {
         }else{
             return updateWithOutIndex(id, set);
         }
+    }
+    
+    /**
+     * Update an entity, with new key/value pairs.
+     * Notice: the Map values must can be converted to DBObject.
+     * @param t the entity needs to be updated
+     * @param values the new key/value pairs
+     */
+    public void set(T t, Map values){
+        DBObject dbo = new BasicDBObject(values);
+        BuguEntity ent = (BuguEntity)t;
+        update(ent.getId(), new BasicDBObject(Operator.SET, dbo));
     }
     
     /**
@@ -514,7 +536,8 @@ public class BuguDao<T> {
         if(value instanceof BuguEntity){
             BuguEntity be = (BuguEntity)value;
             value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
-        }else if(FieldsCache.getInstance().isEmbedListField(clazz, key)){
+        }else if(!(value instanceof DBObject) && 
+                FieldsCache.getInstance().isEmbedListField(clazz, key)){
             value = MapperUtil.toDBObject(value);
         }
         DBObject query = new BasicDBObject(key, value);
@@ -549,7 +572,8 @@ public class BuguDao<T> {
         if(value instanceof BuguEntity){
             BuguEntity be = (BuguEntity)value;
             value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
-        }else if(FieldsCache.getInstance().isEmbedListField(clazz, key)){
+        }else if(!(value instanceof DBObject) && 
+                FieldsCache.getInstance().isEmbedListField(clazz, key)){
             value = MapperUtil.toDBObject(value);
         }
         DBObject query = new BasicDBObject(key, value);
@@ -562,6 +586,17 @@ public class BuguDao<T> {
     }
     
     /**
+     * Check if any entity with id already exists
+     * @param id the id value to check
+     * @return 
+     */
+    public boolean exists(String id){
+        DBObject query = new BasicDBObject();
+        query.put(Operator.ID, IdUtil.toDbId(clazz, id));
+        return coll.findOne(query) != null;
+    }
+    
+    /**
      * Check if any entity match the condition.
      * @param key the condition field
      * @param value the condition value
@@ -571,6 +606,9 @@ public class BuguDao<T> {
         if(value instanceof BuguEntity){
             BuguEntity be = (BuguEntity)value;
             value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }else if(!(value instanceof DBObject) &&
+                (FieldsCache.getInstance().isEmbedField(clazz, key) || FieldsCache.getInstance().isEmbedListField(clazz, key))){
+            value = MapperUtil.toDBObject(value);
         }
         DBObject query = new BasicDBObject(key, value);
         return coll.findOne(query) != null;
@@ -587,10 +625,19 @@ public class BuguDao<T> {
         if(value instanceof BuguEntity){
             BuguEntity be = (BuguEntity)value;
             value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }else if(!(value instanceof DBObject) &&
+                (FieldsCache.getInstance().isEmbedField(clazz, key) || FieldsCache.getInstance().isEmbedListField(clazz, key))){
+            value = MapperUtil.toDBObject(value);
         }
-        return findOne(new BasicDBObject(key, value));
+        DBObject query = new BasicDBObject(key, value);
+        DBObject dbo = coll.findOne(query);
+        return MapperUtil.fromDBObject(clazz, dbo);
     }
     
+    /**
+     * Please use BuguQuery instead.
+     */
+    @Deprecated
     public T findOne(DBObject query){
         DBObject dbo = coll.findOne(query);
         return MapperUtil.fromDBObject(clazz, dbo);
@@ -605,6 +652,7 @@ public class BuguDao<T> {
         return findAll(MapperUtil.getSort(orderBy));
     }
 
+    @Deprecated
     public List<T> findAll(DBObject orderBy){
         DBCursor cursor = coll.find(new BasicDBObject(), keys).sort(orderBy);
         return MapperUtil.toList(clazz, cursor);
@@ -619,11 +667,16 @@ public class BuguDao<T> {
         return findAll(MapperUtil.getSort(orderBy), pageNum, pageSize);
     }
 
+    @Deprecated
     public List<T> findAll(DBObject orderBy, int pageNum, int pageSize){
         DBCursor cursor = coll.find(new BasicDBObject(), keys).sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
         return MapperUtil.toList(clazz, cursor);
     }
     
+    /**
+     * Please use BuguQuery instead.
+     */
+    @Deprecated
     public List<T> find(String key, Object value){
         if(value instanceof BuguEntity){
             BuguEntity be = (BuguEntity)value;
@@ -631,12 +684,20 @@ public class BuguDao<T> {
         }
         return find(new BasicDBObject(key, value));
     }
-
+    
+    /**
+     * Please use BuguQuery instead.
+     */
+    @Deprecated
     public List<T> find(DBObject query){
         DBCursor cursor = coll.find(query, keys);
         return MapperUtil.toList(clazz, cursor);
     }
     
+    /**
+     * Please use BuguQuery instead.
+     */
+    @Deprecated
     public List<T> find(String key, Object value, String orderBy){
         if(value instanceof BuguEntity){
             BuguEntity be = (BuguEntity)value;
@@ -645,15 +706,27 @@ public class BuguDao<T> {
         return find(new BasicDBObject(key, value), MapperUtil.getSort(orderBy));
     }
     
+    /**
+     * Please use BuguQuery instead.
+     */
+    @Deprecated
     public List<T> find(DBObject query, String orderBy){
         return find(query, MapperUtil.getSort(orderBy));
     }
 
+    /**
+     * Please use BuguQuery instead.
+     */
+    @Deprecated
     public List<T> find(DBObject query, DBObject orderBy){
         DBCursor cursor = coll.find(query, keys).sort(orderBy);
         return MapperUtil.toList(clazz, cursor);
     }
     
+    /**
+     * Please use BuguQuery instead.
+     */
+    @Deprecated
     public List<T> find(String key, Object value, int pageNum, int pageSize){
         if(value instanceof BuguEntity){
             BuguEntity be = (BuguEntity)value;
@@ -662,11 +735,19 @@ public class BuguDao<T> {
         return find(new BasicDBObject(key, value), pageNum, pageSize);
     }
 
+    /**
+     * Please use BuguQuery instead.
+     */
+    @Deprecated
     public List<T> find(DBObject query, int pageNum, int pageSize){
         DBCursor cursor = coll.find(query, keys).skip((pageNum-1)*pageSize).limit(pageSize);
         return MapperUtil.toList(clazz, cursor);
     }
     
+    /**
+     * Please use BuguQuery instead.
+     */
+    @Deprecated
     public List<T> find(String key, Object value, String orderBy, int pageNum, int pageSize){
         if(value instanceof BuguEntity){
             BuguEntity be = (BuguEntity)value;
@@ -675,10 +756,18 @@ public class BuguDao<T> {
         return find(new BasicDBObject(key, value), MapperUtil.getSort(orderBy), pageNum, pageSize);
     }
     
+    /**
+     * Please use BuguQuery instead.
+     */
+    @Deprecated
     public List<T> find(DBObject query, String orderBy, int pageNum, int pageSize){
         return find(query, MapperUtil.getSort(orderBy), pageNum, pageSize);
     }
 
+    /**
+     * Please use BuguQuery instead.
+     */
+    @Deprecated
     public List<T> find(DBObject query, DBObject orderBy, int pageNum, int pageSize){
         DBCursor cursor = coll.find(query, keys).sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
         return MapperUtil.toList(clazz, cursor);
@@ -710,6 +799,9 @@ public class BuguDao<T> {
         if(value instanceof BuguEntity){
             BuguEntity be = (BuguEntity)value;
             value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }else if(!(value instanceof DBObject) &&
+                (FieldsCache.getInstance().isEmbedField(clazz, key) || FieldsCache.getInstance().isEmbedListField(clazz, key))){
+            value = MapperUtil.toDBObject(value);
         }
         return count(new BasicDBObject(key, value));
     }
