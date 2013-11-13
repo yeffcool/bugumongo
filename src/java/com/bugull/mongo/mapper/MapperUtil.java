@@ -94,12 +94,6 @@ public final class MapperUtil {
         return list;
     }
     
-    public static String toJsonString(Object obj){
-        DBObject dbo = toDBObject(obj);
-        BasicDBObject bdbo = (BasicDBObject)dbo;
-        return bdbo.toString();
-    }
-    
     /**
      * convert order string to DBObject.
      * @param orderBy

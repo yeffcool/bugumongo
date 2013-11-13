@@ -54,6 +54,17 @@ public class BuguMapper {
     private final static Logger logger = Logger.getLogger(BuguMapper.class);
     
     /**
+     * convert to JSON string.
+     * @param obj
+     * @return 
+     */
+    public static String toJsonString(Object obj){
+        DBObject dbo = MapperUtil.toDBObject(obj);
+        BasicDBObject bdbo = (BasicDBObject)dbo;
+        return bdbo.toString();
+    }
+    
+    /**
      * Fetch out the lazy @Property, @Embed, @EmbedList field of a list
      * @param list the list needs to operate on
      */
