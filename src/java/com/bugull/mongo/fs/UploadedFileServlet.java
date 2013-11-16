@@ -142,9 +142,14 @@ public class UploadedFileServlet extends HttpServlet {
             }
             int begin = 0;
             int end = fileLength - 1;
+            boolean onlyLast = range.startsWith("-");
             String[] rangeArray = range.split("-");
             if(rangeArray.length == 1){
-                begin = Integer.parseInt(rangeArray[0]);
+                if(onlyLast){
+                    begin = fileLength - Integer.parseInt(rangeArray[0]);
+                }else{
+                    begin = Integer.parseInt(rangeArray[0]);
+                }
             }else if(rangeArray.length == 2){
                 begin = Integer.parseInt(rangeArray[0]);
                 end = Integer.parseInt(rangeArray[1]);
