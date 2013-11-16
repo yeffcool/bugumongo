@@ -86,7 +86,7 @@ public class IdEncoder extends AbstractEncoder{
                 break;
             case USER_DEFINE:
                 if(value == null){
-                    throw new IdException("User define id haven't given a value!");
+                    throw new IdException("user-defined id doesn't have value!");
                 }else{
                     result = value.toString();
                 }

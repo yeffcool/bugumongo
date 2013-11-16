@@ -57,7 +57,7 @@ public class UploadedFileServlet extends HttpServlet {
         allowBucket = config.getInitParameter("allowBucket");
         forbidBucket = config.getInitParameter("forbidBucket");
         if(!StringUtil.isEmpty(allowBucket) && !StringUtil.isEmpty(forbidBucket)){
-            throw new ServletException("You can set only one param between allowBucket and forbidBucket.");
+            throw new ServletException("You can set only one param, allowBucket or forbidBucket.");
         }
     }
     
