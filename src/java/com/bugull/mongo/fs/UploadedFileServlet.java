@@ -48,12 +48,15 @@ public class UploadedFileServlet extends HttpServlet {
     
     private final static String SLASH = "/";
     
+    private String password;
     private String allowBucket;
     private String forbidBucket;
     
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
+        String p = config.getInitParameter("password");
+        password = StringUtil.encodeMD5(p);
         allowBucket = config.getInitParameter("allowBucket");
         forbidBucket = config.getInitParameter("forbidBucket");
         if(!StringUtil.isEmpty(allowBucket) && !StringUtil.isEmpty(forbidBucket)){
@@ -62,17 +65,23 @@ public class UploadedFileServlet extends HttpServlet {
     }
     
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String url = request.getRequestURI();
-        int second = url.indexOf(SLASH, 1);
-        url = url.substring(second);
-        int last = url.lastIndexOf(SLASH);
-        String filename = url.substring(last+1);
+        if(!StringUtil.isEmpty(password)){
+            String p = request.getParameter("password");
+            if(StringUtil.isEmpty(p) || !p.equals(password)){
+                return;
+            }
+        }
+        String uri = request.getRequestURI();
+        int second = uri.indexOf(SLASH, 1);
+        uri = uri.substring(second);
+        int last = uri.lastIndexOf(SLASH);
+        String filename = uri.substring(last+1);
         DBObject query = new BasicDBObject(BuguFS.FILENAME, filename);
         query.put(ImageUploader.DIMENSION, null);
         String bucketName = BuguFS.DEFAULT_BUCKET;
-        int first = url.indexOf(SLASH);
+        int first = uri.indexOf(SLASH);
         if(first != last){
-            String sub = url.substring(first+1, last);
+            String sub = uri.substring(first+1, last);
             String[] arr = sub.split(SLASH);
             for(int i=0; i<arr.length; i+=2){
                 if(arr[i].equals(BuguFS.BUCKET)){
@@ -97,7 +106,7 @@ public class UploadedFileServlet extends HttpServlet {
         OutputStream os = response.getOutputStream();
         int fileLength = (int)f.getLength();
         String ext = StringUtil.getExtention(filename);
-        response.setContentType(getContentType(ext));
+        response.setContentType(StringUtil.getContentType(ext));
         String range = request.getHeader("Range");
         //normal http request, no "range" in header.
         if(StringUtil.isEmpty(range)){
@@ -178,6 +187,11 @@ public class UploadedFileServlet extends HttpServlet {
         StreamUtil.safeClose(os);
     }
     
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        processRequest(request, response);
+    }
+    
     /**
      * If it's an image file, cache it in browser
      * @param ext
@@ -197,47 +211,6 @@ public class UploadedFileServlet extends HttpServlet {
             }
         }
         return need;
-    }
-    
-    private String getContentType(String ext){
-        if(StringUtil.isEmpty(ext)){
-            return "application/octet-stream";
-        }
-        ext = ext.toLowerCase();
-        String type = "application/octet-stream";
-        if(ext.equals("jpg")){
-            type = "image/jpeg";
-        }
-        else if(ext.equals("jpeg") || ext.equals("png") || ext.equals("gif") || ext.equals("bmp")){
-            type = "image/" + ext;
-        }
-        else if(ext.equals("swf")){
-            type = "application/x-shockwave-flash";
-        }
-        else if(ext.equals("flv")){
-            type = "video/x-flv";
-        }
-        else if(ext.equals("mp3")){
-            type = "audio/mpeg";
-        }
-        else if(ext.equals("mp4")){
-            type = "video/mp4";
-        }
-        else if(ext.equals("3gp")){
-            type = "video/3gpp";
-        }
-        else if(ext.equals("pdf")){
-            type = "application/pdf";
-        }
-        else if(ext.equals("html") || ext.equals("htm")){
-            type = "text/html";
-        }
-        return type;
-    }
-    
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        processRequest(request, response);
     }
     
 }
