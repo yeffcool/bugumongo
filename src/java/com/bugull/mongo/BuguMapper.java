@@ -54,7 +54,7 @@ public class BuguMapper {
     private final static Logger logger = Logger.getLogger(BuguMapper.class);
     
     /**
-     * convert to JSON string.
+     * Convert to JSON string.
      * @param obj
      * @return 
      */
