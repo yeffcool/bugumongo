@@ -31,33 +31,38 @@ public class IndexChecker {
     private final static Logger logger = Logger.getLogger(IndexChecker.class);
     
     /**
-     * Check a filed whether it has index annotation on it.
+     * Check one or more filed whether it has index annotation on it.
      * @param clazz the class that field in
-     * @param key the field name
+     * @param keys the field's name
      * @return 
      */
-    public static boolean hasIndexAnnotation(Class<?> clazz, String key){
+    public static boolean hasIndexAnnotation(Class<?> clazz, String... keys){
         boolean result = false;
-        //check if the key has "." in it
-        int index = key.indexOf(".");
-        if(index != -1){
-            key = key.substring(0, index);
-        }
-        Field field = null;
-        try{
-            field = FieldsCache.getInstance().getField(clazz, key);
-        }catch(FieldException ex){
-            logger.error(ex.getMessage(), ex);
-        }
-        if(field.getAnnotation(IndexProperty.class)!=null
-                || field.getAnnotation(IndexEmbed.class)!=null
-                || field.getAnnotation(IndexEmbedList.class)!=null
-                || field.getAnnotation(IndexRef.class)!= null
-                || field.getAnnotation(IndexRefList.class)!= null
-                || field.getAnnotation(IndexRefBy.class)!=null
-                || field.getAnnotation(BoostSwitch.class)!=null
-                || field.getAnnotation(IndexFilter.class)!=null){
-            result = true;
+        for(String key : keys){
+            //check if the key has "." in it
+            int index = key.indexOf(".");
+            if(index != -1){
+                key = key.substring(0, index);
+            }
+            Field field = null;
+            try{
+                field = FieldsCache.getInstance().getField(clazz, key);
+            }catch(FieldException ex){
+                logger.error(ex.getMessage(), ex);
+            }
+            if(field.getAnnotation(IndexProperty.class)!=null
+                    || field.getAnnotation(IndexEmbed.class)!=null
+                    || field.getAnnotation(IndexEmbedList.class)!=null
+                    || field.getAnnotation(IndexRef.class)!= null
+                    || field.getAnnotation(IndexRefList.class)!= null
+                    || field.getAnnotation(IndexRefBy.class)!=null
+                    || field.getAnnotation(BoostSwitch.class)!=null
+                    || field.getAnnotation(IndexFilter.class)!=null){
+                result = true;
+            }
+            if(result){
+                break;
+            }
         }
         return result;
     }

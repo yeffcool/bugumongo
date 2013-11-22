@@ -64,7 +64,11 @@ public class BuguQuery<T> {
     }
     
     private void appendEquals(String key, String op, Object value){
-        if(key.indexOf(".")!=-1){
+        if(key.equals(Operator.ID)){
+            Object dbId = IdUtil.toDbId(clazz, (String)value);
+            append(Operator.ID, op, dbId);
+        }
+        else if(key.indexOf(".")!=-1){
             append(key, op, value);
         }
         else{
@@ -90,7 +94,11 @@ public class BuguQuery<T> {
     }
     
     private void appendThan(String key, String op, Object value){
-        if(key.indexOf(".")!=-1){
+        if(key.equals(Operator.ID)){
+            Object dbId = IdUtil.toDbId(clazz, (String)value);
+            append(Operator.ID, op, dbId);
+        }
+        else if(key.indexOf(".")!=-1){
             append(key, op, value);
         }
         else{
@@ -111,7 +119,10 @@ public class BuguQuery<T> {
     }
     
     private void appendIn(String key, String op, Object... values){
-        if(key.indexOf(".")!=-1){
+        if(key.equals(Operator.ID)){
+            append(Operator.ID, op, toIds(values));
+        }
+        else if(key.indexOf(".")!=-1){
             append(key, op, values);
         }
         else{

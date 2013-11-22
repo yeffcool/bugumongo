@@ -222,8 +222,15 @@ public class PropertyDecoder extends AbstractDecoder{
             Timestamp ts = new Timestamp(date.getTime());
             field.set(obj, ts);
         }
+        //When value is number, it's default to Integer and Double, must cast to Short and Float
+        else if(DataType.isShortObject(type)){
+            field.set(obj, Short.valueOf(value.toString()));
+        }
+        else if(DataType.isFloatObject(type)){
+            field.set(obj, Float.valueOf(value.toString()));
+        }
         else{
-            field.set(obj, value);  //List, Map, Date, Integer, Long, Float, Double and so on
+            field.set(obj, value);  //List, Map, Date, Integer, Long, Double and so on
         }
     }
     

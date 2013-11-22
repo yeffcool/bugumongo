@@ -313,7 +313,7 @@ public class BuguDao<T> {
     
     /**
      * Update some entities, with new key/value pairs.
-     * Notice: @EmbedList and @RefList fields is not supported yet.
+     * Notice: EmbedList and RefList fields is not supported yet.
      * @param query the query condition
      * @param key the field's name
      * @param value the field's new value
@@ -328,6 +328,18 @@ public class BuguDao<T> {
             value = MapperUtil.toDBObject(value);
         }
         DBObject dbo = new BasicDBObject(key, value);
+        return set(query.getCondition(), dbo);
+    }
+    
+    /**
+     * Update some entities, with new key/value pairs.
+     * Notice: the Map values must can be converted to DBObject.
+     * @param query the query condition
+     * @param values
+     * @return the new key/value pairs
+     */
+    public WriteResult set(BuguQuery query, Map values){
+        DBObject dbo = new BasicDBObject(values);
         return set(query.getCondition(), dbo);
     }
     
@@ -348,7 +360,7 @@ public class BuguDao<T> {
     
     /**
      * Update a field's value of an entity.
-     * Notice: @EmbedList and @RefList fields is not supported yet.
+     * Notice: EmbedList and RefList fields is not supported yet.
      * @param t the entity needs to update
      * @param key the field's name
      * @param value the field's new value
@@ -361,7 +373,7 @@ public class BuguDao<T> {
     
     /**
      * Update a field's value of an entity.
-     * Notice: @EmbedList and @RefList fields is not supported yet.
+     * Notice: EmbedList and RefList fields is not supported yet.
      * @param id the entity's id
      * @param key the field's name
      * @param value the field's new value
@@ -397,26 +409,29 @@ public class BuguDao<T> {
     }
     
     /**
-     * Remove a filed(column) of an entity.
+     * Remove one or more filed(column) of an entity.
      * @param t the entity to operate
-     * @param key the field's name
+     * @param keys the field's name
      * @return 
      */
-    public WriteResult unset(T t, String key){
+    public WriteResult unset(T t, String... keys){
         BuguEntity ent = (BuguEntity)t;
-        return unset(ent.getId(), key);
+        return unset(ent.getId(), keys);
     }
     
     /**
-     * Remove a filed(column) of an entity
+     * Remove one or more filed(column) of an entity
      * @param id the entity's id
-     * @param key the field's name
+     * @param keys the field's name
      * @return 
      */
-    public WriteResult unset(String id, String key){
-        DBObject query = new BasicDBObject(key, 1);
+    public WriteResult unset(String id, String... keys){
+        DBObject query = new BasicDBObject();
+        for(String key : keys){
+            query.put(key, 1);
+        }
         DBObject unset = new BasicDBObject(Operator.UNSET, query);
-        if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, key)){
+        if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, keys)){
             return update(id, unset);
         }else{
             return updateWithOutIndex(id, unset);
@@ -424,22 +439,25 @@ public class BuguDao<T> {
     }
     
     /**
-     * Remove a filed(column).
+     * Remove one or more filed(column).
      * @param query mathcing conditon
      * @param key the field's name
      * @return 
      */
-    public WriteResult unset(BuguQuery query, String key){
-        return unset(query.getCondition(), key);
+    public WriteResult unset(BuguQuery query, String... keys){
+        return unset(query.getCondition(), keys);
     }
     
-    private WriteResult unset(DBObject query, String key){
-        boolean indexField = (luceneListener != null) && IndexChecker.hasIndexAnnotation(clazz, key); 
+    private WriteResult unset(DBObject query, String... keys){
+        boolean indexField = (luceneListener != null) && IndexChecker.hasIndexAnnotation(clazz, keys); 
         List ids = null;
         if(indexField){
             ids = coll.distinct(Operator.ID, query);
         }
-        DBObject dbo = new BasicDBObject(key, 1);
+        DBObject dbo = new BasicDBObject();
+        for(String key : keys){
+            dbo.put(key, 1);
+        }
         WriteResult wr = coll.updateMulti(query, new BasicDBObject(Operator.UNSET, dbo));
         if(indexField){
             for(Object id : ids){
@@ -490,14 +508,7 @@ public class BuguDao<T> {
         return inc(query.getCondition(), key, value);
     }
     
-    /**
-     * Increase a numberic field of some entities.
-     * @param query the query condition
-     * @param key the field's name
-     * @param value the numeric value to be added. It can be positive or negative integer, long, float, double.
-     * @return 
-     */
-    public WriteResult inc(DBObject query, String key, Object value){
+    private WriteResult inc(DBObject query, String key, Object value){
         List ids = null;
         if(luceneListener != null){
             ids = coll.distinct(Operator.ID, query);
@@ -777,6 +788,12 @@ public class BuguDao<T> {
         return coll.distinct(key);
     }
 
+    /**
+     * Please use BuguQuery.distinct() instead
+     * @param query the condition
+     * @return 
+     */
+    @Deprecated
     public List distinct(String key, DBObject query){
         return coll.distinct(key, query);
     }
@@ -807,10 +824,11 @@ public class BuguDao<T> {
     }
 
     /**
-     * Count by condition
+     * Please use BuguQuery.count() instead
      * @param query the condition
      * @return 
      */
+    @Deprecated
     public long count(DBObject query){
         return coll.count(query);
     }
