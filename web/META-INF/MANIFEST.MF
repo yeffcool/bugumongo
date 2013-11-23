@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Ant-Version: Apache Ant 1.9.2
-Created-By: 1.6.0_51(Java HotSpot, Mac OS X)
+Created-By: 1.6.0_65(Java HotSpot, Mac OS X)
 Extension-Name: com.bugull.mongo
 Implementation-Title: BuguMongo
 Implementation-Version: 1.12
