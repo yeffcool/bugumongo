@@ -401,12 +401,24 @@ public class BuguDao<T> {
      * Notice: the Map values must can be converted to DBObject.
      * @param t the entity needs to be updated
      * @param values the new key/value pairs
+     * @return 
      */
-    public void set(T t, Map values){
-        DBObject dbo = new BasicDBObject(values);
+    public WriteResult set(T t, Map values){
         BuguEntity ent = (BuguEntity)t;
-        update(ent.getId(), new BasicDBObject(Operator.SET, dbo));
+        return set(ent.getId(), values);
     }
+    
+    /**
+     * Update an entity, with new key/value pairs.
+     * Notice: the Map values must can be converted to DBObject.
+     * @param id the entity's id
+     * @param values the new key/value pairs
+     * @return 
+     */
+    public WriteResult set(String id, Map values){
+        DBObject dbo = new BasicDBObject(values);
+        return update(id, new BasicDBObject(Operator.SET, dbo));
+    } 
     
     /**
      * Remove one or more filed(column) of an entity.
