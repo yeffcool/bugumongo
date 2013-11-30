@@ -107,22 +107,14 @@ public class Uploader {
     protected void processFilename(){
         if(rename){
             long time = System.nanoTime();
-            String timeStr = String.valueOf(time);
-            //the nano time's last 2 bits is 00, replace it with random number
-            String subStr = timeStr.substring(0, timeStr.length()-2);
-            StringBuilder sb = new StringBuilder();
-            sb.append(subStr);
-            int r = new Random().nextInt(100);
-            if(r<10){
-                sb.append("0").append(r);
-            }else{
-                sb.append(r);
-            }
+            //the nano time's last 3 bits is 000, add it with a random number
+            time += new Random().nextInt(100);
             String ext = StringUtil.getExtention(originalName);
             if(!StringUtil.isEmpty(ext)){
-                sb.append(".").append(ext);
+                filename = String.valueOf(time) + "." + ext;
+            }else{
+                filename = String.valueOf(time);
             }
-            filename = sb.toString();
         }else{
             filename = originalName;
         }
