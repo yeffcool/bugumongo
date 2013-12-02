@@ -108,7 +108,7 @@ public class Uploader {
         if(rename){
             long time = System.nanoTime();
             //the nano time's last 3 bits is 000, add it with a random number
-            time += new Random().nextInt(100);
+            time += new Random().nextInt(1000);
             String ext = StringUtil.getExtention(originalName);
             if(!StringUtil.isEmpty(ext)){
                 filename = String.valueOf(time) + "." + ext;
