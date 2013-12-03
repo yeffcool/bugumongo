@@ -60,7 +60,7 @@ public class EmbedListDecoder extends AbstractDecoder{
             Type[] types = paramType.getActualTypeArguments();
             int len = types.length;
             if(len == 1){
-                decodeList(obj, (Class)types[0]);
+                decodeCollection(obj, (Class)types[0]);
             }else{
                 decodeMap(obj, (Class)types[1]);
             }
@@ -83,7 +83,7 @@ public class EmbedListDecoder extends AbstractDecoder{
         FieldUtil.set(obj, field, arr);
     }
     
-    private void decodeList(Object obj, Class clazz){
+    private void decodeCollection(Object obj, Class clazz){
         List list = (ArrayList)value;
         List result = new ArrayList();
         for(Object o : list){

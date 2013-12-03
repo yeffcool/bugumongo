@@ -58,7 +58,7 @@ public class EmbedListEncoder extends AbstractEncoder{
         if(type.isArray()){
             return encodeArray();
         }else{
-            return encodeList(type);
+            return encodeCollection(type);
         }
     }
     
@@ -74,7 +74,7 @@ public class EmbedListEncoder extends AbstractEncoder{
         return result;
     }
     
-    private Object encodeList(Class type){
+    private Object encodeCollection(Class type){
         if(DataType.isList(type)){
             List list = (ArrayList)value;
             List<DBObject> result = new ArrayList<DBObject>();

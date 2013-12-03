@@ -66,7 +66,7 @@ public class RefListEncoder extends AbstractEncoder{
         if(type.isArray()){
             return encodeArray(type.getComponentType());
         }else{
-            return encodeList(type);
+            return encodeCollection(type);
         }
     }
     
@@ -85,7 +85,7 @@ public class RefListEncoder extends AbstractEncoder{
         return result;
     }
     
-    private Object encodeList(Class type){
+    private Object encodeCollection(Class type){
         ParameterizedType paramType = (ParameterizedType)field.getGenericType();
         Type[] types = paramType.getActualTypeArguments();
         if(DataType.isList(type)){

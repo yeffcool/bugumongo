@@ -68,7 +68,7 @@ public class RefListDecoder extends AbstractDecoder{
             Type[] types = paramType.getActualTypeArguments();
             int len = types.length;
             if(len == 1){
-                decodeListAndSet(obj, (Class)types[0]);
+                decodeCollection(obj, (Class)types[0]);
             }else if(len == 2){
                 decodeMap(obj, (Class)types[1]);
             }
@@ -123,7 +123,7 @@ public class RefListDecoder extends AbstractDecoder{
         FieldUtil.set(obj, field, arr);
     }
     
-    private void decodeListAndSet(Object obj, Class clazz){
+    private void decodeCollection(Object obj, Class clazz){
         clazz = FieldUtil.getRealType(clazz, field);
         List list = (List)value;
         List<BuguEntity> result = new ArrayList<BuguEntity>();
