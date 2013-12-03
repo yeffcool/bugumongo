@@ -46,6 +46,16 @@ public final class InternalDao<T> extends AdvancedDao<T> {
         return keys;
     }
     
+    public List<T> find(DBObject query){
+        DBCursor cursor = coll.find(query, keys);
+        return MapperUtil.toList(clazz, cursor);
+    }
+    
+    public List<T> find(DBObject query, DBObject orderBy){
+        DBCursor cursor = coll.find(query, keys).sort(orderBy);
+        return MapperUtil.toList(clazz, cursor);
+    }
+    
     /**
      * Get one entity without the lazy property.
      * @param id

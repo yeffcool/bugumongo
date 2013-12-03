@@ -140,7 +140,7 @@ public class AdvancedDao<T> extends BuguDao<T>{
     }
     
     private double average(String key, DBObject query){
-        long count = this.count(query);
+        long count = coll.count(query);
         if(count == 0){
             return 0;
         }

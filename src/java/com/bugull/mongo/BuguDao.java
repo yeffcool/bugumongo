@@ -282,7 +282,8 @@ public class BuguDao<T> {
     }
     
     private WriteResult remove(DBObject query){
-        List<T> list = this.find(query);
+        DBCursor cursor = coll.find(query, keys);
+        List<T> list = MapperUtil.toList(clazz, cursor);
         if(cascadeListener.hasCascade()){
             for(T t : list){
                 cascadeListener.entityRemove((BuguEntity)t);
@@ -656,15 +657,7 @@ public class BuguDao<T> {
         DBObject dbo = coll.findOne(query);
         return MapperUtil.fromDBObject(clazz, dbo);
     }
-    
-    /**
-     * Please use BuguQuery instead.
-     */
-    @Deprecated
-    public T findOne(DBObject query){
-        DBObject dbo = coll.findOne(query);
-        return MapperUtil.fromDBObject(clazz, dbo);
-    }
+
 
     public List<T> findAll(){
         DBCursor cursor = coll.find(new BasicDBObject(), keys);
@@ -672,12 +665,8 @@ public class BuguDao<T> {
     }
     
     public List<T> findAll(String orderBy){
-        return findAll(MapperUtil.getSort(orderBy));
-    }
-
-    @Deprecated
-    public List<T> findAll(DBObject orderBy){
-        DBCursor cursor = coll.find(new BasicDBObject(), keys).sort(orderBy);
+        DBObject dbo = MapperUtil.getSort(orderBy);
+        DBCursor cursor = coll.find(new BasicDBObject(), keys).sort(dbo);
         return MapperUtil.toList(clazz, cursor);
     }
 
@@ -687,127 +676,13 @@ public class BuguDao<T> {
     }
     
     public List<T> findAll(String orderBy, int pageNum, int pageSize){
-        return findAll(MapperUtil.getSort(orderBy), pageNum, pageSize);
-    }
-
-    @Deprecated
-    public List<T> findAll(DBObject orderBy, int pageNum, int pageSize){
-        DBCursor cursor = coll.find(new BasicDBObject(), keys).sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
-        return MapperUtil.toList(clazz, cursor);
-    }
-    
-    /**
-     * Please use BuguQuery instead.
-     */
-    @Deprecated
-    public List<T> find(String key, Object value){
-        if(value instanceof BuguEntity){
-            BuguEntity be = (BuguEntity)value;
-            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
-        }
-        return find(new BasicDBObject(key, value));
-    }
-    
-    /**
-     * Please use BuguQuery instead.
-     */
-    @Deprecated
-    public List<T> find(DBObject query){
-        DBCursor cursor = coll.find(query, keys);
-        return MapperUtil.toList(clazz, cursor);
-    }
-    
-    /**
-     * Please use BuguQuery instead.
-     */
-    @Deprecated
-    public List<T> find(String key, Object value, String orderBy){
-        if(value instanceof BuguEntity){
-            BuguEntity be = (BuguEntity)value;
-            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
-        }
-        return find(new BasicDBObject(key, value), MapperUtil.getSort(orderBy));
-    }
-    
-    /**
-     * Please use BuguQuery instead.
-     */
-    @Deprecated
-    public List<T> find(DBObject query, String orderBy){
-        return find(query, MapperUtil.getSort(orderBy));
-    }
-
-    /**
-     * Please use BuguQuery instead.
-     */
-    @Deprecated
-    public List<T> find(DBObject query, DBObject orderBy){
-        DBCursor cursor = coll.find(query, keys).sort(orderBy);
-        return MapperUtil.toList(clazz, cursor);
-    }
-    
-    /**
-     * Please use BuguQuery instead.
-     */
-    @Deprecated
-    public List<T> find(String key, Object value, int pageNum, int pageSize){
-        if(value instanceof BuguEntity){
-            BuguEntity be = (BuguEntity)value;
-            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
-        }
-        return find(new BasicDBObject(key, value), pageNum, pageSize);
-    }
-
-    /**
-     * Please use BuguQuery instead.
-     */
-    @Deprecated
-    public List<T> find(DBObject query, int pageNum, int pageSize){
-        DBCursor cursor = coll.find(query, keys).skip((pageNum-1)*pageSize).limit(pageSize);
-        return MapperUtil.toList(clazz, cursor);
-    }
-    
-    /**
-     * Please use BuguQuery instead.
-     */
-    @Deprecated
-    public List<T> find(String key, Object value, String orderBy, int pageNum, int pageSize){
-        if(value instanceof BuguEntity){
-            BuguEntity be = (BuguEntity)value;
-            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
-        }
-        return find(new BasicDBObject(key, value), MapperUtil.getSort(orderBy), pageNum, pageSize);
-    }
-    
-    /**
-     * Please use BuguQuery instead.
-     */
-    @Deprecated
-    public List<T> find(DBObject query, String orderBy, int pageNum, int pageSize){
-        return find(query, MapperUtil.getSort(orderBy), pageNum, pageSize);
-    }
-
-    /**
-     * Please use BuguQuery instead.
-     */
-    @Deprecated
-    public List<T> find(DBObject query, DBObject orderBy, int pageNum, int pageSize){
-        DBCursor cursor = coll.find(query, keys).sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
+        DBObject dbo = MapperUtil.getSort(orderBy);
+        DBCursor cursor = coll.find(new BasicDBObject(), keys).sort(dbo).skip((pageNum-1)*pageSize).limit(pageSize);
         return MapperUtil.toList(clazz, cursor);
     }
     
     public List distinct(String key){
         return coll.distinct(key);
-    }
-
-    /**
-     * Please use BuguQuery.distinct() instead
-     * @param query the condition
-     * @return 
-     */
-    @Deprecated
-    public List distinct(String key, DBObject query){
-        return coll.distinct(key, query);
     }
 
     /**
@@ -832,17 +707,7 @@ public class BuguDao<T> {
                 (FieldsCache.getInstance().isEmbedField(clazz, key) || FieldsCache.getInstance().isEmbedListField(clazz, key))){
             value = MapperUtil.toDBObject(value);
         }
-        return count(new BasicDBObject(key, value));
-    }
-
-    /**
-     * Please use BuguQuery.count() instead
-     * @param query the condition
-     * @return 
-     */
-    @Deprecated
-    public long count(DBObject query){
-        return coll.count(query);
+        return coll.count(new BasicDBObject(key, value));
     }
     
     /**
