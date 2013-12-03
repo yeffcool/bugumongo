@@ -198,7 +198,7 @@ public class BuguMapper {
             int len = types.length;
             if(len == 1){
                 //for List and Set
-                fetchListAndSet(obj, field, (Class)types[0]);
+                fetchCollection(obj, field, (Class)types[0]);
             }else if(len == 2){
                 //for Map
                 fetchMap(obj, field, (Class)types[1]);
@@ -244,7 +244,7 @@ public class BuguMapper {
         FieldUtil.set(obj, field, arr);
     }
     
-    private static void fetchListAndSet(BuguEntity obj, Field field, Class clazz){
+    private static void fetchCollection(BuguEntity obj, Field field, Class clazz){
         Object o = FieldUtil.get(obj, field);
         if(o == null){
             return;
