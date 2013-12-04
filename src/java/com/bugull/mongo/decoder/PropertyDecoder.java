@@ -191,46 +191,38 @@ public class PropertyDecoder extends AbstractDecoder{
     }
     
     private void decodePrimitive(Object obj, Class type) throws IllegalArgumentException, IllegalAccessException{
-        if(DataType.isInteger(type)){
-            field.setInt(obj, Integer.parseInt(value.toString()));
+        //When value is number, it's default to Double and Integer, must cast to Float and Short.
+        //It's OK to set integer value to long field.
+        if(DataType.isFloat(type)){
+            field.setFloat(obj, Float.parseFloat(value.toString()));
         }
-        else if(DataType.isLong(type)){
-            field.setLong(obj, Long.parseLong(value.toString()));
+        else if(DataType.isFloatObject(type)){
+            field.set(obj, Float.valueOf(value.toString()));
         }
         else if(DataType.isShort(type)){
             field.setShort(obj, Short.parseShort(value.toString()));
         }
-        else if(DataType.isFloat(type)){
-            field.setFloat(obj, Float.parseFloat(value.toString()));
+        else if(DataType.isShortObject(type)){
+            field.set(obj, Short.valueOf(value.toString()));
         }
-        else if(DataType.isDouble(type)){
-            field.setDouble(obj, Double.parseDouble(value.toString()));
-        }
-        else if(DataType.isBoolean(type)){
-            field.setBoolean(obj, Boolean.parseBoolean(value.toString()));
-        }        
-        else if(DataType.isChar(type)){
-            field.setChar(obj, value.toString().charAt(0));
-        }
+        //convert for Set. default type is List
         else if(DataType.isSet(type)){
             List list = (ArrayList)value;
             Set set = new HashSet(list);
             field.set(obj, set);
         }
+        //convert for char. default type is String "X"
+        else if(DataType.isChar(type)){
+            field.setChar(obj, value.toString().charAt(0));
+        }
+        //convert for Timestamp. default type is Date
         else if(DataType.isTimestamp(type)){
             Date date = (Date)value;
             Timestamp ts = new Timestamp(date.getTime());
             field.set(obj, ts);
         }
-        //When value is number, it's default to Integer and Double, must cast to Short and Float
-        else if(DataType.isShortObject(type)){
-            field.set(obj, Short.valueOf(value.toString()));
-        }
-        else if(DataType.isFloatObject(type)){
-            field.set(obj, Float.valueOf(value.toString()));
-        }
         else{
-            field.set(obj, value);  //List, Map, Date, Integer, Long, Double and so on
+            field.set(obj, value);  //for others
         }
     }
     

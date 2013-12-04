@@ -25,14 +25,14 @@ import java.lang.reflect.Field;
  */
 public abstract class AbstractEncoder implements Encoder{
     
-    protected Object obj;
     protected Field field;
     protected Object value;
+    protected Class<?> clazz;
     
     protected AbstractEncoder(Object obj, Field field){
-        this.obj = obj;
         this.field = field;
         value = FieldUtil.get(obj, field);
+        clazz = obj.getClass();
     }
     
     @Override
