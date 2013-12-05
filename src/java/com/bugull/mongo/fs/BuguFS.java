@@ -62,23 +62,7 @@ public class BuguFS {
     public final static String LENGTH = "length";
     public final static String UPLOADDATE = "uploadDate";
     
-    public BuguFS(){
-        init(DEFAULT_BUCKET, DEFAULT_CHUNKSIZE);
-    }
-    
-    public BuguFS(String bucketName){
-        init(bucketName, DEFAULT_CHUNKSIZE);
-    }
-    
-    public BuguFS(long chunkSize){
-        init(DEFAULT_BUCKET, chunkSize);
-    }
-    
     public BuguFS(String bucketName, long chunkSize){
-        init(bucketName, chunkSize);
-    }
-    
-    private void init(String bucketName, long chunkSize){
         this.bucketName = bucketName;
         this.chunkSize = chunkSize;
         DB db = null;
