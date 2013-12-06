@@ -26,6 +26,7 @@ import com.bugull.mongo.exception.DBConnectionException;
 import com.bugull.mongo.exception.IdException;
 import com.bugull.mongo.lucene.backend.EntityChangedListener;
 import com.bugull.mongo.lucene.backend.IndexChecker;
+import com.bugull.mongo.mapper.CascadeChecker;
 import com.bugull.mongo.mapper.DBIndex;
 import com.bugull.mongo.mapper.EntityRemovedListener;
 import com.bugull.mongo.mapper.IdUtil;
@@ -100,7 +101,9 @@ public class BuguDao<T> {
             luceneListener = new EntityChangedListener(clazz);
         }
         //for cascade delete
-        cascadeListener = new EntityRemovedListener(clazz);
+        if(CascadeChecker.needListener(clazz)){
+            cascadeListener = new EntityRemovedListener(clazz);
+        }
     }
     
     /**
@@ -193,7 +196,7 @@ public class BuguDao<T> {
      * It will automatically drop all indexes from this collection.
      */
     public void drop(){
-        if(luceneListener != null || cascadeListener.hasCascade()){
+        if(luceneListener != null || cascadeListener != null){
             List<T> list = findAll();
             for(T t : list){
                 remove(t);
@@ -219,7 +222,7 @@ public class BuguDao<T> {
      * @return 
      */
     public WriteResult remove(String id){
-        if(cascadeListener.hasCascade()){
+        if(cascadeListener != null){
             BuguEntity entity = (BuguEntity)findOne(id);
             cascadeListener.entityRemove(entity);
         }
@@ -238,7 +241,7 @@ public class BuguDao<T> {
      */
     public WriteResult remove(String... ids){
         int len = ids.length;
-        if(cascadeListener.hasCascade()){
+        if(cascadeListener != null){
             for(int i=0; i<len; i++){
                 BuguEntity entity = (BuguEntity)findOne(ids[i]);
                 cascadeListener.entityRemove(entity);
@@ -284,7 +287,7 @@ public class BuguDao<T> {
     private WriteResult remove(DBObject query){
         DBCursor cursor = coll.find(query, keys);
         List<T> list = MapperUtil.toList(clazz, cursor);
-        if(cascadeListener.hasCascade()){
+        if(cascadeListener != null){
             for(T t : list){
                 cascadeListener.entityRemove((BuguEntity)t);
             }

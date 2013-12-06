@@ -82,7 +82,7 @@ public class DeleteCascadeTask implements Runnable{
             int len = types.length;
             if(len == 1){
                 clazz = (Class)types[0];
-                idList = getListIds(value, type);
+                idList = getCollectionIds(value, type);
             }else if(len == 2){
                 clazz = (Class)types[1];
                 idList = getMapIds(value);
@@ -109,7 +109,7 @@ public class DeleteCascadeTask implements Runnable{
         return idList;
     }
     
-    private List<String> getListIds(Object value, Class type){
+    private List<String> getCollectionIds(Object value, Class type){
         List<String> idList = new ArrayList<String>();
         if(DataType.isList(type)){
             List<BuguEntity> list = (List<BuguEntity>)value;

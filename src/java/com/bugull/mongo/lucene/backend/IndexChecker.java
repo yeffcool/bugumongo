@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class IndexChecker {
+public final class IndexChecker {
     
     private final static Logger logger = Logger.getLogger(IndexChecker.class);
     
@@ -68,7 +68,7 @@ public class IndexChecker {
     }
     
     /**
-     * Check whether the clazz need a lucene listener.
+     * Check if the clazz need a lucene listener.
      * <p>If it has @Indexed annotation, or, some of it's fields has @IndexRefBy annotation,
      * then it need a lucene listener.</p>
      * 
