@@ -31,7 +31,7 @@ public class CascadeDeleteExecutor {
     private ExecutorService executor;
     
     private CascadeDeleteExecutor(){
-        executor = Executors.newFixedThreadPool(2);
+        executor = Executors.newSingleThreadExecutor();
     }
     
     public static CascadeDeleteExecutor getInstance(){
