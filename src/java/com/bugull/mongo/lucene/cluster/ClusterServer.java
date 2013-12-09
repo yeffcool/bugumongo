@@ -46,8 +46,6 @@ public class ClusterServer implements Runnable {
     private ServerSocketChannel serverChannel;
     private ByteBuffer buffer;
     private ByteBuffer totalBuffer;
-    
-    private ClusterConfig cluster = BuguIndex.getInstance().getClusterConfig();
 
     @Override
     public void run() {
@@ -61,6 +59,7 @@ public class ClusterServer implements Runnable {
     
     private void init() throws IOException {
         //prepare the socket
+        ClusterConfig cluster = BuguIndex.getInstance().getClusterConfig();
         selector = Selector.open();
         serverChannel = ServerSocketChannel.open();
         serverChannel.configureBlocking(false);
@@ -135,7 +134,7 @@ public class ClusterServer implements Runnable {
             totalBuffer.clear();
             if(message != null){
                 HandleMessageTask task = new HandleMessageTask(message);
-                cluster.getExecutor().execute(task);
+                BuguIndex.getInstance().getExecutor().execute(task);
             }
         }catch(IOException ex){
             logger.error("Error when handle read", ex);

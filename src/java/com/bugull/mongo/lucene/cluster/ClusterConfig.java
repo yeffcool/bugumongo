@@ -16,12 +16,10 @@
 
 package com.bugull.mongo.lucene.cluster;
 
-import com.bugull.mongo.utils.ThreadUtil;
+import com.bugull.mongo.lucene.BuguIndex;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Configure the lucene clustering environment.
@@ -36,11 +34,6 @@ public class ClusterConfig {
     private boolean selfNode;
     private List<String> localAddresses;
     private ConcurrentMap<String, ClusterNode> clusterNodes;
-    
-    private ExecutorService executor;  //thread pool to send/receive message to/from brother nodes 
-    private int threadPoolSize = 10;  //default thread pool size is 10
-    
-    private ExecutorService serverExecutor;
     private ClusterServer server;
     
     private int bufferSize = 1024;  //1K
@@ -52,12 +45,8 @@ public class ClusterConfig {
     }
     
     public void validate(){
-        //create the thread pool
-        executor = Executors.newFixedThreadPool(threadPoolSize);
-        //start the server
-        serverExecutor = Executors.newSingleThreadExecutor();
         server = new ClusterServer();
-        serverExecutor.execute(server);
+        BuguIndex.getInstance().getExecutor().execute(server);
     }
     
     public void addNode(String host){
@@ -82,7 +71,7 @@ public class ClusterConfig {
     public synchronized void sendMessage(ClusterMessage message) {
         for(ClusterNode node : clusterNodes.values()){
             SendMessageTask task = new SendMessageTask(node, message);
-            executor.execute(task);
+            BuguIndex.getInstance().getExecutor().execute(task);
         }
     }
 
@@ -92,14 +81,6 @@ public class ClusterConfig {
 
     public void setServerPort(int serverPort) {
         this.serverPort = serverPort;
-    }
-
-    public int getThreadPoolSize() {
-        return threadPoolSize;
-    }
-
-    public void setThreadPoolSize(int threadPoolSize) {
-        this.threadPoolSize = threadPoolSize;
     }
 
     public int getBufferSize() {
@@ -117,20 +98,12 @@ public class ClusterConfig {
     public void setMaxEntitySize(int maxEntitySize) {
         this.maxEntitySize = maxEntitySize;
     }
-
-    public ExecutorService getExecutor() {
-        return executor;
-    }
     
     /**
      * Close the current cluster node.
      */
     public void invalidate() {
-        //shutdown the thread pool
-        ThreadUtil.safeClose(executor);
-        //shutdown the server
         server.close();
-        ThreadUtil.safeClose(serverExecutor);
     }
     
     /**

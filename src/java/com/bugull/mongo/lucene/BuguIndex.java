@@ -58,7 +58,7 @@ public class BuguIndex {
     private ClusterConfig clusterConfig;  //used in clustering environment
     
     private ExecutorService executor;  //thread pool to maintain index writing 
-    private int threadPoolSize = 10;  //default thread pool size is 10
+    private int threadPoolSize;
     
     private ScheduledExecutorService scheduler;  //scheduler to reopen index
     private long period = 30L * 1000L;  //by default, reopen index per 30 seconds
@@ -78,6 +78,8 @@ public class BuguIndex {
     }
     
     public void open(){
+        //default thread pool size is: cpu * 2 + 1
+        threadPoolSize = Runtime.getRuntime().availableProcessors() * 2 + 1;
         executor = Executors.newFixedThreadPool(threadPoolSize);
         scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(new IndexReopenTask(), period, period, TimeUnit.MILLISECONDS);
