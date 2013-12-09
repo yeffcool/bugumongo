@@ -16,7 +16,6 @@
 
 package com.bugull.mongo.utils;
 
-import com.bugull.mongo.utils.StringUtil;
 import com.bugull.mongo.annotations.Id;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.exception.IdException;
