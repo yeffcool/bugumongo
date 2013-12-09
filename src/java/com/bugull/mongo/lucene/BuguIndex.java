@@ -19,6 +19,7 @@ package com.bugull.mongo.lucene;
 import com.bugull.mongo.cache.IndexWriterCache;
 import com.bugull.mongo.lucene.backend.IndexReopenTask;
 import com.bugull.mongo.lucene.cluster.ClusterConfig;
+import com.bugull.mongo.utils.ThreadUtil;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
@@ -86,20 +87,10 @@ public class BuguIndex {
     }
     
     public void close(){
-        try{
-            if(executor != null){
-                executor.shutdown();
-                executor.awaitTermination(5, TimeUnit.SECONDS);
-            }
-            if(scheduler != null){
-                scheduler.shutdown();
-                scheduler.awaitTermination(5, TimeUnit.SECONDS);
-            }
-            if(clusterConfig != null){
-                clusterConfig.invalidate();
-            }
-        }catch(InterruptedException ex){
-            logger.error(ex.getMessage(), ex);
+        ThreadUtil.safeClose(executor);
+        ThreadUtil.safeClose(scheduler);
+        if(clusterConfig != null){
+            clusterConfig.invalidate();
         }
         
         Map<String, IndexWriter>  map = IndexWriterCache.getInstance().getAll();

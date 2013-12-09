@@ -18,6 +18,7 @@ package com.bugull.mongo;
 
 import com.bugull.mongo.exception.DBConnectionException;
 import com.bugull.mongo.mapper.CascadeDeleteExecutor;
+import com.bugull.mongo.utils.ThreadUtil;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -132,9 +133,7 @@ public class BuguConnection {
     
     public void close(){
         ExecutorService executor = CascadeDeleteExecutor.getInstance().getExecutor();
-        if(executor != null){
-            executor.shutdown();
-        }
+        ThreadUtil.safeClose(executor);
         if(mc != null){
             mc.close();
         }

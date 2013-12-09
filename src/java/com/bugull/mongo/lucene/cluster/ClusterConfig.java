@@ -16,12 +16,12 @@
 
 package com.bugull.mongo.lucene.cluster;
 
+import com.bugull.mongo.utils.ThreadUtil;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Configure the lucene clustering environment.
@@ -125,18 +125,12 @@ public class ClusterConfig {
     /**
      * Close the current cluster node.
      */
-    public void invalidate() throws InterruptedException{
+    public void invalidate() {
         //shutdown the thread pool
-        if(executor != null){
-            executor.shutdown();
-            executor.awaitTermination(5, TimeUnit.SECONDS);
-        }
+        ThreadUtil.safeClose(executor);
         //shutdown the server
         server.close();
-        if(serverExecutor != null){
-            serverExecutor.shutdown();
-            serverExecutor.awaitTermination(5, TimeUnit.SECONDS);
-        }
+        ThreadUtil.safeClose(serverExecutor);
     }
     
     /**
