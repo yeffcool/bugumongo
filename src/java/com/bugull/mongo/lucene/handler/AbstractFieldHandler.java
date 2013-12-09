@@ -16,7 +16,7 @@
 
 package com.bugull.mongo.lucene.handler;
 
-import com.bugull.mongo.mapper.DataType;
+import com.bugull.mongo.utils.DataType;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.sql.Timestamp;

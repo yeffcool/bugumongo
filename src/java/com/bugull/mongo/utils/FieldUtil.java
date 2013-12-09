@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.bugull.mongo.mapper;
+package com.bugull.mongo.utils;
 
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Ref;

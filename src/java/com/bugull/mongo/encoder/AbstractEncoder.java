@@ -16,7 +16,7 @@
 
 package com.bugull.mongo.encoder;
 
-import com.bugull.mongo.mapper.FieldUtil;
+import com.bugull.mongo.utils.FieldUtil;
 import java.lang.reflect.Field;
 
 /**

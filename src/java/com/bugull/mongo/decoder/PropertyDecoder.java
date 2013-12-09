@@ -18,7 +18,7 @@ package com.bugull.mongo.decoder;
 
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Property;
-import com.bugull.mongo.mapper.DataType;
+import com.bugull.mongo.utils.DataType;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
 import java.sql.Timestamp;

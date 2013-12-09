@@ -20,7 +20,7 @@ import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.IndexRefBy;
-import com.bugull.mongo.mapper.FieldUtil;
+import com.bugull.mongo.utils.FieldUtil;
 import com.bugull.mongo.mapper.InternalDao;
 import java.lang.reflect.Field;
 import org.apache.lucene.document.Document;

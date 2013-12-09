@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.bugull.mongo.mapper;
+package com.bugull.mongo.utils;
 
 /**
  * mongoDB operation constant.

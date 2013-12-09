@@ -18,8 +18,8 @@ package com.bugull.mongo.fs;
 
 import com.bugull.mongo.BuguConnection;
 import com.bugull.mongo.exception.DBConnectionException;
-import com.bugull.mongo.mapper.MapperUtil;
-import com.bugull.mongo.mapper.Operator;
+import com.bugull.mongo.utils.MapperUtil;
+import com.bugull.mongo.utils.Operator;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;

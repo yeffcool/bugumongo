@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.bugull.mongo.mapper;
+package com.bugull.mongo.utils;
 
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Embed;
@@ -27,6 +27,7 @@ import com.bugull.mongo.decoder.Decoder;
 import com.bugull.mongo.decoder.DecoderFactory;
 import com.bugull.mongo.encoder.Encoder;
 import com.bugull.mongo.encoder.EncoderFactory;
+import com.bugull.mongo.mapper.DBIndex;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;

@@ -16,6 +16,9 @@
 
 package com.bugull.mongo.mapper;
 
+import com.bugull.mongo.utils.DataType;
+import com.bugull.mongo.utils.Operator;
+import com.bugull.mongo.utils.FieldUtil;
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.BuguQuery;
 import com.bugull.mongo.cache.DaoCache;

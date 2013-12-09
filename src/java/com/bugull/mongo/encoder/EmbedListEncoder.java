@@ -18,8 +18,8 @@ package com.bugull.mongo.encoder;
 
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.EmbedList;
-import com.bugull.mongo.mapper.DataType;
-import com.bugull.mongo.mapper.MapperUtil;
+import com.bugull.mongo.utils.DataType;
+import com.bugull.mongo.utils.MapperUtil;
 import com.mongodb.DBObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;

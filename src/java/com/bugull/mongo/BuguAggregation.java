@@ -17,8 +17,8 @@
 package com.bugull.mongo;
 
 import com.bugull.mongo.exception.AggregationException;
-import com.bugull.mongo.mapper.MapperUtil;
-import com.bugull.mongo.mapper.Operator;
+import com.bugull.mongo.utils.MapperUtil;
+import com.bugull.mongo.utils.Operator;
 import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
 import com.mongodb.CommandResult;

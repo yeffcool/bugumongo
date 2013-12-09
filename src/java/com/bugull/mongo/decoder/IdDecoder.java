@@ -16,8 +16,8 @@
 
 package com.bugull.mongo.decoder;
 
-import com.bugull.mongo.mapper.FieldUtil;
-import com.bugull.mongo.mapper.Operator;
+import com.bugull.mongo.utils.FieldUtil;
+import com.bugull.mongo.utils.Operator;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
 

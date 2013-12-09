@@ -21,7 +21,7 @@ import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.IndexWriterCache;
 import com.bugull.mongo.lucene.BuguIndex;
 import com.bugull.mongo.mapper.InternalDao;
-import com.bugull.mongo.mapper.MapperUtil;
+import com.bugull.mongo.utils.MapperUtil;
 import java.io.IOException;
 import java.util.List;
 import org.apache.log4j.Logger;

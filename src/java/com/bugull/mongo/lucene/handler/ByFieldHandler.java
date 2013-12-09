@@ -16,7 +16,7 @@
 
 package com.bugull.mongo.lucene.handler;
 
-import com.bugull.mongo.mapper.FieldUtil;
+import com.bugull.mongo.utils.FieldUtil;
 import java.util.List;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;

@@ -16,6 +16,9 @@
 
 package com.bugull.mongo.mapper;
 
+import com.bugull.mongo.utils.Operator;
+import com.bugull.mongo.utils.MapperUtil;
+import com.bugull.mongo.utils.IdUtil;
 import com.bugull.mongo.AdvancedDao;
 import com.bugull.mongo.lucene.backend.EntityChangedListener;
 import com.mongodb.BasicDBObject;

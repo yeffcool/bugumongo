@@ -17,7 +17,7 @@
 package com.bugull.mongo;
 
 import com.bugull.mongo.annotations.Id;
-import com.bugull.mongo.mapper.StringUtil;
+import com.bugull.mongo.utils.StringUtil;
 import org.bson.types.ObjectId;
 
 /**

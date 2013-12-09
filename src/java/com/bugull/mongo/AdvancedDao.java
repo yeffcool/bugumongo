@@ -17,7 +17,7 @@
 package com.bugull.mongo;
 
 import com.bugull.mongo.exception.MapReduceException;
-import com.bugull.mongo.mapper.MapperUtil;
+import com.bugull.mongo.utils.MapperUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.CommandResult;
 import com.mongodb.DBCollection;

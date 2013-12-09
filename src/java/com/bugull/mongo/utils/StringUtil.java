@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.bugull.mongo.mapper;
+package com.bugull.mongo.utils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

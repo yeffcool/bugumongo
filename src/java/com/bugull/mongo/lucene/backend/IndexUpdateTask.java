@@ -19,7 +19,7 @@ package com.bugull.mongo.lucene.backend;
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.cache.IndexWriterCache;
-import com.bugull.mongo.mapper.MapperUtil;
+import com.bugull.mongo.utils.MapperUtil;
 import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;

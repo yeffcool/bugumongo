@@ -18,8 +18,8 @@ package com.bugull.mongo.lucene.handler;
 
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.IndexEmbedBy;
-import com.bugull.mongo.mapper.DataType;
-import com.bugull.mongo.mapper.FieldUtil;
+import com.bugull.mongo.utils.DataType;
+import com.bugull.mongo.utils.FieldUtil;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;

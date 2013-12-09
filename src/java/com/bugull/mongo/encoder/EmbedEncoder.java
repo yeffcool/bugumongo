@@ -18,7 +18,7 @@ package com.bugull.mongo.encoder;
 
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Embed;
-import com.bugull.mongo.mapper.MapperUtil;
+import com.bugull.mongo.utils.MapperUtil;
 import java.lang.reflect.Field;
 
 /**

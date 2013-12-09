@@ -16,7 +16,7 @@
 
 package com.bugull.mongo.fs;
 
-import com.bugull.mongo.mapper.StringUtil;
+import com.bugull.mongo.utils.StringUtil;
 import java.io.IOException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
