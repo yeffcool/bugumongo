@@ -63,8 +63,8 @@ public class BuguIndex {
     private ScheduledExecutorService scheduler;  //scheduler to reopen index
     private long period = 30L * 1000L;  //by default, reopen index per 30 seconds
     
-    private boolean reopening = false;
-    private Set<String> rebuildingSet = Collections.synchronizedSet(new HashSet<String>());
+    private boolean reopening;
+    private Set<String> rebuildingSet;
     
     private BuguIndex(){
         
@@ -78,6 +78,7 @@ public class BuguIndex {
     }
     
     public void open(){
+        rebuildingSet = Collections.synchronizedSet(new HashSet<String>());
         //default thread pool size is: cpu * 2 + 1
         threadPoolSize = Runtime.getRuntime().availableProcessors() * 2 + 1;
         executor = Executors.newFixedThreadPool(threadPoolSize);
