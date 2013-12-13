@@ -24,6 +24,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class ThreadUtil {
     
+    /**
+     * close the thread pool safely.
+     * @param pool 
+     */
     public static void safeClose(ExecutorService pool) {
         if(pool != null){
             pool.shutdown();

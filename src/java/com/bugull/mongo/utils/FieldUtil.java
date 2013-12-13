@@ -86,7 +86,7 @@ public final class FieldUtil {
             else{
                 RefList refList = field.getAnnotation(RefList.class);
                 if(refList!=null && refList.impl()!=Default.class){
-                    cls = ref.impl();
+                    cls = refList.impl();
                 }
             }
         }

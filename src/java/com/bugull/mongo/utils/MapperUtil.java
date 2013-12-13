@@ -182,9 +182,8 @@ public final class MapperUtil {
     public static DBObject getKeyFields(Class<?> clazz){
         DBObject keys = new BasicDBObject();
         Field[] fields = FieldsCache.getInstance().get(clazz);
-        String fieldName = null;
         for(Field field : fields){
-            fieldName = field.getName();
+            String fieldName = field.getName();
             Property property = field.getAnnotation(Property.class);
             if(property!=null && property.lazy()){
                 String name = property.name();
