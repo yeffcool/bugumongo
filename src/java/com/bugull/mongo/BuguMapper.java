@@ -154,19 +154,19 @@ public class BuguMapper {
             fetchCascade(entity, remainder);
         }else if(field.getAnnotation(RefList.class) != null){
             Class type = field.getType();
-            if(DataType.isList(type)){
+            if(DataType.isListType(type)){
                 List<BuguEntity> list = (List<BuguEntity>)value;
                 for(BuguEntity entity : list){
                     fetchCascade(entity, remainder);
                 }
             }
-            else if(DataType.isSet(type)){
+            else if(DataType.isSetType(type)){
                 Set<BuguEntity> set = (Set<BuguEntity>)value;
                 for(BuguEntity entity : set){
                     fetchCascade(entity, remainder);
                 }
             }
-            else if(DataType.isMap(type)){
+            else if(DataType.isMapType(type)){
                 Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
                 for(Entry<Object, BuguEntity> entry : map.entrySet()){
                     fetchCascade(entry.getValue(), remainder);
@@ -253,7 +253,7 @@ public class BuguMapper {
         RefList refList = field.getAnnotation(RefList.class);
         clazz = FieldUtil.getRealType(clazz, field);
         InternalDao dao = DaoCache.getInstance().get(clazz);
-        if(DataType.isList(type)){
+        if(DataType.isListType(type)){
             List<BuguEntity> list = (List<BuguEntity>)o;
             List<Object> idList = new ArrayList<Object>();
             for(BuguEntity ent : list){
@@ -273,7 +273,7 @@ public class BuguMapper {
             }
             FieldUtil.set(obj, field, result);
         }
-        else if(DataType.isSet(type)){
+        else if(DataType.isSetType(type)){
             Set<BuguEntity> set = (Set<BuguEntity>)o;
             List<Object> idList = new ArrayList<Object>();
             for(BuguEntity ent : set){

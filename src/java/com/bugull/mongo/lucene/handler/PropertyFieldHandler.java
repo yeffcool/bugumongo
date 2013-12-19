@@ -117,7 +117,7 @@ public class PropertyFieldHandler extends AbstractFieldHandler{
             Timestamp ts = (Timestamp)objValue;
             f = new NumericField(fieldName).setLongValue(ts.getTime());
         }
-        else if(DataType.isSet(type) || DataType.isList(type)){
+        else if(DataType.isSetType(type) || DataType.isListType(type)){
             Collection coll = (Collection)objValue;
             StringBuilder sb = new StringBuilder();
             for(Object o : coll){
@@ -127,7 +127,7 @@ public class PropertyFieldHandler extends AbstractFieldHandler{
                     store ? Field.Store.YES : Field.Store.NO,
                     analyze ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
         }
-        else if(DataType.isMap(type)){
+        else if(DataType.isMapType(type)){
             Map map = (Map)objValue;
             StringBuilder sb = new StringBuilder();
             Set<Entry> set = map.entrySet();

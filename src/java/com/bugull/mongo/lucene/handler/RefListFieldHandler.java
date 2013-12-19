@@ -74,7 +74,7 @@ public class RefListFieldHandler extends AbstractFieldHandler{
             Type[] types = paramType.getActualTypeArguments();
             if(types.length == 1){
                 clazz = (Class)types[0];
-                if(DataType.isList(type)){
+                if(DataType.isListType(type)){
                     List<BuguEntity> li = (List<BuguEntity>)value;
                     for(BuguEntity ent : li){
                         if(ent != null){
@@ -82,7 +82,7 @@ public class RefListFieldHandler extends AbstractFieldHandler{
                             idList.add(dbId);
                         }
                     }
-                }else if(DataType.isSet(type)){
+                }else if(DataType.isSetType(type)){
                     Set<BuguEntity> set = (Set<BuguEntity>)value;
                     for(BuguEntity ent : set){
                         if(ent != null){

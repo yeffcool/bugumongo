@@ -206,7 +206,7 @@ public class PropertyDecoder extends AbstractDecoder{
             field.set(obj, Short.valueOf(value.toString()));
         }
         //convert for Set. default type is List
-        else if(DataType.isSet(type)){
+        else if(DataType.isSetType(type)){
             List list = (ArrayList)value;
             Set set = new HashSet(list);
             field.set(obj, set);

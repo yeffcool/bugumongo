@@ -93,10 +93,10 @@ public class EmbedListDecoder extends AbstractDecoder{
             }
         }
         Class type = field.getType();
-        if(DataType.isList(type)){
+        if(DataType.isListType(type)){
             FieldUtil.set(obj, field, result);
         }
-        else if(DataType.isSet(type)){
+        else if(DataType.isSetType(type)){
             FieldUtil.set(obj, field, new HashSet(result));
         }
     }

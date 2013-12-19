@@ -75,7 +75,7 @@ public class EmbedListEncoder extends AbstractEncoder{
     }
     
     private Object encodeCollection(Class type){
-        if(DataType.isList(type)){
+        if(DataType.isListType(type)){
             List list = (ArrayList)value;
             List<DBObject> result = new ArrayList<DBObject>();
             for(Object o : list){
@@ -85,7 +85,7 @@ public class EmbedListEncoder extends AbstractEncoder{
             }
             return result;
         }
-        else if(DataType.isSet(type)){
+        else if(DataType.isSetType(type)){
             Set set = (Set)value;
             Set<DBObject> result = new HashSet<DBObject>();
             for(Object o : set){
@@ -95,7 +95,7 @@ public class EmbedListEncoder extends AbstractEncoder{
             }
             return result;
         }
-        else if(DataType.isMap(type)){
+        else if(DataType.isMapType(type)){
             Map map = (Map)value;
             Map result = new HashMap();
             for(Object key : map.keySet()){

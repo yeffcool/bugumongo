@@ -62,9 +62,9 @@ public class EmbedListFieldHandler extends AbstractFieldHandler{
             Type[] types = paramType.getActualTypeArguments();
             if(types.length == 1){
                 clazz = (Class)types[0];
-                if(DataType.isList(type)){
+                if(DataType.isListType(type)){
                     list = (List)value;
-                }else if(DataType.isSet(type)){
+                }else if(DataType.isSetType(type)){
                     Set set = (Set)value;
                     list = new ArrayList();
                     list.addAll(set);

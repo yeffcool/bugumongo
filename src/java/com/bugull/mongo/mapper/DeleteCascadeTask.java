@@ -114,7 +114,7 @@ public class DeleteCascadeTask implements Runnable{
     
     private List<String> getCollectionIds(Object value, Class type){
         List<String> idList = new ArrayList<String>();
-        if(DataType.isList(type)){
+        if(DataType.isListType(type)){
             List<BuguEntity> list = (List<BuguEntity>)value;
             for(BuguEntity ent : list){
                 if(ent != null){
@@ -122,7 +122,7 @@ public class DeleteCascadeTask implements Runnable{
                 }
             }
         }
-        else if(DataType.isSet(type)){
+        else if(DataType.isSetType(type)){
             Set<BuguEntity> set = (Set<BuguEntity>)value;
             for(BuguEntity ent : set){
                 if(ent != null){

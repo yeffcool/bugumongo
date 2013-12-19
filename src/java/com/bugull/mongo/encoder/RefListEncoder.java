@@ -88,7 +88,7 @@ public class RefListEncoder extends AbstractEncoder{
     private Object encodeCollection(Class type){
         ParameterizedType paramType = (ParameterizedType)field.getGenericType();
         Type[] types = paramType.getActualTypeArguments();
-        if(DataType.isList(type)){
+        if(DataType.isListType(type)){
             List<BuguEntity> list = (List<BuguEntity>)value;
             List<Object> result = new ArrayList<Object>();
             Class<?> cls = FieldUtil.getRealType((Class)types[0], field);
@@ -101,7 +101,7 @@ public class RefListEncoder extends AbstractEncoder{
             }
             return result;
         }
-        else if(DataType.isSet(type)){
+        else if(DataType.isSetType(type)){
             Set<BuguEntity> set = (Set<BuguEntity>)value;
             Set<Object> result = new HashSet<Object>();
             Class<?> cls = FieldUtil.getRealType((Class)types[0], field);
@@ -114,7 +114,7 @@ public class RefListEncoder extends AbstractEncoder{
             }
             return result;
         }
-        else if(DataType.isMap(type)){
+        else if(DataType.isMapType(type)){
             Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
             Map<Object, Object> result = new HashMap<Object, Object>();
             Class<?> cls = FieldUtil.getRealType((Class)types[1], field);

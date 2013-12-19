@@ -95,7 +95,7 @@ public final class DataType {
      * @param type
      * @return 
      */
-    public static boolean isList(Class type){
+    public static boolean isListType(Class type){
         return type.equals(java.util.List.class) 
                 || type.equals(java.util.ArrayList.class) 
                 || type.equals(java.util.LinkedList.class) 
@@ -107,7 +107,7 @@ public final class DataType {
      * @param type
      * @return 
      */
-    public static boolean isSet(Class type){
+    public static boolean isSetType(Class type){
         return type.equals(java.util.Set.class) 
                 || type.equals(java.util.HashSet.class) 
                 || type.equals(java.util.TreeSet.class);
@@ -118,7 +118,7 @@ public final class DataType {
      * @param type
      * @return 
      */
-    public static boolean isMap(Class type){
+    public static boolean isMapType(Class type){
         return type.equals(java.util.Map.class) 
                 || type.equals(java.util.HashMap.class) 
                 || type.equals(java.util.TreeMap.class) 
