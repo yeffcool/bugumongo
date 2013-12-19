@@ -113,21 +113,11 @@ public class DeleteCascadeTask implements Runnable{
     }
     
     private List<String> getCollectionIds(Object value, Class type){
+        Collection<BuguEntity> collection = (Collection<BuguEntity>)value;
         List<String> idList = new ArrayList<String>();
-        if(DataType.isListType(type)){
-            List<BuguEntity> list = (List<BuguEntity>)value;
-            for(BuguEntity ent : list){
-                if(ent != null){
-                    idList.add(ent.getId());
-                }
-            }
-        }
-        else if(DataType.isSetType(type)){
-            Set<BuguEntity> set = (Set<BuguEntity>)value;
-            for(BuguEntity ent : set){
-                if(ent != null){
-                    idList.add(ent.getId());
-                }
+        for(BuguEntity ent : collection){
+            if(ent != null){
+                idList.add(ent.getId());
             }
         }
         return idList;

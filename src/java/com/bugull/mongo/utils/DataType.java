@@ -91,38 +91,39 @@ public final class DataType {
     }
     
     /**
-     * Only List, ArrayList, LinkedList, Vector are supported now.
+     * Only List and ArrayList are supported now.
      * @param type
      * @return 
      */
     public static boolean isListType(Class type){
-        return type.equals(java.util.List.class) 
-                || type.equals(java.util.ArrayList.class) 
-                || type.equals(java.util.LinkedList.class) 
-                || type.equals(java.util.Vector.class);
+        return type.equals(java.util.List.class) || type.equals(java.util.ArrayList.class);
     }
     
     /**
-     * Only Set, HashSet, TreeSet are supported now.
+     * Only Set and HashSet supported now.
      * @param type
      * @return 
      */
     public static boolean isSetType(Class type){
-        return type.equals(java.util.Set.class) 
-                || type.equals(java.util.HashSet.class) 
-                || type.equals(java.util.TreeSet.class);
+        return type.equals(java.util.Set.class) || type.equals(java.util.HashSet.class);
     }
     
     /**
-     * Only Map, HashMap, TreeMap, Hashtable are supported now.
+     * Only Map and HashMap are supported now.
      * @param type
      * @return 
      */
     public static boolean isMapType(Class type){
-        return type.equals(java.util.Map.class) 
-                || type.equals(java.util.HashMap.class) 
-                || type.equals(java.util.TreeMap.class) 
-                || type.equals(java.util.Hashtable.class);
+        return type.equals(java.util.Map.class) || type.equals(java.util.HashMap.class);
+    }
+    
+    /**
+     * Only Queue, Deque and LinkedList is supported now.
+     * @param type
+     * @return 
+     */
+    public static boolean isQueueType(Class type){
+        return type.equals(java.util.Queue.class) || type.equals(java.util.Deque.class) || type.equals(java.util.LinkedList.class);
     }
     
 }

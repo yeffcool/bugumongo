@@ -18,17 +18,17 @@ package com.bugull.mongo.encoder;
 
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.EmbedList;
-import com.bugull.mongo.utils.DataType;
 import com.bugull.mongo.utils.MapperUtil;
 import com.mongodb.DBObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  *
@@ -54,12 +54,21 @@ public class EmbedListEncoder extends AbstractEncoder{
 
     @Override
     public Object encode() {
+        Object result = null;
         Class<?> type = field.getType();
         if(type.isArray()){
-            return encodeArray();
+            result = encodeArray();
         }else{
-            return encodeCollection(type);
+            ParameterizedType paramType = (ParameterizedType)field.getGenericType();
+            Type[] types = paramType.getActualTypeArguments();
+            int len = types.length;
+            if(len == 1){
+                result = encodeCollection();
+            }else if(len == 2){
+                result = encodeMap();
+            }
         }
+        return result;
     }
     
     private Object encodeArray(){
@@ -74,43 +83,29 @@ public class EmbedListEncoder extends AbstractEncoder{
         return result;
     }
     
-    private Object encodeCollection(Class type){
-        if(DataType.isListType(type)){
-            List list = (ArrayList)value;
-            List<DBObject> result = new ArrayList<DBObject>();
-            for(Object o : list){
-                if(o != null){
-                    result.add(MapperUtil.toDBObject(o));
-                }
+    private Object encodeCollection(){
+        List<DBObject> result = new ArrayList<DBObject>();
+        Collection collection = (Collection)value;
+        for(Object o : collection){
+            if(o != null){
+                result.add(MapperUtil.toDBObject(o));
             }
-            return result;
         }
-        else if(DataType.isSetType(type)){
-            Set set = (Set)value;
-            Set<DBObject> result = new HashSet<DBObject>();
-            for(Object o : set){
-                if(o != null){
-                    result.add(MapperUtil.toDBObject(o));
-                }
+        return result;
+    }
+    
+    private Object encodeMap(){
+        Map map = (Map)value;
+        Map result = new HashMap();
+        for(Object key : map.keySet()){
+            Object o = map.get(key);
+            if(o != null){
+                result.put(key, MapperUtil.toDBObject(o));
+            }else{
+                result.put(key, null);
             }
-            return result;
         }
-        else if(DataType.isMapType(type)){
-            Map map = (Map)value;
-            Map result = new HashMap();
-            for(Object key : map.keySet()){
-                Object o = map.get(key);
-                if(o != null){
-                    result.put(key, MapperUtil.toDBObject(o));
-                }else{
-                    result.put(key, null);
-                }
-            }
-            return result;
-        }
-        else{
-            return null;
-        }
+        return result;
     }
     
 }

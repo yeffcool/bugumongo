@@ -20,7 +20,6 @@ import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.IndexRefBy;
-import com.bugull.mongo.utils.DataType;
 import com.bugull.mongo.utils.FieldUtil;
 import com.bugull.mongo.utils.IdUtil;
 import com.bugull.mongo.mapper.InternalDao;
@@ -32,10 +31,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import org.apache.lucene.document.Document;
 
 /**
@@ -74,21 +73,11 @@ public class RefListFieldHandler extends AbstractFieldHandler{
             Type[] types = paramType.getActualTypeArguments();
             if(types.length == 1){
                 clazz = (Class)types[0];
-                if(DataType.isListType(type)){
-                    List<BuguEntity> li = (List<BuguEntity>)value;
-                    for(BuguEntity ent : li){
-                        if(ent != null){
-                            Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
-                            idList.add(dbId);
-                        }
-                    }
-                }else if(DataType.isSetType(type)){
-                    Set<BuguEntity> set = (Set<BuguEntity>)value;
-                    for(BuguEntity ent : set){
-                        if(ent != null){
-                            Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
-                            idList.add(dbId);
-                        }
+                Collection<BuguEntity> collection = (Collection<BuguEntity>)value;
+                for(BuguEntity ent : collection){
+                    if(ent != null){
+                        Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
+                        idList.add(dbId);
                     }
                 }
             }
@@ -102,9 +91,6 @@ public class RefListFieldHandler extends AbstractFieldHandler{
                         idList.add(dbId);
                     }
                 }
-            }
-            else{
-                return;
             }
         }
         clazz = FieldUtil.getRealType(clazz, field);

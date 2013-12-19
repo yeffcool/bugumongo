@@ -35,8 +35,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -154,22 +156,16 @@ public class BuguMapper {
             fetchCascade(entity, remainder);
         }else if(field.getAnnotation(RefList.class) != null){
             Class type = field.getType();
-            if(DataType.isListType(type)){
-                List<BuguEntity> list = (List<BuguEntity>)value;
-                for(BuguEntity entity : list){
-                    fetchCascade(entity, remainder);
-                }
-            }
-            else if(DataType.isSetType(type)){
-                Set<BuguEntity> set = (Set<BuguEntity>)value;
-                for(BuguEntity entity : set){
-                    fetchCascade(entity, remainder);
-                }
-            }
-            else if(DataType.isMapType(type)){
+            if(DataType.isMapType(type)){
                 Map<Object, BuguEntity> map = (Map<Object, BuguEntity>)value;
                 for(Entry<Object, BuguEntity> entry : map.entrySet()){
                     fetchCascade(entry.getValue(), remainder);
+                }
+            }
+            else{
+                Collection<BuguEntity> collection = (Collection<BuguEntity>)value;
+                for(BuguEntity entity : collection){
+                    fetchCascade(entity, remainder);
                 }
             }
         }
@@ -197,7 +193,7 @@ public class BuguMapper {
             Type[] types = paramType.getActualTypeArguments();
             int len = types.length;
             if(len == 1){
-                //for List and Set
+                //for Collection
                 fetchCollection(obj, field, (Class)types[0]);
             }else if(len == 2){
                 //for Map
@@ -249,49 +245,35 @@ public class BuguMapper {
         if(o == null){
             return;
         }
-        Class type = field.getType();
         RefList refList = field.getAnnotation(RefList.class);
         clazz = FieldUtil.getRealType(clazz, field);
         InternalDao dao = DaoCache.getInstance().get(clazz);
+        Collection<BuguEntity> collection = (Collection<BuguEntity>)o;
+        List<Object> idList = new ArrayList<Object>();
+        for(BuguEntity ent : collection){
+            if(ent != null){
+                Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
+                idList.add(dbId);
+            }
+        }
+        DBObject in = new BasicDBObject(Operator.IN, idList);
+        DBObject query = new BasicDBObject(Operator.ID, in);
+        String sort = refList.sort();
+        List result = null;
+        if(sort.equals(Default.SORT)){
+            result = dao.find(query);
+        }else{
+            result = dao.find(query, MapperUtil.getSort(sort));
+        }
+        Class type = field.getType();
         if(DataType.isListType(type)){
-            List<BuguEntity> list = (List<BuguEntity>)o;
-            List<Object> idList = new ArrayList<Object>();
-            for(BuguEntity ent : list){
-                if(ent != null){
-                    Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
-                    idList.add(dbId);
-                }
-            }
-            DBObject in = new BasicDBObject(Operator.IN, idList);
-            DBObject query = new BasicDBObject(Operator.ID, in);
-            String sort = refList.sort();
-            List result = null;
-            if(sort.equals(Default.SORT)){
-                result = dao.find(query);
-            }else{
-                result = dao.find(query, MapperUtil.getSort(sort));
-            }
             FieldUtil.set(obj, field, result);
         }
         else if(DataType.isSetType(type)){
-            Set<BuguEntity> set = (Set<BuguEntity>)o;
-            List<Object> idList = new ArrayList<Object>();
-            for(BuguEntity ent : set){
-                if(ent != null){
-                    Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
-                    idList.add(dbId);
-                }
-            }
-            DBObject in = new BasicDBObject(Operator.IN, idList);
-            DBObject query = new BasicDBObject(Operator.ID, in);
-            String sort = refList.sort();
-            List result = null;
-            if(sort.equals(Default.SORT)){
-                result = dao.find(query);
-            }else{
-                result = dao.find(query, MapperUtil.getSort(sort));
-            }
             FieldUtil.set(obj, field, new HashSet(result));
+        }
+        else if(DataType.isQueueType(type)){
+            FieldUtil.set(obj, field, new LinkedList(result));
         }
     }
     

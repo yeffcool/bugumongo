@@ -117,7 +117,7 @@ public class PropertyFieldHandler extends AbstractFieldHandler{
             Timestamp ts = (Timestamp)objValue;
             f = new NumericField(fieldName).setLongValue(ts.getTime());
         }
-        else if(DataType.isSetType(type) || DataType.isListType(type)){
+        else if(DataType.isListType(type) || DataType.isSetType(type) || DataType.isQueueType(type)){
             Collection coll = (Collection)objValue;
             StringBuilder sb = new StringBuilder();
             for(Object o : coll){

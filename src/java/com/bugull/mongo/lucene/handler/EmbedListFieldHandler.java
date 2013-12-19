@@ -18,16 +18,15 @@ package com.bugull.mongo.lucene.handler;
 
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.annotations.IndexEmbedBy;
-import com.bugull.mongo.utils.DataType;
 import com.bugull.mongo.utils.FieldUtil;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.lucene.document.Document;
 
 /**
@@ -62,22 +61,13 @@ public class EmbedListFieldHandler extends AbstractFieldHandler{
             Type[] types = paramType.getActualTypeArguments();
             if(types.length == 1){
                 clazz = (Class)types[0];
-                if(DataType.isListType(type)){
-                    list = (List)value;
-                }else if(DataType.isSetType(type)){
-                    Set set = (Set)value;
-                    list = new ArrayList();
-                    list.addAll(set);
-                }
+                Collection collection = (Collection)value;
+                list = new ArrayList(collection);
             }
             else if(types.length == 2){
                 clazz = (Class)types[1];
                 Map map = (Map)value;
-                list = new ArrayList();
-                list.addAll(map.values());
-            }
-            else{
-                return;
+                list = new ArrayList(map.values());
             }
         }
         if(list!=null && list.size()>0){
