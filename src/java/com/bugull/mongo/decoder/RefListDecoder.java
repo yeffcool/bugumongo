@@ -33,6 +33,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -113,6 +114,7 @@ public class RefListDecoder extends AbstractDecoder{
                 query.sort(sort);
             }
             List<BuguEntity> entityList = query.results();
+            //when query returns, the size maybe changed
             if(entityList.size() != size){
                 size = entityList.size();
                 arr = Array.newInstance(clazz, size);
@@ -126,10 +128,10 @@ public class RefListDecoder extends AbstractDecoder{
     
     private void decodeCollection(Object obj, Class clazz){
         clazz = FieldUtil.getRealType(clazz, field);
-        List list = (List)value;
+        Collection collection = (Collection)value;
         List<BuguEntity> result = new ArrayList<BuguEntity>();
         if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_READ)==-1){
-            for(Object item : list){
+            for(Object item : collection){
                 if(item != null){
                     String refId = ReferenceUtil.fromDbReference(refList, item);
                     BuguEntity refObj = (BuguEntity)ConstructorCache.getInstance().create(clazz);
@@ -139,7 +141,7 @@ public class RefListDecoder extends AbstractDecoder{
             }
         }else{
             List<String> idList = new ArrayList<String>();
-            for(Object item : list){
+            for(Object item : collection){
                 if(item != null){
                     String refId = ReferenceUtil.fromDbReference(refList, item);
                     idList.add(refId);

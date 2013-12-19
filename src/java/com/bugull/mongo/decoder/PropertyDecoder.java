@@ -25,7 +25,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import org.apache.log4j.Logger;
 
@@ -205,11 +207,17 @@ public class PropertyDecoder extends AbstractDecoder{
         else if(DataType.isShortObject(type)){
             field.set(obj, Short.valueOf(value.toString()));
         }
-        //convert for Set. default type is List
+        //convert for Set. default type is com.mongodb.BasicDBList(extends ArrayList)
         else if(DataType.isSetType(type)){
             List list = (ArrayList)value;
             Set set = new HashSet(list);
             field.set(obj, set);
+        }
+        //convert for Queue. default type is com.mongodb.BasicDBList(extends ArrayList)
+        else if(DataType.isQueueType(type)){
+            List list = (ArrayList)value;
+            Queue queue = new LinkedList(list);
+            field.set(obj, queue);
         }
         //convert for char. default type is String "X"
         else if(DataType.isChar(type)){

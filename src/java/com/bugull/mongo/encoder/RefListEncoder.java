@@ -42,10 +42,12 @@ import java.util.Map.Entry;
 public class RefListEncoder extends AbstractEncoder{
     
     private RefList refList;
+    private boolean cascadeCU;
     
     public RefListEncoder(Object obj, Field field){
         super(obj, field);
         refList = field.getAnnotation(RefList.class);
+        cascadeCU = refList.cascade().toUpperCase().indexOf(Default.CASCADE_CREATE)!=-1 || refList.cascade().toUpperCase().indexOf(Default.CASCADE_UPDATE)!=-1;
     }
     
     @Override
@@ -85,7 +87,9 @@ public class RefListEncoder extends AbstractEncoder{
         for(int i=0; i<len; i++){
             BuguEntity entity = (BuguEntity)Array.get(value, i);
             if(entity != null){
-                doCascade(dao, entity);
+                if(cascadeCU){
+                    dao.save(entity);
+                }
                 result.add(ReferenceUtil.toDbReference(refList, entity.getClass(), entity.getId()));
             }
         }
@@ -99,7 +103,9 @@ public class RefListEncoder extends AbstractEncoder{
         InternalDao dao = DaoCache.getInstance().get(cls);
         for(BuguEntity entity : collection){
             if(entity != null){
-                doCascade(dao, entity);
+                if(cascadeCU){
+                    dao.save(entity);
+                }
                 result.add(ReferenceUtil.toDbReference(refList, entity.getClass(), entity.getId()));
             }
         }
@@ -114,19 +120,15 @@ public class RefListEncoder extends AbstractEncoder{
         for(Entry<Object, BuguEntity> entry : map.entrySet()){
             BuguEntity entity = entry.getValue();
             if(entity != null){
-                doCascade(dao, entity);
+                if(cascadeCU){
+                    dao.save(entity);
+                }
                 result.put(entry.getKey(), ReferenceUtil.toDbReference(refList, entity.getClass(), entity.getId()));
             }else{
                 result.put(entry.getKey(), null);
             }
         }
         return result;
-    }
-    
-    private void doCascade(InternalDao dao, BuguEntity entity){
-        if(refList.cascade().toUpperCase().indexOf(Default.CASCADE_CREATE)!=-1 || refList.cascade().toUpperCase().indexOf(Default.CASCADE_UPDATE)!=-1){
-            dao.save(entity);
-        }
     }
     
 }
