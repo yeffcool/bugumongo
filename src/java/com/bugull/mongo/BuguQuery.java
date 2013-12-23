@@ -30,6 +30,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
@@ -240,8 +241,8 @@ public class BuguQuery<T> {
     }
     
     public BuguQuery<T> in(String key, List list){
-        if(list==null || list.isEmpty()){
-            return this;
+        if(list == null){
+            list = Collections.emptyList();
         }
         return in(key, list.toArray());
     }
@@ -252,8 +253,8 @@ public class BuguQuery<T> {
     }
     
     public BuguQuery<T> notIn(String key, List list){
-        if(list==null || list.isEmpty()){
-            return this;
+        if(list == null){
+            list = Collections.emptyList();
         }
         return notIn(key, list.toArray());
     }
@@ -264,8 +265,8 @@ public class BuguQuery<T> {
     }
     
     public BuguQuery<T> all(String key, List list){
-        if(list==null || list.isEmpty()){
-            return this;
+        if(list == null){
+            list = Collections.emptyList();
         }
         return all(key, list.toArray());
     }

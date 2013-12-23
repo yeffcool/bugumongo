@@ -24,7 +24,6 @@ import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.exception.FieldException;
 import com.bugull.mongo.utils.DataType;
 import com.bugull.mongo.utils.FieldUtil;
-import com.bugull.mongo.utils.IdUtil;
 import com.bugull.mongo.mapper.InternalDao;
 import com.bugull.mongo.utils.MapperUtil;
 import com.bugull.mongo.utils.Operator;
@@ -209,25 +208,23 @@ public class BuguMapper {
         int len = Array.getLength(o);
         clazz = FieldUtil.getRealType(clazz, field);
         Object arr = Array.newInstance(clazz, len);
-        List<Object> idList = new ArrayList<Object>();
+        List<String> idList = new ArrayList<String>();
         for(int i=0; i<len; i++){
             Object item = Array.get(o, i);
             if(item != null){
-                BuguEntity entity = (BuguEntity)item;
-                Object dbId = IdUtil.toDbId(entity.getClass(), entity.getId());
-                idList.add(dbId);
+                BuguEntity ent = (BuguEntity)item;
+                idList.add(ent.getId());
             }
         }
-        DBObject in = new BasicDBObject(Operator.IN, idList);
-        DBObject query = new BasicDBObject(Operator.ID, in);
-        InternalDao dao = DaoCache.getInstance().get(clazz);
         RefList refList = field.getAnnotation(RefList.class);
         String sort = refList.sort();
+        InternalDao dao = DaoCache.getInstance().get(clazz);
+        BuguQuery query = dao.query().in(Operator.ID, idList);
         List<BuguEntity> entityList = null;
         if(sort.equals(Default.SORT)){
-            entityList = dao.find(query);
+            entityList = query.results();
         }else{
-            entityList = dao.find(query, MapperUtil.getSort(sort));
+            entityList = query.sort(sort).results();
         }
         if(entityList.size() != len){
             len = entityList.size();
@@ -244,25 +241,23 @@ public class BuguMapper {
         if(o == null){
             return;
         }
-        RefList refList = field.getAnnotation(RefList.class);
-        clazz = FieldUtil.getRealType(clazz, field);
-        InternalDao dao = DaoCache.getInstance().get(clazz);
         Collection<BuguEntity> collection = (Collection<BuguEntity>)o;
-        List<Object> idList = new ArrayList<Object>();
+        List<String> idList = new ArrayList<String>();
         for(BuguEntity ent : collection){
             if(ent != null){
-                Object dbId = IdUtil.toDbId(ent.getClass(), ent.getId());
-                idList.add(dbId);
+                idList.add(ent.getId());
             }
         }
-        DBObject in = new BasicDBObject(Operator.IN, idList);
-        DBObject query = new BasicDBObject(Operator.ID, in);
+        RefList refList = field.getAnnotation(RefList.class);
         String sort = refList.sort();
+        clazz = FieldUtil.getRealType(clazz, field);
+        InternalDao dao = DaoCache.getInstance().get(clazz);
+        BuguQuery query = dao.query().in(Operator.ID, idList);
         List result = null;
         if(sort.equals(Default.SORT)){
-            result = dao.find(query);
+            result = query.results();
         }else{
-            result = dao.find(query, MapperUtil.getSort(sort));
+            result = query.sort(sort).results();
         }
         Class type = field.getType();
         if(DataType.isListType(type)){

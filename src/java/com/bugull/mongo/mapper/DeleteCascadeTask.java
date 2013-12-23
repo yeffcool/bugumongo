@@ -16,7 +16,6 @@
 
 package com.bugull.mongo.mapper;
 
-import com.bugull.mongo.utils.DataType;
 import com.bugull.mongo.utils.Operator;
 import com.bugull.mongo.utils.FieldUtil;
 import com.bugull.mongo.BuguEntity;
@@ -30,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  *
@@ -85,7 +83,7 @@ public class DeleteCascadeTask implements Runnable{
             int len = types.length;
             if(len == 1){
                 clazz = (Class)types[0];
-                idList = getCollectionIds(value, type);
+                idList = getCollectionIds(value);
             }else if(len == 2){
                 clazz = (Class)types[1];
                 idList = getMapIds(value);
@@ -112,7 +110,7 @@ public class DeleteCascadeTask implements Runnable{
         return idList;
     }
     
-    private List<String> getCollectionIds(Object value, Class type){
+    private List<String> getCollectionIds(Object value){
         Collection<BuguEntity> collection = (Collection<BuguEntity>)value;
         List<String> idList = new ArrayList<String>();
         for(BuguEntity ent : collection){
