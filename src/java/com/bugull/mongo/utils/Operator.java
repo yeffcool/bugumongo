@@ -26,7 +26,7 @@ public final class Operator {
     //id
     public static final String ID = "_id";
     
-    //query
+    //query condition
     public static final String GT = "$gt";
     public static final String GTE = "$gte";
     public static final String LT = "$lt";
@@ -41,6 +41,7 @@ public final class Operator {
     public static final String EXISTS = "$exists";
     public static final String WHERE = "$where";
     
+    //query logic
     public static final String AND = "$and";
     public static final String OR = "$or";
     
@@ -61,6 +62,7 @@ public final class Operator {
     public static final String POP = "$pop";
     public static final String MIN = "$min";
     public static final String MAX = "$max";
+    public static final String BIT = "$bit";
     
     //aggregation
     public static final String PROJECT = "$project";

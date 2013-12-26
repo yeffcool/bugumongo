@@ -582,4 +582,67 @@ public class BuguUpdater<T> {
         return updateMulti(query.getCondition(), max, key);
     }
     
+    /**
+     * Performs a bitwise update of a field
+     * @param t the entity to update
+     * @param key the field's name
+     * @param value the bitwise value
+     * @param bitwise the enum type of bitwise operation: AND,OR,XOR
+     * @return 
+     */
+    public WriteResult bitwise(T t, String key, int value, Bitwise bitwise){
+        BuguEntity ent = (BuguEntity)t;
+        return bitwise(ent.getId(), key, value, bitwise);
+    }
+    
+    /**
+     * Performs a bitwise update of a field
+     * @param id the entity's id
+     * @param key the field's name
+     * @param value the bitwise value
+     * @param bitwise the enum type of bitwise operation: AND,OR,XOR
+     * @return 
+     */
+    public WriteResult bitwise(String id, String key, int value, Bitwise bitwise){
+        DBObject logic = new BasicDBObject(checkBitwise(bitwise), value);
+        DBObject dbo = new BasicDBObject(key, logic);
+        DBObject bit = new BasicDBObject(Operator.BIT, dbo);
+        return updateOne(id, bit, key);
+    }
+    
+    /**
+     * Performs a bitwise update of a field
+     * @param query the query condition
+     * @param key the field's name
+     * @param value the bitwise value
+     * @param bitwise the enum type of bitwise operation: AND,OR,XOR
+     * @return 
+     */
+    public WriteResult bitwise(BuguQuery query, String key, int value, Bitwise bitwise){
+        DBObject logic = new BasicDBObject(checkBitwise(bitwise), value);
+        DBObject dbo = new BasicDBObject(key, logic);
+        DBObject bit = new BasicDBObject(Operator.BIT, dbo);
+        return updateMulti(query.getCondition(), bit, key);
+    }
+    
+    private String checkBitwise(Bitwise bitwise){
+        String result = null;
+        switch(bitwise){
+            case AND:
+                result = "and";
+                break;
+            case OR:
+                result = "or";
+                break;
+            case XOR:
+                result = "xor";
+                break;
+            default:
+                break;
+        }
+        return result;
+    }
+    
+    public enum Bitwise { AND, OR, XOR }
+    
 }
