@@ -43,7 +43,6 @@ import com.mongodb.WriteResult;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.apache.log4j.Logger;
 
 /**
@@ -124,7 +123,7 @@ public class BuguDao<T> {
     }
     
     /**
-     * Insert a list of entity to mongoDB.
+     * Batch insert.
      * @param list 
      * @return 
      */
@@ -207,7 +206,7 @@ public class BuguDao<T> {
     }
     
     /**
-     * Remove an entity has id value in it.
+     * Remove an entity.
      * @param t 
      * @return 
      */
@@ -229,63 +228,47 @@ public class BuguDao<T> {
         if(luceneListener != null){
             luceneListener.entityRemove(id);
         }
-        DBObject query = new BasicDBObject();
-        query.put(Operator.ID, IdUtil.toDbId(clazz, id));
-        return coll.remove(query);
+        DBObject dbo = new BasicDBObject(Operator.ID, IdUtil.toDbId(clazz, id));
+        return coll.remove(dbo);
     }
     
     /**
-     * Remove by array of id.
+     * Batch remove by id.
      * @param ids 
      * @return 
      */
-    public WriteResult remove(String... ids){
-        int len = ids.length;
-        if(cascadeListener != null){
-            for(int i=0; i<len; i++){
-                BuguEntity entity = (BuguEntity)findOne(ids[i]);
-                cascadeListener.entityRemove(entity);
-            }
-        }
-        if(luceneListener != null){
-            for(int i=0; i<len; i++){
-                luceneListener.entityRemove(ids[i]);
-            }
-        }
+    public WriteResult remove(List<String> idList){
+        int len = idList.size();
         Object[] arr = new Object[len];
         for(int i=0; i<len; i++){
-            arr[i] = IdUtil.toDbId(clazz, ids[i]);
+            arr[i] = IdUtil.toDbId(clazz, idList.get(i));
         }
         DBObject in = new BasicDBObject(Operator.IN, arr);
-        DBObject query = new BasicDBObject(Operator.ID, in);
-        return coll.remove(query);
+        return removeMulti(new BasicDBObject(Operator.ID, in));
     }
     
     /**
-     * Remove entity by condition.
+     * Remove by condition.
      * @param key the condition field
      * @param value the condition value
      * @return 
      */
     public WriteResult remove(String key, Object value){
-        if(value instanceof BuguEntity){
-            BuguEntity be = (BuguEntity)value;
-            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
-        }
-        return remove(new BasicDBObject(key, value));
+        value = checkSpecialValue(key, value);
+        return removeMulti(new BasicDBObject(key, value));
     }
     
     /**
-     * Remove by condition.
+     * Remove by query condition.
      * @param query 
      * @return 
      */
     public WriteResult remove(BuguQuery query){
-        return remove(query.getCondition());
+        return removeMulti(query.getCondition());
     }
     
-    private WriteResult remove(DBObject query){
-        DBCursor cursor = coll.find(query, keys);
+    private WriteResult removeMulti(DBObject condition){
+        DBCursor cursor = coll.find(condition, keys);
         List<T> list = MapperUtil.toList(clazz, cursor);
         if(cascadeListener != null){
             for(T t : list){
@@ -298,318 +281,19 @@ public class BuguDao<T> {
                 luceneListener.entityRemove(ent.getId());
             }
         }
-        return coll.remove(query);
+        return coll.remove(condition);
     }
     
-    private WriteResult update(String id, DBObject dbo){
-        WriteResult wr = updateWithOutIndex(id, dbo);
-        if(luceneListener != null){
-            BuguEntity entity = (BuguEntity)findOne(id);
-            luceneListener.entityUpdate(entity);
-        }
-        return wr;
-    }
-    
-    private WriteResult updateWithOutIndex(String id, DBObject dbo){
-        DBObject query = new BasicDBObject(Operator.ID, IdUtil.toDbId(clazz, id));
-        return coll.update(query, dbo);
-    }
-    
-    /**
-     * Update some entities, with new key/value pairs.
-     * Notice: EmbedList and RefList fields is not supported yet.
-     * @param query the query condition
-     * @param key the field's name
-     * @param value the field's new value
-     * @return 
-     */
-    public WriteResult set(BuguQuery query, String key, Object value){
+    private Object checkSpecialValue(String key, Object value){
+        Object result = value;
         if(value instanceof BuguEntity){
             BuguEntity be = (BuguEntity)value;
-            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
-        }else if(!(value instanceof DBObject) && 
-                FieldsCache.getInstance().isEmbedField(clazz, key)){
-            value = MapperUtil.toDBObject(value);
+            result = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
+        }else if(!(value instanceof DBObject) &&
+                (FieldsCache.getInstance().isEmbedField(clazz, key) || FieldsCache.getInstance().isEmbedListField(clazz, key))){
+            result = MapperUtil.toDBObject(value);
         }
-        DBObject dbo = new BasicDBObject(key, value);
-        return set(query.getCondition(), dbo);
-    }
-    
-    /**
-     * Update some entities, with new key/value pairs.
-     * Notice: the Map values must can be converted to DBObject.
-     * @param query the query condition
-     * @param values
-     * @return the new key/value pairs
-     */
-    public WriteResult set(BuguQuery query, Map values){
-        DBObject dbo = new BasicDBObject(values);
-        return set(query.getCondition(), dbo);
-    }
-    
-    private WriteResult set(DBObject query, DBObject dbo){
-        List ids = null;
-        if(luceneListener != null){
-            ids = coll.distinct(Operator.ID, query);
-        }
-        WriteResult wr = coll.updateMulti(query, new BasicDBObject(Operator.SET,dbo));
-        if(luceneListener != null){
-            for(Object id : ids){
-                BuguEntity entity = (BuguEntity)findOne(id.toString());
-                luceneListener.entityUpdate(entity);
-            }
-        }
-        return wr;
-    }
-    
-    /**
-     * Update a field's value of an entity.
-     * Notice: EmbedList and RefList fields is not supported yet.
-     * @param t the entity needs to update
-     * @param key the field's name
-     * @param value the field's new value
-     * @return 
-     */
-    public WriteResult set(T t, String key, Object value){
-        BuguEntity ent = (BuguEntity)t;
-        return set(ent.getId(), key, value);
-    }
-    
-    /**
-     * Update a field's value of an entity.
-     * Notice: EmbedList and RefList fields is not supported yet.
-     * @param id the entity's id
-     * @param key the field's name
-     * @param value the field's new value
-     * @return 
-     */
-    public WriteResult set(String id, String key, Object value){
-        if(value instanceof BuguEntity){
-            BuguEntity be = (BuguEntity)value;
-            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
-        }else if(!(value instanceof DBObject) && 
-                FieldsCache.getInstance().isEmbedField(clazz, key)){
-            value = MapperUtil.toDBObject(value);
-        }
-        DBObject query = new BasicDBObject(key, value);
-        DBObject set = new BasicDBObject(Operator.SET, query);
-        if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, key)){
-            return update(id, set);
-        }else{
-            return updateWithOutIndex(id, set);
-        }
-    }
-    
-    /**
-     * Update an entity, with new key/value pairs.
-     * Notice: the Map values must can be converted to DBObject.
-     * @param t the entity needs to be updated
-     * @param values the new key/value pairs
-     * @return 
-     */
-    public WriteResult set(T t, Map values){
-        BuguEntity ent = (BuguEntity)t;
-        return set(ent.getId(), values);
-    }
-    
-    /**
-     * Update an entity, with new key/value pairs.
-     * Notice: the Map values must can be converted to DBObject.
-     * @param id the entity's id
-     * @param values the new key/value pairs
-     * @return 
-     */
-    public WriteResult set(String id, Map values){
-        DBObject dbo = new BasicDBObject(values);
-        return update(id, new BasicDBObject(Operator.SET, dbo));
-    } 
-    
-    /**
-     * Remove one or more filed(column) of an entity.
-     * @param t the entity to operate
-     * @param keys the field's name
-     * @return 
-     */
-    public WriteResult unset(T t, String... keys){
-        BuguEntity ent = (BuguEntity)t;
-        return unset(ent.getId(), keys);
-    }
-    
-    /**
-     * Remove one or more filed(column) of an entity
-     * @param id the entity's id
-     * @param keys the field's name
-     * @return 
-     */
-    public WriteResult unset(String id, String... keys){
-        DBObject query = new BasicDBObject();
-        for(String key : keys){
-            query.put(key, 1);
-        }
-        DBObject unset = new BasicDBObject(Operator.UNSET, query);
-        if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, keys)){
-            return update(id, unset);
-        }else{
-            return updateWithOutIndex(id, unset);
-        }
-    }
-    
-    /**
-     * Remove one or more filed(column).
-     * @param query mathcing conditon
-     * @param key the field's name
-     * @return 
-     */
-    public WriteResult unset(BuguQuery query, String... keys){
-        return unset(query.getCondition(), keys);
-    }
-    
-    private WriteResult unset(DBObject query, String... keys){
-        boolean indexField = (luceneListener != null) && IndexChecker.hasIndexAnnotation(clazz, keys); 
-        List ids = null;
-        if(indexField){
-            ids = coll.distinct(Operator.ID, query);
-        }
-        DBObject dbo = new BasicDBObject();
-        for(String key : keys){
-            dbo.put(key, 1);
-        }
-        WriteResult wr = coll.updateMulti(query, new BasicDBObject(Operator.UNSET, dbo));
-        if(indexField){
-            for(Object id : ids){
-                BuguEntity entity = (BuguEntity)findOne(id.toString());
-                luceneListener.entityUpdate(entity);
-            }
-        }
-        return wr;
-    }
-    
-    /**
-     * Increase a numeric field of an entity.
-     * @param t the entity needs to update
-     * @param key the field's name
-     * @param value the numeric value to be added. It can be positive or negative integer, long, float, double.
-     * @return 
-     */
-    public WriteResult inc(T t, String key, Object value){
-        BuguEntity ent = (BuguEntity)t;
-        return inc(ent.getId(), key, value);
-    }
-    
-    /**
-     * Increase a numeric field of an entity.
-     * @param id the entity's id
-     * @param key the field's name
-     * @param value the numeric value to be added. It can be positive or negative integer, long, float, double.
-     * @return 
-     */
-    public WriteResult inc(String id, String key, Object value){
-        DBObject query = new BasicDBObject(key, value);
-        DBObject inc = new BasicDBObject(Operator.INC, query);
-        if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, key)){
-            return update(id, inc);
-        }else{
-            return updateWithOutIndex(id, inc);
-        }
-    }
-    
-    /**
-     * Increase a numberic field of some entities.
-     * @param query the query condition
-     * @param key the field's name
-     * @param value the numeric value to be added. It can be positive or negative integer, long, float, double.
-     * @return 
-     */
-    public WriteResult inc(BuguQuery query, String key, Object value){
-        return inc(query.getCondition(), key, value);
-    }
-    
-    private WriteResult inc(DBObject query, String key, Object value){
-        List ids = null;
-        if(luceneListener != null){
-            ids = coll.distinct(Operator.ID, query);
-        }
-        DBObject dbo = new BasicDBObject(key, value);
-        WriteResult wr = coll.updateMulti(query, new BasicDBObject(Operator.INC, dbo));
-        if(luceneListener != null){
-            for(Object id : ids){
-                BuguEntity entity = (BuguEntity)findOne(id.toString());
-                luceneListener.entityUpdate(entity);
-            }
-        }
-        return wr;
-    }
-    
-    /**
-     * Add an element to an entity's array/list/set field.
-     * @param t the entity needs to update
-     * @param key the field's name
-     * @param value the element to be added
-     * @return 
-     */
-    public WriteResult push(T t, String key, Object value){
-        BuguEntity ent = (BuguEntity)t;
-        return push(ent.getId(), key, value);
-    }
-    
-    /**
-     * Add an element to an entity's array/list/set field.
-     * @param id the entity's id
-     * @param key the field's name
-     * @param value the element to be addes
-     * @return 
-     */
-    public WriteResult push(String id, String key, Object value){
-        if(value instanceof BuguEntity){
-            BuguEntity be = (BuguEntity)value;
-            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
-        }else if(!(value instanceof DBObject) && 
-                FieldsCache.getInstance().isEmbedListField(clazz, key)){
-            value = MapperUtil.toDBObject(value);
-        }
-        DBObject query = new BasicDBObject(key, value);
-        DBObject push = new BasicDBObject(Operator.PUSH, query);
-        if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, key)){
-            return update(id, push);
-        }else{
-            return updateWithOutIndex(id, push);
-        }
-    }
-    
-    /**
-     * Remove an element of an entity's array/list/set field.
-     * @param t the entity needs to update
-     * @param key the field's name
-     * @param value the element to be removed
-     * @return 
-     */
-    public WriteResult pull(T t, String key, Object value){
-        BuguEntity ent = (BuguEntity)t;
-        return pull(ent.getId(), key, value);
-    }
-    
-    /**
-     * Remove an element of an entity's array/list/set field.
-     * @param id the entity's id
-     * @param key the field's name
-     * @param value the element to be removed
-     * @return 
-     */
-    public WriteResult pull(String id, String key, Object value){
-        if(value instanceof BuguEntity){
-            BuguEntity be = (BuguEntity)value;
-            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
-        }else if(!(value instanceof DBObject) && 
-                FieldsCache.getInstance().isEmbedListField(clazz, key)){
-            value = MapperUtil.toDBObject(value);
-        }
-        DBObject query = new BasicDBObject(key, value);
-        DBObject pull = new BasicDBObject(Operator.PULL, query);
-        if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, key)){
-            return update(id, pull);
-        }else{
-            return updateWithOutIndex(id, pull);
-        }
+        return result;
     }
     
     /**
@@ -630,13 +314,7 @@ public class BuguDao<T> {
      * @return 
      */
     public boolean exists(String key, Object value){
-        if(value instanceof BuguEntity){
-            BuguEntity be = (BuguEntity)value;
-            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
-        }else if(!(value instanceof DBObject) &&
-                (FieldsCache.getInstance().isEmbedField(clazz, key) || FieldsCache.getInstance().isEmbedListField(clazz, key))){
-            value = MapperUtil.toDBObject(value);
-        }
+        value = checkSpecialValue(key, value);
         DBObject query = new BasicDBObject(key, value);
         return coll.findOne(query) != null;
     }
@@ -649,13 +327,7 @@ public class BuguDao<T> {
     }
     
     public T findOne(String key, Object value){
-        if(value instanceof BuguEntity){
-            BuguEntity be = (BuguEntity)value;
-            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
-        }else if(!(value instanceof DBObject) &&
-                (FieldsCache.getInstance().isEmbedField(clazz, key) || FieldsCache.getInstance().isEmbedListField(clazz, key))){
-            value = MapperUtil.toDBObject(value);
-        }
+        value = checkSpecialValue(key, value);
         DBObject query = new BasicDBObject(key, value);
         DBObject dbo = coll.findOne(query);
         return MapperUtil.fromDBObject(clazz, dbo);
@@ -703,13 +375,7 @@ public class BuguDao<T> {
      * @return 
      */
     public long count(String key, Object value){
-        if(value instanceof BuguEntity){
-            BuguEntity be = (BuguEntity)value;
-            value = ReferenceUtil.toDbReference(clazz, key, be.getClass(), be.getId());
-        }else if(!(value instanceof DBObject) &&
-                (FieldsCache.getInstance().isEmbedField(clazz, key) || FieldsCache.getInstance().isEmbedListField(clazz, key))){
-            value = MapperUtil.toDBObject(value);
-        }
+        value = checkSpecialValue(key, value);
         return coll.count(new BasicDBObject(key, value));
     }
     
@@ -727,6 +393,14 @@ public class BuguDao<T> {
      */
     public BuguQuery<T> query(){
         return new BuguQuery<T>(coll, clazz, keys);
+    }
+    
+    /**
+     * Create a updater.
+     * @return a new BuguUpdater object
+     */
+    public BuguUpdater<T> update(){
+        return new BuguUpdater(coll, clazz, luceneListener);
     }
     
 }

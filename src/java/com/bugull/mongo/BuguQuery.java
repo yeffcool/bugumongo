@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 /**
- * Convenient class for creating DBObject queries.
+ * Convenient class for creating queries.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */

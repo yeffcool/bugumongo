@@ -26,7 +26,7 @@ public final class Operator {
     //id
     public static final String ID = "_id";
     
-    //compare and conditon
+    //query
     public static final String GT = "$gt";
     public static final String GTE = "$gte";
     public static final String LT = "$lt";
@@ -50,12 +50,17 @@ public final class Operator {
     public static final String CENTER = "$center";
     public static final String BOX = "$box";
     
-    //modify
+    //update
     public static final String SET = "$set";
     public static final String UNSET = "$unset";
     public static final String INC = "$inc";
+    public static final String MUL = "$mul";
     public static final String PUSH = "$push";
     public static final String PULL = "$pull";
+    public static final String EACH = "$each";
+    public static final String POP = "$pop";
+    public static final String MIN = "$min";
+    public static final String MAX = "$max";
     
     //aggregation
     public static final String PROJECT = "$project";
