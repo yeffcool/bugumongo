@@ -19,6 +19,7 @@ package com.bugull.mongo.fs;
 import com.bugull.mongo.cache.BuguFSCache;
 import com.bugull.mongo.utils.StreamUtil;
 import com.bugull.mongo.utils.StringUtil;
+import com.mongodb.gridfs.GridFS;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,8 +43,8 @@ public class Uploader {
     protected String originalName;
     protected boolean rename;
     
-    protected String bucketName = BuguFS.DEFAULT_BUCKET;
-    protected long chunkSize = BuguFS.DEFAULT_CHUNKSIZE;
+    protected String bucketName = GridFS.DEFAULT_BUCKET;
+    protected long chunkSize = GridFS.DEFAULT_CHUNKSIZE;
     protected String filename;
     protected Map<String, Object> params;
     

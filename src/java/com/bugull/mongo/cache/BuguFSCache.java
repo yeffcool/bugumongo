@@ -16,6 +16,7 @@
 package com.bugull.mongo.cache;
 
 import com.bugull.mongo.fs.BuguFS;
+import com.mongodb.gridfs.GridFS;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -39,15 +40,15 @@ public class BuguFSCache {
     }
     
     public BuguFS get(){
-        return get(BuguFS.DEFAULT_BUCKET, BuguFS.DEFAULT_CHUNKSIZE);
+        return get(GridFS.DEFAULT_BUCKET, GridFS.DEFAULT_CHUNKSIZE);
     }
     
     public BuguFS get(String bucketName){
-        return get(bucketName, BuguFS.DEFAULT_CHUNKSIZE);
+        return get(bucketName, GridFS.DEFAULT_CHUNKSIZE);
     }
     
     public BuguFS get(long chunkSize){
-        return get(BuguFS.DEFAULT_BUCKET, chunkSize);
+        return get(GridFS.DEFAULT_BUCKET, chunkSize);
     }
     
     public BuguFS get(String bucketName, long chunkSize){

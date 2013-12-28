@@ -21,6 +21,7 @@ import com.bugull.mongo.utils.StreamUtil;
 import com.bugull.mongo.utils.StringUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,7 +80,7 @@ public class UploadedFileServlet extends HttpServlet {
         String filename = uri.substring(last+1);
         DBObject query = new BasicDBObject(BuguFS.FILENAME, filename);
         query.put(ImageUploader.DIMENSION, null);
-        String bucketName = BuguFS.DEFAULT_BUCKET;
+        String bucketName = GridFS.DEFAULT_BUCKET;
         int first = uri.indexOf(SLASH);
         if(first != last){
             String sub = uri.substring(first+1, last);

@@ -54,13 +54,8 @@ public class BuguFS {
     private String bucketName;
     private long chunkSize;
     
-    public final static String DEFAULT_BUCKET = "fs";
-    public final static long DEFAULT_CHUNKSIZE = 256L * 1024L;  //256KB
-    
     public final static String BUCKET = "bucket";
     public final static String FILENAME = "filename";
-    public final static String LENGTH = "length";
-    public final static String UPLOADDATE = "uploadDate";
     
     public BuguFS(String bucketName, long chunkSize){
         this.bucketName = bucketName;
@@ -73,6 +68,8 @@ public class BuguFS {
         }
         fs = new GridFS(db, bucketName);
         files = db.getCollection(bucketName + ".files");
+        //ensure the DBCursor can be cast to GridFSDBFile
+        files.setObjectClass(GridFSDBFile.class);
     }
     
     public GridFS getGridFS(){
@@ -144,26 +141,19 @@ public class BuguFS {
         return fs.find(query);
     }
     
+    public List<GridFSDBFile> find(DBObject query, String orderBy){
+        DBObject sort = MapperUtil.getSort(orderBy);
+        return fs.find(query, sort);
+    }
+    
     public List<GridFSDBFile> find(DBObject query, int pageNum, int pageSize){
         DBCursor cursor = files.find(query).skip((pageNum-1)*pageSize).limit(pageSize);
         return toFileList(cursor);
     }
     
-    public List<GridFSDBFile> find(DBObject query, String orderBy){
-        return find(query, MapperUtil.getSort(orderBy));
-    }
-    
-    public List<GridFSDBFile> find(DBObject query, DBObject orderBy){
-        DBCursor cursor = files.find(query).sort(orderBy);
-        return toFileList(cursor);
-    }
-    
     public List<GridFSDBFile> find(DBObject query, String orderBy, int pageNum, int pageSize){
-        return find(query, MapperUtil.getSort(orderBy), pageNum, pageSize);
-    }
-    
-    public List<GridFSDBFile> find(DBObject query, DBObject orderBy, int pageNum, int pageSize){
-        DBCursor cursor = files.find(query).sort(orderBy).skip((pageNum-1)*pageSize).limit(pageSize);
+        DBObject sort = MapperUtil.getSort(orderBy);
+        DBCursor cursor = files.find(query).sort(sort).skip((pageNum-1)*pageSize).limit(pageSize);
         return toFileList(cursor);
     }
     
@@ -194,10 +184,7 @@ public class BuguFS {
         List<GridFSDBFile> list = new ArrayList<GridFSDBFile>();
         while(cursor.hasNext()){
             DBObject dbo = cursor.next();
-            ObjectId id = (ObjectId)dbo.get(Operator.ID);
-            DBObject query = new BasicDBObject(Operator.ID, id);
-            GridFSDBFile f = this.findOne(query);
-            list.add(f);
+            list.add((GridFSDBFile)dbo);
         }
         cursor.close();
         return list;
