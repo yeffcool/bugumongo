@@ -79,7 +79,7 @@ public class UploadedFileServlet extends HttpServlet {
         int last = uri.lastIndexOf(SLASH);
         String filename = uri.substring(last+1);
         DBObject query = new BasicDBObject(BuguFS.FILENAME, filename);
-        query.put(ImageUploader.DIMENSION, null);
+        query.put(ImageUploader.DIMENSION, null);  //note: this is necessary!
         String bucketName = GridFS.DEFAULT_BUCKET;
         int first = uri.indexOf(SLASH);
         if(first != last){

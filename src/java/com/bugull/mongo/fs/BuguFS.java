@@ -84,7 +84,7 @@ public class BuguFS {
         save(file, filename, null);
     }
     
-    public void save(File file, String filename, Map<String, Object> params){
+    public void save(File file, String filename, Map<String, Object> attributes){
         GridFSInputFile f = null;
         try{
             f = fs.createFile(file);
@@ -93,7 +93,7 @@ public class BuguFS {
         }
         f.setChunkSize(chunkSize);
         f.setFilename(filename);
-        setParams(f, params);
+        setAttributes(f, attributes);
         f.save();
     }
     
@@ -101,11 +101,11 @@ public class BuguFS {
         save(is, filename, null);
     }
     
-    public void save(InputStream is, String filename, Map<String, Object> params){
+    public void save(InputStream is, String filename, Map<String, Object> attributes){
         GridFSInputFile f = fs.createFile(is);
         f.setChunkSize(chunkSize);
         f.setFilename(filename);
-        setParams(f, params);
+        setAttributes(f, attributes);
         f.save();
     }
     
@@ -113,17 +113,17 @@ public class BuguFS {
         save(data, filename, null);
     }
     
-    public void save(byte[] data, String filename, Map<String, Object> params){
+    public void save(byte[] data, String filename, Map<String, Object> attributes){
         GridFSInputFile f = fs.createFile(data);
         f.setChunkSize(chunkSize);
         f.setFilename(filename);
-        setParams(f, params);
+        setAttributes(f, attributes);
         f.save();
     }
     
-    private void setParams(GridFSInputFile f, Map<String, Object> params){
-        if(params != null){
-            for(Entry<String, Object> entry : params.entrySet()){
+    private void setAttributes(GridFSInputFile f, Map<String, Object> attributes){
+        if(attributes != null){
+            for(Entry<String, Object> entry : attributes.entrySet()){
                 f.put(entry.getKey(), entry.getValue());
             }
         }
