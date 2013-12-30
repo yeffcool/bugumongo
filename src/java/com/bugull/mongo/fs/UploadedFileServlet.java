@@ -16,7 +16,6 @@
 
 package com.bugull.mongo.fs;
 
-import com.bugull.mongo.cache.BuguFSCache;
 import com.bugull.mongo.utils.StreamUtil;
 import com.bugull.mongo.utils.StringUtil;
 import com.mongodb.BasicDBObject;
@@ -100,7 +99,7 @@ public class UploadedFileServlet extends HttpServlet {
         if(!StringUtil.isEmpty(forbidBucket) && forbidBucket.equalsIgnoreCase(bucketName)){
             return;
         }
-        BuguFS fs = BuguFSCache.getInstance().get(bucketName);
+        BuguFS fs = BuguFSFactory.getInstance().create(bucketName);
         GridFSDBFile f = fs.findOne(query);
         if(f == null){
             return;

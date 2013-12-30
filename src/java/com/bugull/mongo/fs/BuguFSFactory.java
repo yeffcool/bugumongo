@@ -13,45 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bugull.mongo.cache;
+package com.bugull.mongo.fs;
 
-import com.bugull.mongo.fs.BuguFS;
 import com.mongodb.gridfs.GridFS;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Cache(Map) contains BuguFS instance.
+ * Factory to create BuguFS instance. For performance sake, it uses a map to cache all the BuguFS object.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class BuguFSCache {
+public class BuguFSFactory {
     
-    private static BuguFSCache instance = new BuguFSCache();
+    private static BuguFSFactory instance = new BuguFSFactory();
     
     private final ConcurrentMap<String, BuguFS> cache = new ConcurrentHashMap<String, BuguFS>();
     
-    private BuguFSCache(){
+    private BuguFSFactory(){
         
     }
     
-    public static BuguFSCache getInstance(){
+    public static BuguFSFactory getInstance(){
         return instance;
     }
     
-    public BuguFS get(){
-        return get(GridFS.DEFAULT_BUCKET, GridFS.DEFAULT_CHUNKSIZE);
+    public BuguFS create(){
+        return create(GridFS.DEFAULT_BUCKET, GridFS.DEFAULT_CHUNKSIZE);
     }
     
-    public BuguFS get(String bucketName){
-        return get(bucketName, GridFS.DEFAULT_CHUNKSIZE);
+    public BuguFS create(String bucketName){
+        return create(bucketName, GridFS.DEFAULT_CHUNKSIZE);
     }
     
-    public BuguFS get(long chunkSize){
-        return get(GridFS.DEFAULT_BUCKET, chunkSize);
+    public BuguFS create(long chunkSize){
+        return create(GridFS.DEFAULT_BUCKET, chunkSize);
     }
     
-    public BuguFS get(String bucketName, long chunkSize){
+    public BuguFS create(String bucketName, long chunkSize){
         BuguFS fs = cache.get(bucketName);
         if(fs != null){
             return fs;

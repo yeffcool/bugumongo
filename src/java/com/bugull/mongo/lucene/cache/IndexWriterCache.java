@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.bugull.mongo.cache;
+package com.bugull.mongo.lucene.cache;
 
 import com.bugull.mongo.lucene.BuguIndex;
 import java.io.File;

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.bugull.mongo.cache;
+package com.bugull.mongo.lucene.cache;
 
+import com.bugull.mongo.lucene.cache.IndexWriterCache;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

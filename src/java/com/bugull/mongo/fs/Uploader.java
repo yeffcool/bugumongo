@@ -16,10 +16,8 @@
 
 package com.bugull.mongo.fs;
 
-import com.bugull.mongo.cache.BuguFSCache;
 import com.bugull.mongo.utils.StreamUtil;
 import com.bugull.mongo.utils.StringUtil;
-import com.mongodb.BasicDBObject;
 import com.mongodb.gridfs.GridFS;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -124,7 +122,7 @@ public class Uploader {
     }
     
     protected void saveInputStream(){
-        BuguFS fs = BuguFSCache.getInstance().get(bucketName, chunkSize);
+        BuguFS fs = BuguFSFactory.getInstance().create(bucketName, chunkSize);
         fs.save(input, filename, attributes);
         StreamUtil.safeClose(input);
     }

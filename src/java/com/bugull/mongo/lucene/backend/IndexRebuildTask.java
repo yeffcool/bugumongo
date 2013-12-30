@@ -18,7 +18,7 @@ package com.bugull.mongo.lucene.backend;
 
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.cache.DaoCache;
-import com.bugull.mongo.cache.IndexWriterCache;
+import com.bugull.mongo.lucene.cache.IndexWriterCache;
 import com.bugull.mongo.lucene.BuguIndex;
 import com.bugull.mongo.mapper.InternalDao;
 import com.bugull.mongo.utils.MapperUtil;

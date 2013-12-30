@@ -16,7 +16,7 @@
 
 package com.bugull.mongo.lucene;
 
-import com.bugull.mongo.cache.IndexWriterCache;
+import com.bugull.mongo.lucene.cache.IndexWriterCache;
 import com.bugull.mongo.lucene.backend.IndexReopenTask;
 import com.bugull.mongo.lucene.cluster.ClusterConfig;
 import com.bugull.mongo.utils.ThreadUtil;

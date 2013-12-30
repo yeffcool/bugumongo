@@ -18,7 +18,7 @@ package com.bugull.mongo.lucene;
 
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.cache.FieldsCache;
-import com.bugull.mongo.cache.IndexSearcherCache;
+import com.bugull.mongo.lucene.cache.IndexSearcherCache;
 import com.bugull.mongo.exception.FieldException;
 import com.bugull.mongo.utils.FieldUtil;
 import com.bugull.mongo.mapper.InternalDao;

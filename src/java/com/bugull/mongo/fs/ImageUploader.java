@@ -16,7 +16,6 @@
 
 package com.bugull.mongo.fs;
 
-import com.bugull.mongo.cache.BuguFSCache;
 import com.bugull.mongo.utils.StreamUtil;
 import com.bugull.mongo.utils.StringUtil;
 import com.mongodb.BasicDBObject;
@@ -166,7 +165,7 @@ public class ImageUploader extends Uploader{
     private InputStream getOriginalInputStream(){
         DBObject query = new BasicDBObject(BuguFS.FILENAME, filename);
         query.put(DIMENSION, null);
-        BuguFS fs = BuguFSCache.getInstance().get(bucketName, chunkSize);
+        BuguFS fs = BuguFSFactory.getInstance().create(bucketName, chunkSize);
         GridFSDBFile f = fs.findOne(query);
         return f.getInputStream();
     }
@@ -205,7 +204,7 @@ public class ImageUploader extends Uploader{
         } catch (IOException ex) {
             logger.error("Can not encode the JPEGImageEncoder", ex);
         }
-        BuguFS fs = BuguFSCache.getInstance().get(bucketName, chunkSize);
+        BuguFS fs = BuguFSFactory.getInstance().create(bucketName, chunkSize);
         fs.save(baos.toByteArray(), filename, attributes);
         StreamUtil.safeClose(baos);
     }

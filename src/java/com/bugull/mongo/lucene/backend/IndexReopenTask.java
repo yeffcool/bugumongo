@@ -16,7 +16,7 @@
 
 package com.bugull.mongo.lucene.backend;
 
-import com.bugull.mongo.cache.IndexSearcherCache;
+import com.bugull.mongo.lucene.cache.IndexSearcherCache;
 import com.bugull.mongo.lucene.BuguIndex;
 import java.io.IOException;
 import java.util.Map;
