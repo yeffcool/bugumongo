@@ -82,11 +82,13 @@ public final class StringUtil {
     }
     
     public static String getContentType(String ext){
+        //default content type is application/octet-stream
         if(StringUtil.isEmpty(ext)){
             return "application/octet-stream";
         }
         ext = ext.toLowerCase();
         String type = "application/octet-stream";
+        //check content type that can use in browser
         if(ext.equals("jpg")){
             type = "image/jpeg";
         }
@@ -104,15 +106,6 @@ public final class StringUtil {
         }
         else if(ext.equals("mp4")){
             type = "video/mp4";
-        }
-        else if(ext.equals("3gp")){
-            type = "video/3gpp";
-        }
-        else if(ext.equals("pdf")){
-            type = "application/pdf";
-        }
-        else if(ext.equals("html") || ext.equals("htm")){
-            type = "text/html";
         }
         return type;
     }
