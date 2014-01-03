@@ -16,7 +16,7 @@
 
 package com.bugull.mongo.cache;
 
-import com.bugull.mongo.mapper.InternalDao;
+import com.bugull.mongo.misc.InternalDao;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 

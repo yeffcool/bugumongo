@@ -27,7 +27,7 @@ import com.bugull.mongo.decoder.Decoder;
 import com.bugull.mongo.decoder.DecoderFactory;
 import com.bugull.mongo.encoder.Encoder;
 import com.bugull.mongo.encoder.EncoderFactory;
-import com.bugull.mongo.mapper.DBIndex;
+import com.bugull.mongo.misc.DBIndex;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;

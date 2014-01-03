@@ -20,7 +20,7 @@ import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.cache.DaoCache;
 import com.bugull.mongo.lucene.BuguIndex;
 import com.bugull.mongo.lucene.backend.*;
-import com.bugull.mongo.mapper.InternalDao;
+import com.bugull.mongo.misc.InternalDao;
 
 /**
  * Handle the received message.

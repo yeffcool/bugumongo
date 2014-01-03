@@ -17,7 +17,7 @@
 package com.bugull.mongo;
 
 import com.bugull.mongo.exception.DBConnectionException;
-import com.bugull.mongo.mapper.CascadeDeleteExecutor;
+import com.bugull.mongo.misc.CascadeDeleteExecutor;
 import com.bugull.mongo.utils.ThreadUtil;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;

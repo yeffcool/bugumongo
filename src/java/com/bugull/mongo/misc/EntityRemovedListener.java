@@ -13,41 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bugull.mongo.mapper;
 
+package com.bugull.mongo.misc;
+
+import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Ref;
 import com.bugull.mongo.annotations.RefList;
 import com.bugull.mongo.cache.FieldsCache;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- *
+ * Listener for cascade delete
+ * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public final class CascadeChecker {
+public class EntityRemovedListener {
     
-    /**
-     * Check if the clazz need a DeleteCascadeListener
-     * @param clazz
-     * @return 
-     */
-    public static boolean needListener(Class<?> clazz){
-        boolean result = false;
+    private List<Field> refFields = new ArrayList<Field>();
+    private List<Field> refListFields = new ArrayList<Field>();
+
+    public EntityRemovedListener(Class<?> clazz) {
         Field[] fields = FieldsCache.getInstance().get(clazz);
         for(Field f : fields){
             Ref ref = f.getAnnotation(Ref.class);
             if(ref!=null && ref.cascade().toUpperCase().indexOf(Default.CASCADE_DELETE)!=-1){
-                result = true;
-                break;
+                refFields.add(f);
+                continue;
             }
             RefList refList = f.getAnnotation(RefList.class);
             if(refList!=null && refList.cascade().toUpperCase().indexOf(Default.CASCADE_DELETE)!=-1){
-                result = true;
-                break;
+                refListFields.add(f);
+                continue;
             }
         }
-        return result;
+    }
+    
+    public void entityRemove(BuguEntity entity){
+        DeleteCascadeTask task = new DeleteCascadeTask(refFields, refListFields, entity);
+        CascadeDeleteExecutor.getInstance().getExecutor().execute(task);
     }
     
 }

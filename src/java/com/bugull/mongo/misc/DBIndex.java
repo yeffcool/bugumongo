@@ -14,32 +14,34 @@
  * limitations under the License.
  */
 
-package com.bugull.mongo.mapper;
+package com.bugull.mongo.misc;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import com.mongodb.DBObject;
 
 /**
- * Thread pool for cascase delete.
+ * for @EnsureIndex
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
-public class CascadeDeleteExecutor {
+public class DBIndex {
     
-    private static CascadeDeleteExecutor instance = new CascadeDeleteExecutor();
-    
-    private ExecutorService executor;
-    
-    private CascadeDeleteExecutor(){
-        executor = Executors.newSingleThreadExecutor();
+    private DBObject keys;
+    private DBObject options;
+
+    public DBObject getKeys() {
+        return keys;
     }
-    
-    public static CascadeDeleteExecutor getInstance(){
-        return instance;
+
+    public void setKeys(DBObject keys) {
+        this.keys = keys;
     }
-    
-    public ExecutorService getExecutor(){
-        return executor;
+
+    public DBObject getOptions() {
+        return options;
+    }
+
+    public void setOptions(DBObject options) {
+        this.options = options;
     }
     
 }

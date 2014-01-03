@@ -25,7 +25,7 @@ import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.lucene.BuguIndex;
 import com.bugull.mongo.lucene.annotations.IndexRef;
 import com.bugull.mongo.lucene.annotations.IndexRefList;
-import com.bugull.mongo.mapper.InternalDao;
+import com.bugull.mongo.misc.InternalDao;
 import com.bugull.mongo.utils.ReferenceUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;

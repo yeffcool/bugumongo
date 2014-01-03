@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.bugull.mongo.mapper;
+package com.bugull.mongo.misc;
 
 import com.bugull.mongo.utils.Operator;
 import com.bugull.mongo.utils.MapperUtil;
