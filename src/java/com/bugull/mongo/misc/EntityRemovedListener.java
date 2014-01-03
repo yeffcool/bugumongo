@@ -16,6 +16,7 @@
 
 package com.bugull.mongo.misc;
 
+import com.bugull.mongo.BuguConnection;
 import com.bugull.mongo.BuguEntity;
 import com.bugull.mongo.annotations.Default;
 import com.bugull.mongo.annotations.Ref;
@@ -53,7 +54,7 @@ public class EntityRemovedListener {
     
     public void entityRemove(BuguEntity entity){
         DeleteCascadeTask task = new DeleteCascadeTask(refFields, refListFields, entity);
-        CascadeDeleteExecutor.getInstance().getExecutor().execute(task);
+        BuguConnection.getInstance().getExecutor().execute(task);
     }
     
 }

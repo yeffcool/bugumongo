@@ -17,7 +17,6 @@
 package com.bugull.mongo;
 
 import com.bugull.mongo.exception.DBConnectionException;
-import com.bugull.mongo.misc.CascadeDeleteExecutor;
 import com.bugull.mongo.utils.ThreadUtil;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
@@ -27,6 +26,7 @@ import com.mongodb.ServerAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 
 /**
@@ -52,6 +52,8 @@ public class BuguConnection {
     private String password;
     private MongoClient mc;
     private DB db;
+    
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
     
     private BuguConnection(){
         
@@ -98,10 +100,17 @@ public class BuguConnection {
         }
         if(username != null && password != null){
             try{
-                auth();
+                doAuth();
             }catch(DBConnectionException ex){
                 logger.error(ex.getMessage(), ex);
             } 
+        }
+    }
+    
+    public void close(){
+        ThreadUtil.safeClose(executor);
+        if(mc != null){
+            mc.close();
         }
     }
 
@@ -131,15 +140,7 @@ public class BuguConnection {
         }
     }
     
-    public void close(){
-        ExecutorService executor = CascadeDeleteExecutor.getInstance().getExecutor();
-        ThreadUtil.safeClose(executor);
-        if(mc != null){
-            mc.close();
-        }
-    }
-    
-    private void auth() throws DBConnectionException {
+    private void doAuth() throws DBConnectionException {
         boolean auth = db.authenticate(username, password.toCharArray());
         if(auth){
             logger.info("Connected to mongodb successfully!");
@@ -195,6 +196,10 @@ public class BuguConnection {
         }else{
             return db;
         }
+    }
+    
+    public ExecutorService getExecutor(){
+        return executor;
     }
     
 }
