@@ -107,7 +107,7 @@ public class UploadedFileServlet extends HttpServlet {
         OutputStream os = response.getOutputStream();
         int fileLength = (int)f.getLength();
         String ext = StringUtil.getExtention(filename);
-        response.setContentType(StringUtil.getContentType(ext));
+        response.setContentType(getContentType(ext));
         String range = request.getHeader("Range");
         //normal http request, no "range" in header.
         if(StringUtil.isEmpty(range)){
@@ -212,6 +212,39 @@ public class UploadedFileServlet extends HttpServlet {
             }
         }
         return need;
+    }
+    
+    /**
+     * check content type that can use in browser
+     * @param ext
+     * @return 
+     */
+    private static String getContentType(String ext){
+        //default content type is application/octet-stream
+        if(StringUtil.isEmpty(ext)){
+            return "application/octet-stream";
+        }
+        ext = ext.toLowerCase();
+        String type = "application/octet-stream";
+        if(ext.equals("jpg")){
+            type = "image/jpeg";
+        }
+        else if(ext.equals("jpeg") || ext.equals("png") || ext.equals("gif") || ext.equals("bmp")){
+            type = "image/" + ext;
+        }
+        else if(ext.equals("swf")){
+            type = "application/x-shockwave-flash";
+        }
+        else if(ext.equals("flv")){
+            type = "video/x-flv";
+        }
+        else if(ext.equals("mp3")){
+            type = "audio/mpeg";
+        }
+        else if(ext.equals("mp4")){
+            type = "video/mp4";
+        }
+        return type;
     }
     
 }
