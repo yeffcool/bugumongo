@@ -18,6 +18,7 @@ package com.bugull.mongo.fs;
 
 import com.bugull.mongo.utils.StringUtil;
 import java.io.IOException;
+import java.util.concurrent.Semaphore;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +33,6 @@ public class AccessRestrictedServlet extends UploadedFileServlet {
     
     private static final String DEFAULT_RESOURCE_NAME = "bugu";
     private static final String DEFAULT_MAX_ACCESS = "20";
-    private static final String DEFAULT_REDIRECT_TO = "/";
     
     private String resourceName;
     private int maxAccess;
@@ -51,23 +51,22 @@ public class AccessRestrictedServlet extends UploadedFileServlet {
         }
         maxAccess = Integer.parseInt(strMaxAccess);
         redirectTo = config.getInitParameter("redirectTo");
-        if(StringUtil.isEmpty(redirectTo)){
-            redirectTo = DEFAULT_REDIRECT_TO;
-        }
     }
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        AccessCount ac = AccessCount.getInstance();
-        if(ac.getCount(resourceName) > maxAccess){
+        Semaphore semaphore = AccessCount.getInstance().getSemaphore(resourceName, maxAccess);
+        if(!StringUtil.isEmpty(redirectTo) && semaphore.availablePermits()<=0){
             response.sendRedirect(redirectTo);
         }
         else{
-            ac.increaseCount(resourceName);
             try{
+                semaphore.acquire();
                 processRequest(request, response);
+            }catch(InterruptedException ex){
+                //ignore ex
             }finally{
-                ac.descreaseCount(resourceName);
+                semaphore.release();
             }
         }
     }

@@ -16,8 +16,9 @@
 
 package com.bugull.mongo.fs;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Semaphore;
 
 /**
  * Count the number of threads that accessing file in GridFS.
@@ -28,7 +29,7 @@ public class AccessCount {
     
     private static AccessCount instance = new AccessCount();
     
-    private final Map<String, Integer> map = new ConcurrentHashMap<String, Integer>();
+    private final ConcurrentMap<String, Semaphore> map = new ConcurrentHashMap<String, Semaphore>();
     
     private AccessCount(){
         
@@ -38,26 +39,46 @@ public class AccessCount {
         return instance;
     }
     
-    public int getCount(String resourceName){
-        int count = 0;
-        Integer v = map.get(resourceName);
-        if(v != null){
-            count = v;
+    public Semaphore getSemaphore(String resourceName, int maxAccess){
+        Semaphore semaphore = map.get(resourceName);
+        if(semaphore != null){
+            return semaphore;
+        }
+        semaphore = new Semaphore(maxAccess);
+        Semaphore temp = map.putIfAbsent(resourceName, semaphore);
+        if(temp != null){
+            return temp;
+        }else{
+            return semaphore;
+        }
+    }
+    
+    /**
+     * Get the available count allowed to access.
+     * @param resourceName
+     * @return 
+     */
+    public int getAvailablePermits(String resourceName){
+        int count = Integer.MAX_VALUE;
+        Semaphore semaphore = map.get(resourceName);
+        if(semaphore != null){
+            count = semaphore.availablePermits();
         }
         return count;
     }
     
-    public synchronized void increaseCount(String resourceName){
-        int count = this.getCount(resourceName) + 1;
-        map.put(resourceName, count);
-    }
-    
-    public synchronized void descreaseCount(String resourceName){
-        int count = this.getCount(resourceName) - 1;
-        if(count < 0){
-            count = 0;
+    /**
+     * Get the waiting queue length. This is an estimate value.
+     * @param resourceName
+     * @return 
+     */
+    public int getQueueLength(String resourceName){
+        int count = 0;
+        Semaphore semaphore = map.get(resourceName);
+        if(semaphore != null){
+            count = semaphore.getQueueLength();
         }
-        map.put(resourceName, count);
+        return count;
     }
 
 }
