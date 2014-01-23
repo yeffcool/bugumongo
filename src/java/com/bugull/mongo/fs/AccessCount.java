@@ -27,16 +27,14 @@ import java.util.concurrent.Semaphore;
  */
 public class AccessCount {
     
-    private static AccessCount instance = new AccessCount();
-    
     private final ConcurrentMap<String, Semaphore> map = new ConcurrentHashMap<String, Semaphore>();
     
-    private AccessCount(){
-        
-    }
+    private static class Holder {
+        final static AccessCount instance = new AccessCount();
+    } 
     
     public static AccessCount getInstance(){
-        return instance;
+        return Holder.instance;
     }
     
     public Semaphore getSemaphore(String resourceName, int maxAccess){

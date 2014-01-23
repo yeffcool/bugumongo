@@ -32,16 +32,14 @@ public class ConstructorCache {
     
     private final static Logger logger = Logger.getLogger(ConstructorCache.class);
     
-    private static ConstructorCache instance = new ConstructorCache();
-    
     private final ConcurrentMap<String, Constructor<?>> cache = new ConcurrentHashMap<String, Constructor<?>>();
     
-    private ConstructorCache(){
-        
-    }
+    private static class Holder {
+        final static ConstructorCache instance = new ConstructorCache();
+    } 
     
     public static ConstructorCache getInstance(){
-        return instance;
+        return Holder.instance;
     }
     
     private <T> Constructor<T> get(Class<T> clazz){

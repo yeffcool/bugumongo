@@ -16,7 +16,6 @@
 
 package com.bugull.mongo.lucene.cache;
 
-import com.bugull.mongo.lucene.cache.IndexWriterCache;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,16 +35,14 @@ public class IndexSearcherCache {
     
     private final static Logger logger = Logger.getLogger(IndexSearcherCache.class);
     
-    private static IndexSearcherCache instance = new IndexSearcherCache();
-    
     private final ConcurrentMap<String, IndexSearcher> cache = new ConcurrentHashMap<String, IndexSearcher>();
     
-    private IndexSearcherCache(){
-        
-    }
+    private static class Holder {
+        final static IndexSearcherCache instance = new IndexSearcherCache();
+    } 
     
     public static IndexSearcherCache getInstance(){
-        return instance;
+        return Holder.instance;
     }
     
     public IndexSearcher get(String name){

@@ -28,16 +28,14 @@ import java.util.concurrent.ConcurrentMap;
 @SuppressWarnings("unchecked")
 public class DaoCache {
     
-    private static DaoCache instance = new DaoCache();
-    
     private final ConcurrentMap<String, InternalDao<?>> cache = new ConcurrentHashMap<String, InternalDao<?>>();
     
-    private DaoCache(){
-        
-    }
+    private static class Holder {
+        final static DaoCache instance = new DaoCache();
+    } 
     
     public static DaoCache getInstance(){
-        return instance;
+        return Holder.instance;
     }
     
     public <T> InternalDao<T> get(Class<T> clazz){

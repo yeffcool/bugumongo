@@ -37,16 +37,14 @@ public class IndexWriterCache {
     
     private final static Logger logger = Logger.getLogger(IndexWriterCache.class);
     
-    private static IndexWriterCache instance = new IndexWriterCache();
-    
     private final ConcurrentMap<String, IndexWriter> cache = new ConcurrentHashMap<String, IndexWriter>();
     
-    private IndexWriterCache(){
-        
-    }
+    private static class Holder {
+        final static IndexWriterCache instance = new IndexWriterCache();
+    } 
     
     public static IndexWriterCache getInstance(){
-        return instance;
+        return Holder.instance;
     }
     
     public IndexWriter get(String name){

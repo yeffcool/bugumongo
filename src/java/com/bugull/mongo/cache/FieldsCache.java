@@ -41,16 +41,14 @@ public class FieldsCache {
     
     private final static Logger logger = Logger.getLogger(FieldsCache.class);
     
-    private static FieldsCache instance = new FieldsCache();
-    
     private final ConcurrentMap<String, Field[]> cache = new ConcurrentHashMap<String, Field[]>();
     
-    private FieldsCache(){
-        
-    }
+    private static class Holder {
+        final static FieldsCache instance = new FieldsCache();
+    } 
     
     public static FieldsCache getInstance(){
-        return instance;
+        return Holder.instance;
     }
     
     /**

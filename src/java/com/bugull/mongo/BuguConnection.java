@@ -40,8 +40,6 @@ public class BuguConnection {
     
     private final static Logger logger = Logger.getLogger(BuguConnection.class);
     
-    private static BuguConnection instance;
-    
     private String host;
     private int port;
     private List<ServerAddress> replicaSet;
@@ -55,15 +53,12 @@ public class BuguConnection {
     
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     
-    private BuguConnection(){
-        
-    }
+    private static class Holder {
+        final static BuguConnection instance = new BuguConnection();
+    } 
     
     public static BuguConnection getInstance(){
-        if(instance == null){
-            instance = new BuguConnection();
-        }
-        return instance;
+        return Holder.instance;
     }
     
     public void connect(String host, int port, String database){

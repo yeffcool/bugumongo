@@ -48,8 +48,6 @@ public class BuguIndex {
     
     private final static Logger logger = Logger.getLogger(BuguIndex.class);
     
-    private static BuguIndex instance;
-    
     private double bufferSizeMB = 16;
     private Version version = Version.LUCENE_35;
     private Analyzer analyzer = new StandardAnalyzer(version);
@@ -66,15 +64,12 @@ public class BuguIndex {
     private boolean reopening;
     private Set<String> rebuildingSet;
     
-    private BuguIndex(){
-        
-    }
+    private static class Holder {
+        final static BuguIndex instance = new BuguIndex();
+    } 
     
     public static BuguIndex getInstance(){
-        if(instance == null){
-            instance = new BuguIndex();
-        }
-        return instance;
+        return Holder.instance;
     }
     
     public void open(){
