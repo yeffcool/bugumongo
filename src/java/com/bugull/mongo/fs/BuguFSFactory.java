@@ -26,16 +26,14 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class BuguFSFactory {
     
-    private static BuguFSFactory instance = new BuguFSFactory();
-    
     private final ConcurrentMap<String, BuguFS> cache = new ConcurrentHashMap<String, BuguFS>();
     
-    private BuguFSFactory(){
-        
-    }
+    private static class Holder {
+        final static BuguFSFactory instance = new BuguFSFactory();
+    } 
     
     public static BuguFSFactory getInstance(){
-        return instance;
+        return Holder.instance;
     }
     
     public BuguFS create(){
