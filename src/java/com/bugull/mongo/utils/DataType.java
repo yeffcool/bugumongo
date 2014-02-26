@@ -50,6 +50,14 @@ public final class DataType {
         return type.equals(Short.class);
     }
     
+    public static boolean isByte(Class type){
+        return type.equals(byte.class);
+    }
+    
+    public static boolean isByteObject(Class type){
+        return type.equals(Byte.class);
+    }
+    
     public static boolean isFloat(Class type){
         return type.equals(float.class);
     }
