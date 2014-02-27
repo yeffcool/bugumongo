@@ -233,6 +233,7 @@ public class PropertyDecoder extends AbstractDecoder{
         else if(DataType.isByteObject(type)){
             field.setByte(obj, Byte.valueOf(value.toString()));
         }
+        //process List.
         else if(DataType.isListType(type)){
             List src = (ArrayList)value;
             List list = new ArrayList();
@@ -264,7 +265,7 @@ public class PropertyDecoder extends AbstractDecoder{
             field.set(obj, ts);
         }
         else{
-            field.set(obj, value);  //for others
+            field.set(obj, value);  //for others: String, Integer, Long, Double, Map, Boolean and Date
         }
     }
     
