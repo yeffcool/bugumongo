@@ -39,6 +39,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ public class BuguDao<T> {
     protected DBCollection coll;
     protected Class<T> clazz;
     protected DBObject keys;  //non-lazy fields
+    protected WriteConcern concern;
     protected EntityChangedListener luceneListener;
     protected EntityRemovedListener cascadeListener;
     
@@ -68,6 +70,8 @@ public class BuguDao<T> {
         } catch (DBConnectionException ex) {
             logger.error(ex.getMessage(), ex);
         }
+        //The default write concern is ACKNOWLEDGED, set in MongoClientOptions.
+        concern = db.getWriteConcern();
         Entity entity = clazz.getAnnotation(Entity.class);
         String name = MapperUtil.getEntityName(clazz);
         //if capped
@@ -106,13 +110,21 @@ public class BuguDao<T> {
     }
     
     /**
+     * The default write concern is ACKNOWLEDGED, you can change it.
+     * @param concern 
+     */
+    public void setWriteConcern(WriteConcern concern){
+        this.concern = concern;
+    }
+    
+    /**
      * Insert an entity to mongoDB.
      * @param t
      * @return 
      */
     public WriteResult insert(T t){
         DBObject dbo = MapperUtil.toDBObject(t);
-        WriteResult wr = coll.insert(dbo);
+        WriteResult wr = coll.insert(dbo, concern);
         String id = dbo.get(Operator.ID).toString();
         BuguEntity ent = (BuguEntity)t;
         ent.setId(id);
@@ -132,7 +144,7 @@ public class BuguDao<T> {
         for(T t : list){
             dboList.add(MapperUtil.toDBObject(t));
         }
-        WriteResult wr = coll.insert(dboList);
+        WriteResult wr = coll.insert(dboList, concern);
         int len = dboList.size();
         for(int i=0; i<len; i++){
             String id = dboList.get(i).get(Operator.ID).toString();
@@ -183,7 +195,7 @@ public class BuguDao<T> {
     }
     
     private WriteResult doSave(BuguEntity ent){
-        WriteResult wr = coll.save(MapperUtil.toDBObject(ent));
+        WriteResult wr = coll.save(MapperUtil.toDBObject(ent), concern);
         if(luceneListener != null){
             luceneListener.entityUpdate(ent);
         }
@@ -229,7 +241,7 @@ public class BuguDao<T> {
             luceneListener.entityRemove(id);
         }
         DBObject dbo = new BasicDBObject(Operator.ID, IdUtil.toDbId(clazz, id));
-        return coll.remove(dbo);
+        return coll.remove(dbo, concern);
     }
     
     /**
@@ -281,7 +293,7 @@ public class BuguDao<T> {
                 luceneListener.entityRemove(ent.getId());
             }
         }
-        return coll.remove(condition);
+        return coll.remove(condition, concern);
     }
     
     private Object checkSpecialValue(String key, Object value){
@@ -400,7 +412,7 @@ public class BuguDao<T> {
      * @return a new BuguUpdater object
      */
     public BuguUpdater<T> update(){
-        return new BuguUpdater(coll, clazz, luceneListener);
+        return new BuguUpdater(coll, clazz, concern, luceneListener);
     }
     
 }

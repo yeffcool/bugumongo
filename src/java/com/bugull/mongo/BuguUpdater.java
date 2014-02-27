@@ -25,6 +25,7 @@ import com.bugull.mongo.utils.ReferenceUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 import java.util.List;
 import java.util.Map;
@@ -40,11 +41,13 @@ public class BuguUpdater<T> {
     
     private DBCollection coll;
     private Class<T> clazz;
+    private WriteConcern concern;
     private EntityChangedListener luceneListener;
     
-    public BuguUpdater(DBCollection coll, Class<T> clazz, EntityChangedListener luceneListener){
+    public BuguUpdater(DBCollection coll, Class<T> clazz, WriteConcern concern, EntityChangedListener luceneListener){
         this.coll = coll;
         this.clazz = clazz;
+        this.concern = concern;
         this.luceneListener = luceneListener;
     }
     
@@ -57,7 +60,7 @@ public class BuguUpdater<T> {
     
     private WriteResult updateOne(String id, DBObject dbo, String... keys){
         DBObject condition = new BasicDBObject(Operator.ID, IdUtil.toDbId(clazz, id));
-        WriteResult wr = coll.update(condition, dbo); //update one
+        WriteResult wr = coll.update(condition, dbo, false, false, concern); //update one
         if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, keys)){
             BuguEntity entity = (BuguEntity)findOne(id);
             luceneListener.entityUpdate(entity);
@@ -66,7 +69,7 @@ public class BuguUpdater<T> {
     }
     
     private WriteResult updateMulti(DBObject condition, DBObject dbo, String... keys){
-        WriteResult wr = coll.updateMulti(condition, dbo);  //update multi
+        WriteResult wr = coll.update(condition, dbo, false, true, concern);  //update multi
         if(luceneListener != null && IndexChecker.hasIndexAnnotation(clazz, keys)){
             List ids = coll.distinct(Operator.ID, condition);
             for(Object id : ids){
