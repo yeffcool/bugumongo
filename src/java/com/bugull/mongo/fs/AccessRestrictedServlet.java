@@ -23,13 +23,16 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.log4j.Logger;
 
 /**
- * Total threads accessing file in GridFS by this servlet is restricted.
+ * Number of threads accessing file in GridFS by this servlet is restricted.
  * 
  * @author Frank Wen(xbwen@hotmail.com)
  */
 public class AccessRestrictedServlet extends UploadedFileServlet {
+    
+    private final static Logger logger = Logger.getLogger(AccessRestrictedServlet.class);
     
     private static final String DEFAULT_RESOURCE_NAME = "bugu";
     private static final String DEFAULT_MAX_ACCESS = "20";
@@ -64,7 +67,7 @@ public class AccessRestrictedServlet extends UploadedFileServlet {
                 semaphore.acquire();
                 processRequest(request, response);
             }catch(InterruptedException ex){
-                //ignore ex
+                logger.error(ex.getMessage(), ex);
             }finally{
                 semaphore.release();
             }
