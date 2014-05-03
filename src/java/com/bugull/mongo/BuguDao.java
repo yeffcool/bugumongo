@@ -246,7 +246,7 @@ public class BuguDao<T> {
     
     /**
      * Batch remove by id.
-     * @param ids 
+     * @param idList
      * @return 
      */
     public WriteResult remove(List<String> idList){
