@@ -136,7 +136,7 @@ public class BuguQuery<T> {
             if(f.getAnnotation(Id.class) != null){
                 append(Operator.ID, op, toIds(values));
             }
-            else if(values[0] instanceof BuguEntity){
+            else if(values.length != 0 && values[0] instanceof BuguEntity){
                 append(key, op, toReferenceList(key, values));
             }
             else{
