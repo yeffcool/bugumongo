@@ -21,6 +21,7 @@ import com.bugull.mongo.annotations.EnsureIndex;
 import com.bugull.mongo.annotations.Entity;
 import com.bugull.mongo.annotations.Id;
 import com.bugull.mongo.annotations.IdType;
+import com.bugull.mongo.annotations.SplitType;
 import com.bugull.mongo.cache.FieldsCache;
 import com.bugull.mongo.exception.DBConnectionException;
 import com.bugull.mongo.exception.IdException;
@@ -42,7 +43,9 @@ import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.apache.log4j.Logger;
 
@@ -72,8 +75,33 @@ public class BuguDao<T> {
         }
         //The default write concern is ACKNOWLEDGED, set in MongoClientOptions.
         concern = db.getWriteConcern();
+        //init none-split collection
         Entity entity = clazz.getAnnotation(Entity.class);
-        String name = MapperUtil.getEntityName(clazz);
+        SplitType split = entity.split();
+        if(split == SplitType.NONE){
+            String name = MapperUtil.getEntityName(clazz);
+            initCollection(name);
+        }
+        //for keys
+        keys = MapperUtil.getKeyFields(clazz);
+        //for lucene
+        if(IndexChecker.needListener(clazz)){
+            luceneListener = new EntityChangedListener(clazz);
+        }
+        //for cascade delete
+        if(CascadeChecker.needListener(clazz)){
+            cascadeListener = new EntityRemovedListener(clazz);
+        }
+    }
+    
+    private void initCollection(String name){
+        DB db = null;
+        try {
+            db = BuguConnection.getInstance().getDB();
+        } catch (DBConnectionException ex) {
+            logger.error(ex.getMessage(), ex);
+        }
+        Entity entity = clazz.getAnnotation(Entity.class);
         //if capped
         if(entity.capped() && !db.collectionExists(name)){
             DBObject options = new BasicDBObject("capped", true);
@@ -89,8 +117,6 @@ public class BuguDao<T> {
         }else{
             coll = db.getCollection(name);
         }
-        //for keys
-        keys = MapperUtil.getKeyFields(clazz);
         //for @EnsureIndex
         EnsureIndex ei = clazz.getAnnotation(EnsureIndex.class);
         if(ei != null){
@@ -99,13 +125,33 @@ public class BuguDao<T> {
                 coll.ensureIndex(dbi.getKeys(), dbi.getOptions());
             }
         }
-        //for lucene
-        if(IndexChecker.needListener(clazz)){
-            luceneListener = new EntityChangedListener(clazz);
+    }
+    
+    /**
+     * If collection is splitted by date, you have to set the date to check which collection is in use.
+     * @param date 
+     */
+    public void setCollectionDate(Date date){
+        Entity entity = clazz.getAnnotation(Entity.class);
+        SplitType split = entity.split();
+        SimpleDateFormat sdf = null;
+        switch(split){
+            case DAILY:
+                sdf = new SimpleDateFormat("yyyy-MM-dd");
+                break;
+            case MONTHLY:
+                sdf = new SimpleDateFormat("yyyy-MM");
+                break;
+            case YEARLY:
+                sdf = new SimpleDateFormat("yyyy");
+                break;
+            default:
+                break;
         }
-        //for cascade delete
-        if(CascadeChecker.needListener(clazz)){
-            cascadeListener = new EntityRemovedListener(clazz);
+        if(sdf != null){
+            String ext = sdf.format(date);
+            String name = MapperUtil.getEntityName(clazz);
+            initCollection(name + "-" + ext);
         }
     }
     

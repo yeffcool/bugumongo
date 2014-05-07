@@ -13,24 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bugull.mongo.annotations;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /**
  *
  * @author Frank Wen(xbwen@hotmail.com)
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Entity {
-    public String name() default Default.NAME;
-    public SplitType split() default SplitType.NONE;
-    public boolean capped() default false;
-    public long capSize() default Default.CAP_SIZE;
-    public long capMax() default Default.CAP_MAX;
+public enum SplitType {
+    NONE,
+    DAILY,
+    MONTHLY,
+    YEARLY
 }
