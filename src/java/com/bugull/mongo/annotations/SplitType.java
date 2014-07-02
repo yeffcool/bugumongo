@@ -23,5 +23,6 @@ public enum SplitType {
     NONE,
     DAILY,
     MONTHLY,
-    YEARLY
+    YEARLY,
+    STRING
 }

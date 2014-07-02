@@ -122,7 +122,7 @@ public class BuguDao<T> {
         if(ei != null){
             List<DBIndex> list = MapperUtil.getDBIndex(ei.value());
             for(DBIndex dbi : list){
-                coll.ensureIndex(dbi.getKeys(), dbi.getOptions());
+                coll.createIndex(dbi.getKeys(), dbi.getOptions());
             }
         }
     }
@@ -131,7 +131,7 @@ public class BuguDao<T> {
      * If collection is splitted by date, you have to set the date to check which collection is in use.
      * @param date 
      */
-    public void setCollectionDate(Date date){
+    public void setSplitSuffix(Date date){
         Entity entity = clazz.getAnnotation(Entity.class);
         SplitType split = entity.split();
         SimpleDateFormat sdf = null;
@@ -152,6 +152,19 @@ public class BuguDao<T> {
             String ext = sdf.format(date);
             String name = MapperUtil.getEntityName(clazz);
             initCollection(name + "-" + ext);
+        }
+    }
+    
+    /**
+     * If collection is splitted by string, you have to set the string value to check which collection is in use.
+     * @param s 
+     */
+    public void setSplitSuffix(String s){
+        Entity entity = clazz.getAnnotation(Entity.class);
+        SplitType split = entity.split();
+        if(split == SplitType.STRING){
+            String name = MapperUtil.getEntityName(clazz);
+            initCollection(name + "-" + s);
         }
     }
     
