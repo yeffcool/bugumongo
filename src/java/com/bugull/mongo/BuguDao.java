@@ -424,22 +424,44 @@ public class BuguDao<T> {
         return MapperUtil.fromDBObject(clazz, dbo);
     }
 
+    /**
+     * Find all document by natural order
+     * @return 
+     */
     public List<T> findAll(){
         DBCursor cursor = coll.find(new BasicDBObject(), keys);
         return MapperUtil.toList(clazz, cursor);
     }
     
+    /**
+     * Find all document by order
+     * @param orderBy
+     * @return 
+     */
     public List<T> findAll(String orderBy){
         DBObject dbo = MapperUtil.getSort(orderBy);
         DBCursor cursor = coll.find(new BasicDBObject(), keys).sort(dbo);
         return MapperUtil.toList(clazz, cursor);
     }
 
+    /**
+     * Find all document, and return one page
+     * @param pageNum
+     * @param pageSize
+     * @return 
+     */
     public List<T> findAll(int pageNum, int pageSize){
         DBCursor cursor = coll.find(new BasicDBObject(), keys).skip((pageNum-1)*pageSize).limit(pageSize);
         return MapperUtil.toList(clazz, cursor);
     }
     
+    /**
+     * Find all document, and return one page
+     * @param orderBy
+     * @param pageNum
+     * @param pageSize
+     * @return 
+     */
     public List<T> findAll(String orderBy, int pageNum, int pageSize){
         DBObject dbo = MapperUtil.getSort(orderBy);
         DBCursor cursor = coll.find(new BasicDBObject(), keys).sort(dbo).skip((pageNum-1)*pageSize).limit(pageSize);
