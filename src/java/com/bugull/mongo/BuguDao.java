@@ -390,6 +390,20 @@ public class BuguDao<T> {
         return coll.findOne(query) != null;
     }
     
+    /**
+     * Find a single document by natural order
+     * @return 
+     */
+    public T findOne(){
+        DBObject result = coll.findOne();
+        return MapperUtil.fromDBObject(clazz, result);
+    }
+    
+    /**
+     * Find a single document by id
+     * @param id
+     * @return 
+     */
     public T findOne(String id){
         DBObject dbo = new BasicDBObject();
         dbo.put(Operator.ID, IdUtil.toDbId(clazz, id));
@@ -397,13 +411,18 @@ public class BuguDao<T> {
         return MapperUtil.fromDBObject(clazz, result);
     }
     
+    /**
+     * Find a single document by key-value
+     * @param key
+     * @param value
+     * @return 
+     */
     public T findOne(String key, Object value){
         value = checkSpecialValue(key, value);
         DBObject query = new BasicDBObject(key, value);
         DBObject dbo = coll.findOne(query);
         return MapperUtil.fromDBObject(clazz, dbo);
     }
-
 
     public List<T> findAll(){
         DBCursor cursor = coll.find(new BasicDBObject(), keys);
