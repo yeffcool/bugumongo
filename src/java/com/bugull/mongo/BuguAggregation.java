@@ -18,6 +18,7 @@ package com.bugull.mongo;
 
 import com.bugull.mongo.exception.AggregationException;
 import com.bugull.mongo.utils.Aggregation;
+import com.bugull.mongo.utils.MapperUtil;
 import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
 import com.mongodb.CommandResult;
@@ -64,6 +65,10 @@ public class BuguAggregation<T> {
         public static DBObject project(DBObject dbo){
             return new BasicDBObject(Aggregation.PROJECT, dbo);
         }
+        
+        public static DBObject project(String fields){
+            return new BasicDBObject(Aggregation.PROJECT, MapperUtil.getSort(fields));
+        }
 
         public static DBObject match(DBObject dbo){
             return new BasicDBObject(Aggregation.MATCH, dbo);
@@ -71,6 +76,10 @@ public class BuguAggregation<T> {
         
         public static DBObject match(String key, Object value){
             return new BasicDBObject(Aggregation.MATCH, new BasicDBObject(key, value));
+        }
+        
+        public static DBObject match(BuguQuery query){
+            return new BasicDBObject(Aggregation.MATCH, query.getCondition());
         }
 
         public static DBObject limit(int n){
@@ -81,8 +90,8 @@ public class BuguAggregation<T> {
             return new BasicDBObject(Aggregation.SKIP, n);
         }
         
-        public static DBObject sort(String key, int value){
-            return new BasicDBObject(Aggregation.SORT, new BasicDBObject(key, value));
+        public static DBObject sort(String orderBy){
+            return new BasicDBObject(Aggregation.SORT, MapperUtil.getSort(orderBy));
         }
 
         public static DBObject unwind(String field){
