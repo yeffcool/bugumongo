@@ -41,8 +41,8 @@ public class BuguAggregation<T> {
         stages = new ArrayList<DBObject>();
     }
     
-    public BuguAggregation pipeline(DBObject dbo){
-        stages.add(dbo);
+    public BuguAggregation pipeline(DBObject stage){
+        stages.add(stage);
         return this;
     }
     
