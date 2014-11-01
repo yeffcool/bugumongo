@@ -64,13 +64,4 @@ public final class Operator {
     public static final String MAX = "$max";
     public static final String BIT = "$bit";
     
-    //aggregation
-    public static final String PROJECT = "$project";
-    public static final String MATCH = "$match";
-    public static final String LIMIT = "$limit";
-    public static final String SKIP = "$skip";
-    public static final String UNWIND = "$unwind";
-    public static final String GROUP = "$group";
-    public static final String SORT = "$sort";
-    
 }

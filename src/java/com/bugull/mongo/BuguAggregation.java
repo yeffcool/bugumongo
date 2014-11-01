@@ -17,8 +17,7 @@
 package com.bugull.mongo;
 
 import com.bugull.mongo.exception.AggregationException;
-import com.bugull.mongo.utils.MapperUtil;
-import com.bugull.mongo.utils.Operator;
+import com.bugull.mongo.utils.Aggregation;
 import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
 import com.mongodb.CommandResult;
@@ -35,78 +34,65 @@ import java.util.List;
 public class BuguAggregation<T> {
     
     private DBCollection coll;
-    List<DBObject> pipeline;
+    private List<DBObject> stages;
     
     public BuguAggregation(DBCollection coll){
         this.coll = coll;
-        pipeline = new ArrayList<DBObject>();
+        stages = new ArrayList<DBObject>();
     }
     
-    public BuguAggregation project(DBObject dbo){
-        pipeline.add(new BasicDBObject(Operator.PROJECT, dbo));
-        return this;
-    }
-    
-    public BuguAggregation match(String key, Object value){
-        DBObject dbo = new BasicDBObject(key, value);
-        pipeline.add(new BasicDBObject(Operator.MATCH, dbo));
-        return this;
-    }
-    
-    public BuguAggregation match(DBObject dbo){
-        pipeline.add(new BasicDBObject(Operator.MATCH, dbo));
-        return this;
-    }
-    
-    public BuguAggregation limit(int n){
-        pipeline.add(new BasicDBObject(Operator.LIMIT, n));
-        return this;
-    }
-    
-    public BuguAggregation skip(int n){
-        pipeline.add(new BasicDBObject(Operator.SKIP, n));
-        return this;
-    }
-    
-    public BuguAggregation unwind(String field){
-        pipeline.add(new BasicDBObject(Operator.UNWIND, field));
-        return this;
-    }
-    
-    public BuguAggregation group(DBObject dbo){
-        pipeline.add(new BasicDBObject(Operator.GROUP, dbo));
-        return this;
-    }
-    
-    public BuguAggregation sort(String orderBy){
-        pipeline.add(new BasicDBObject(Operator.SORT, MapperUtil.getSort(orderBy)));
-        return this;
-    }
-    
-    public BuguAggregation sort(DBObject dbo){
-        pipeline.add(new BasicDBObject(Operator.SORT, dbo));
+    public BuguAggregation pipeline(DBObject dbo){
+        stages.add(dbo);
         return this;
     }
     
     public Iterable<DBObject> results() throws AggregationException {
-        int size = pipeline.size();
+        int size = stages.size();
         if(size <= 0){
-            throw new AggregationException("Empty pipeline in aggregation!");
+            throw new AggregationException("Empty stage in aggregation pipeline!");
         }
-        AggregationOutput output = null;
-        if(size == 1){
-            output = coll.aggregate(pipeline.get(0));
-        }else{
-            DBObject firstOp = pipeline.get(0);
-            List<DBObject> subList = pipeline.subList(1, size);
-            DBObject[] arr = subList.toArray(new DBObject[size-1]);
-            output = coll.aggregate(firstOp, arr);
-        }
+        AggregationOutput output = coll.aggregate(stages);
         CommandResult cr = output.getCommandResult();
         if(! cr.ok()){
             throw new AggregationException(cr.getErrorMessage());
         }
         return output.results();
+    }
+    
+    static class AggregationStage {
+        
+        public static DBObject project(DBObject dbo){
+            return new BasicDBObject(Aggregation.PROJECT, dbo);
+        }
+
+        public static DBObject match(DBObject dbo){
+            return new BasicDBObject(Aggregation.MATCH, dbo);
+        }
+        
+        public static DBObject match(String key, Object value){
+            return new BasicDBObject(Aggregation.MATCH, new BasicDBObject(key, value));
+        }
+
+        public static DBObject limit(int n){
+            return new BasicDBObject(Aggregation.LIMIT, n);
+        }
+
+        public static DBObject skip(int n){
+            return new BasicDBObject(Aggregation.SKIP, n);
+        }
+        
+        public static DBObject sort(String key, int value){
+            return new BasicDBObject(Aggregation.SORT, new BasicDBObject(key, value));
+        }
+
+        public static DBObject unwind(String field){
+            return new BasicDBObject(Aggregation.UNWIND, field);
+        }
+
+        public static DBObject group(DBObject dbo){
+            return new BasicDBObject(Aggregation.GROUP, dbo);
+        }
+        
     }
 
 }
