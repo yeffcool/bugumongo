@@ -42,7 +42,7 @@ public class BuguAggregation<T> {
         stages = new ArrayList<DBObject>();
     }
     
-    public BuguAggregation pipeline(DBObject stage){
+    public BuguAggregation addStage(DBObject stage){
         stages.add(stage);
         return this;
     }
@@ -60,7 +60,7 @@ public class BuguAggregation<T> {
         return output.results();
     }
     
-    static class AggregationStage {
+    public static class Pipeline {
         
         public static DBObject project(DBObject dbo){
             return new BasicDBObject(Aggregation.PROJECT, dbo);
